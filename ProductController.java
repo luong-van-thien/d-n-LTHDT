@@ -50,9 +50,15 @@ public class ProductController {
         // 5. Nút Xóa trắng form (Clear)
         view.getBtnClear().addActionListener(e -> clearForm());
 
-        // 6. Nút Tìm kiếm & Lọc (Search & Filter)
+        // 6. Tìm kiếm & Lọc tức thời khi gõ ký tự (Live Search)
         view.getBtnSearch().addActionListener(e -> handleSearch());
         view.getTxtSearch().addActionListener(e -> handleSearch());
+        view.getTxtSearch().getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { handleSearch(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { handleSearch(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { handleSearch(); }
+        });
+        view.getCboFilterCategory().addActionListener(e -> handleSearch());
 
         // 7. Nút Làm mới bộ lọc
         view.getBtnResetFilter().addActionListener(e -> {

@@ -154,6 +154,11 @@ public class InvoiceHistoryPanel extends JPanel {
         // LISTENERS
         btnSearch.addActionListener(e -> filterInvoices());
         txtSearch.addActionListener(e -> filterInvoices());
+        txtSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { filterInvoices(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { filterInvoices(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) { filterInvoices(); }
+        });
         btnReload.addActionListener(e -> {
             txtSearch.setText("");
             loadInvoiceData();
@@ -176,11 +181,11 @@ public class InvoiceHistoryPanel extends JPanel {
     }
 
     private void filterInvoices() {
-        String query = txtSearch.getText().trim().toLowerCase();
+        String query = txtSearch.getText().trim();
         List<Invoice> filtered = invoiceRepo.getAll().stream()
                 .filter(inv -> {
-                    boolean matchId = inv.getInvoiceId().toLowerCase().contains(query);
-                    boolean matchCust = inv.getCustomer() != null && inv.getCustomer().getName().toLowerCase().contains(query);
+                    boolean matchId = UIUtils.containsIgnoreCaseAndAccent(inv.getInvoiceId(), query);
+                    boolean matchCust = inv.getCustomer() != null && UIUtils.containsIgnoreCaseAndAccent(inv.getCustomer().getName(), query);
                     return query.isEmpty() || matchId || matchCust;
                 })
                 .toList();

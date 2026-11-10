@@ -28,6 +28,34 @@ public class UIUtils {
     }
 
     /**
+     * Chuẩn hóa và loại bỏ dấu tiếng Việt để tìm kiếm thông minh:
+     * Ví dụ: "Mì Hảo Hảo" -> "mi hao hao", "Điện gia dụng" -> "dien gia dung".
+     */
+    public static String removeAccents(String str) {
+        if (str == null) return "";
+        String normalized = java.text.Normalizer.normalize(str, java.text.Normalizer.Form.NFD);
+        String pattern = "\\p{InCombiningDiacriticalMarks}+";
+        String withoutAccents = normalized.replaceAll(pattern, "");
+        return withoutAccents.replace('đ', 'd').replace('Đ', 'D').trim().toLowerCase();
+    }
+
+    /**
+     * So khớp chuỗi con không phân biệt hoa thường và không phân biệt dấu tiếng Việt.
+     * Hỗ trợ tìm kiếm từ khóa bất kỳ (chỉ cần xuất hiện trong chuỗi nguồn).
+     * Ví dụ: gõ "m" -> khớp mọi món có 'm' hoặc 'M'
+     *        gõ "mi" -> khớp cả "Mì tôm", "Bánh mì", "Kẹo Milo"
+     */
+    public static boolean containsIgnoreCaseAndAccent(String source, String query) {
+        if (query == null || query.trim().isEmpty()) return true;
+        if (source == null) return false;
+
+        String cleanSource = removeAccents(source);
+        String cleanQuery = removeAccents(query);
+
+        return cleanSource.contains(cleanQuery) || source.toLowerCase().contains(query.toLowerCase().trim());
+    }
+
+    /**
      * Tạo nút bấm có màu nền sắc nét, viền bo tròn hiện đại, hiển thị rõ ràng 100% không bị mờ.
      */
     public static JButton createStyledButton(String text, Color bgColor, Color fgColor) {

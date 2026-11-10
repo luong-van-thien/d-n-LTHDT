@@ -73,16 +73,14 @@ public class ProductService {
     }
 
     /**
-     * Tìm kiếm và lọc sản phẩm kết hợp Lambda Expression.
+     * Tìm kiếm và lọc sản phẩm thông minh không phân biệt dấu tiếng Việt (Accent-Insensitive Search).
+     * Ứng dụng Lambda Expression và Stream API (Slide Chapter 6, 9).
      */
     public List<Product> searchAndFilter(String keyword, Category category) {
-        String query = (keyword == null) ? "" : keyword.trim().toLowerCase();
-
         return productRepo.getAll().stream()
                 .filter(p -> {
-                    boolean matchKeyword = query.isEmpty() ||
-                            p.getId().toLowerCase().contains(query) ||
-                            p.getName().toLowerCase().contains(query);
+                    boolean matchKeyword = UIUtils.containsIgnoreCaseAndAccent(p.getId(), keyword) ||
+                                           UIUtils.containsIgnoreCaseAndAccent(p.getName(), keyword);
                     boolean matchCategory = (category == null) || (p.getCategory() == category);
                     return matchKeyword && matchCategory;
                 })
