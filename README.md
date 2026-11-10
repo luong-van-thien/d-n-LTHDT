@@ -1,8 +1,20 @@
 # 🛒 HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI (MINIMART SYSTEM)
 > **Đồ án môn học:** Lập trình hướng đối tượng (Java)  
 > **Giảng viên hướng dẫn:** ThS. Nguyễn Thị Tuyết Hải - Học viện Công nghệ Bưu chính Viễn thông (PTIT HCM)  
-> **Nhóm thực hiện:** Nhóm 4 sinh viên  
-> **Cấu trúc:** Toàn bộ dự án nằm gọn gàng trong 1 thư mục `MiniMartSystem`, không lồng nhiều thư mục con phức tạp.
+> **Nhóm sinh viên thực hiện:** Nhóm 4 thành viên  
+
+---
+
+## 👥 BẢNG PHÂN CÔNG NHIỆM VỤ & TỶ LỆ ĐÓNG GÓP (NHÓM 4 THÀNH VIÊN)
+
+| STT | Họ và Tên | Mã Sinh Viên (MSSV) | Vai trò | Nhiệm vụ chính phụ trách | File code đảm nhiệm chính | Tỷ lệ đóng góp | Mức độ hoàn thành |
+| :---: | :--- | :---: | :---: | :--- | :--- | :---: | :---: |
+| **1** | **Lương Văn Thiện** | `N24DCCN076` | **Trưởng nhóm** | Thiết kế kiến trúc tổng thể, xây dựng các lớp đối tượng cốt lõi (OOP Entity), Kế thừa & Đa hình, điều phối dự án. | `Product.java`, `FoodProduct.java`, `BeverageProduct.java`, `ElectronicProduct.java`, `Customer.java`, `RegularCustomer.java`, `VIPCustomer.java` | **25%** | **100% (Tốt)** |
+| **2** | *[Họ tên Thành viên 2]* | `[MSSV]` | Thành viên | Xây dựng giao diện Quản lý Kho, bảng JTable dữ liệu, thanh tìm kiếm & sắp xếp bằng Lambda Expressions & Comparator. | `ProductPanel.java`, `ProductController.java`, `ProductService.java` | **25%** | **100% (Tốt)** |
+| **3** | *[Họ tên Thành viên 3]* | `[MSSV]` | Thành viên | Xây dựng phân hệ Quầy Thu Ngân (POS), giỏ hàng, tính chiết khấu đa hình, trừ tồn kho và logic xuất in hóa đơn bán lẻ. | `PosPanel.java`, `PosController.java`, `OrderService.java`, `Invoice.java`, `InvoiceItem.java` | **25%** | **100% (Tốt)** |
+| **4** | *[Họ tên Thành viên 4]* | `[MSSV]` | Thành viên | Xây dựng tầng Đọc/Ghi dữ liệu File CSV, hệ thống Custom Exceptions, màn hình Dashboard Thống kê & Giám sát cảnh báo. | `ProductRepository.java`, `CustomerRepository.java`, `InvoiceRepository.java`, `StatisticPanel.java`, `StatisticService.java`, `*Exception.java` | **25%** | **100% (Tốt)** |
+
+> **Tổng tỷ lệ đóng góp toàn nhóm:** 100% (Mỗi thành viên đóng góp đều 25%, hoàn thành đúng tiến độ và yêu cầu đề ra).
 
 ---
 
