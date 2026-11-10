@@ -74,12 +74,24 @@ public class Invoice implements Exportable, Serializable {
         return totalAmount;
     }
 
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
     public double getDiscountAmount() {
         return discountAmount;
     }
 
+    public void setDiscountAmount(double discountAmount) {
+        this.discountAmount = discountAmount;
+    }
+
     public double getFinalAmount() {
         return finalAmount;
+    }
+
+    public void setFinalAmount(double finalAmount) {
+        this.finalAmount = finalAmount;
     }
 
     public double getCustomerCash() {
@@ -92,6 +104,10 @@ public class Invoice implements Exportable, Serializable {
 
     public double getReturnCash() {
         return returnCash;
+    }
+
+    public void setReturnCash(double returnCash) {
+        this.returnCash = returnCash;
     }
 
     public void addItem(InvoiceItem item) {

@@ -26,7 +26,7 @@ public class MainFrame extends JFrame {
         // 1. Khởi tạo tầng Repository & Data
         productRepo = new ProductRepository();
         customerRepo = new CustomerRepository();
-        invoiceRepo = new InvoiceRepository(customerRepo);
+        invoiceRepo = new InvoiceRepository(customerRepo, productRepo);
 
         // 2. Khởi tạo tầng Service
         productService = new ProductService(productRepo);

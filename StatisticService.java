@@ -45,5 +45,31 @@ public class StatisticService {
                 .filter(Product::isExpiringSoon)
                 .count();
     }
+
+    public double calculateTotalInventoryValue() {
+        return productRepo.getAll().stream()
+                .mapToDouble(p -> p.getImportPrice() * p.getQuantity())
+                .sum();
+    }
+
+    public long getCountByCategory(Category cat) {
+        return productRepo.getAll().stream()
+                .filter(p -> p.getCategory() == cat)
+                .count();
+    }
+
+    public int getQuantityByCategory(Category cat) {
+        return productRepo.getAll().stream()
+                .filter(p -> p.getCategory() == cat)
+                .mapToInt(Product::getQuantity)
+                .sum();
+    }
+
+    public double getInventoryValueByCategory(Category cat) {
+        return productRepo.getAll().stream()
+                .filter(p -> p.getCategory() == cat)
+                .mapToDouble(p -> p.getImportPrice() * p.getQuantity())
+                .sum();
+    }
 }
 

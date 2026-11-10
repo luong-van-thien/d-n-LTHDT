@@ -13,9 +13,19 @@ public class InvoiceRepository {
 
     private final List<Invoice> invoiceList = new ArrayList<>();
     private final Map<String, Invoice> invoiceMap = new HashMap<>();
+    private ProductRepository productRepo;
 
     public InvoiceRepository(CustomerRepository customerRepo) {
+        this(customerRepo, null);
+    }
+
+    public InvoiceRepository(CustomerRepository customerRepo, ProductRepository productRepo) {
+        this.productRepo = productRepo;
         loadFromFile(customerRepo);
+    }
+
+    public void setProductRepo(ProductRepository productRepo) {
+        this.productRepo = productRepo;
     }
 
     public synchronized List<Invoice> getAll() {
@@ -61,7 +71,29 @@ public class InvoiceRepository {
                 Invoice inv = new Invoice(id, customer);
                 inv.setCreatedAt(time);
 
+                inv.setTotalAmount(Double.parseDouble(parts[3].trim()));
+                inv.setDiscountAmount(Double.parseDouble(parts[4].trim()));
+                inv.setFinalAmount(Double.parseDouble(parts[5].trim()));
                 inv.setCustomerCash(Double.parseDouble(parts[6].trim()));
+                inv.setReturnCash(Double.parseDouble(parts[7].trim()));
+
+                if (parts.length >= 9 && !parts[8].trim().isEmpty()) {
+                    String[] itemTokens = parts[8].trim().split(";");
+                    for (String it : itemTokens) {
+                        String[] p = it.split("#");
+                        if (p.length >= 3) {
+                            String pId = p[0].trim();
+                            int qty = Integer.parseInt(p[1].trim());
+                            double price = Double.parseDouble(p[2].trim());
+                            Product prod = (productRepo != null) ? productRepo.findById(pId) : null;
+                            if (prod == null) {
+                                prod = new FoodProduct(pId, "Sản phẩm " + pId, price * 0.8, price, qty, java.time.LocalDate.now(), java.time.LocalDate.now().plusMonths(6));
+                            }
+                            inv.addItem(new InvoiceItem(prod, qty, price));
+                        }
+                    }
+                }
+
                 invoiceList.add(inv);
                 invoiceMap.put(id, inv);
             }
@@ -75,10 +107,19 @@ public class InvoiceRepository {
 
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
-            writer.write("#InvoiceID,CreatedAt,CustomerID,TotalAmount,DiscountAmount,FinalAmount,CustomerCash,ReturnCash\n");
+            writer.write("#InvoiceID,CreatedAt,CustomerID,TotalAmount,DiscountAmount,FinalAmount,CustomerCash,ReturnCash,Items\n");
             for (Invoice inv : invoiceList) {
                 String custId = inv.getCustomer() != null ? inv.getCustomer().getCustomerId() : "GUEST";
-                writer.write(String.format("%s,%s,%s,%.0f,%.0f,%.0f,%.0f,%.0f\n",
+                StringBuilder sbItems = new StringBuilder();
+                List<InvoiceItem> items = inv.getItems();
+                for (int i = 0; i < items.size(); i++) {
+                    InvoiceItem item = items.get(i);
+                    sbItems.append(item.getProduct().getId()).append("#")
+                           .append(item.getQuantity()).append("#")
+                           .append(String.format(Locale.US, "%.0f", item.getUnitPrice()));
+                    if (i < items.size() - 1) sbItems.append(";");
+                }
+                writer.write(String.format(Locale.US, "%s,%s,%s,%.0f,%.0f,%.0f,%.0f,%.0f,%s\n",
                         inv.getInvoiceId(),
                         inv.getCreatedAt().format(TIME_FMT),
                         custId,
@@ -86,7 +127,8 @@ public class InvoiceRepository {
                         inv.getDiscountAmount(),
                         inv.getFinalAmount(),
                         inv.getCustomerCash(),
-                        inv.getReturnCash()));
+                        inv.getReturnCash(),
+                        sbItems.toString()));
             }
         } catch (IOException e) {
             System.err.println("Lỗi ghi file hóa đơn: " + e.getMessage());

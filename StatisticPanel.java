@@ -1,11 +1,13 @@
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
 /**
  * Giao diện Báo cáo Thống kê & Giám sát cảnh báo (StatisticPanel).
+ * Bố cục Dashboard doanh thu & Quản lý kho chuyên nghiệp.
  */
 public class StatisticPanel extends JPanel {
     private final StatisticService statisticService;
@@ -15,6 +17,9 @@ public class StatisticPanel extends JPanel {
     private JLabel lblTotalProfit;
     private JLabel lblTotalInvoices;
     private JLabel lblTotalInventory;
+
+    private JTable tblCategorySummary;
+    private DefaultTableModel modelCategorySummary;
 
     private JTable tblAlerts;
     private DefaultTableModel modelAlerts;
@@ -48,17 +53,49 @@ public class StatisticPanel extends JPanel {
 
         add(topCards, BorderLayout.NORTH);
 
-        // --- 2. CENTER: Bảng Cảnh Báo Nguy Cấp ---
-        JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
-        centerPanel.setBackground(Color.WHITE);
-        centerPanel.setBorder(BorderFactory.createTitledBorder(
+        // --- 2. CENTER: Bảng Phân Tích Danh Mục & Bảng Cảnh Báo Nguy Cấp ---
+        JPanel centerGrid = new JPanel(new GridLayout(1, 2, 12, 0));
+        centerGrid.setBackground(UIUtils.BG_LIGHT);
+
+        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+
+        // 2A. BẢNG CƠ CẤU DANH MỤC KHO
+        JPanel pnlCategory = new JPanel(new BorderLayout(5, 5));
+        pnlCategory.setBackground(Color.WHITE);
+        pnlCategory.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(200, 205, 215), 1),
+                "CƠ CẤU HÀNG HÓA THEO DANH MỤC",
+                TitledBorder.LEFT, TitledBorder.TOP, UIUtils.HEADER_FONT, UIUtils.PRIMARY_COLOR
+        ));
+
+        String[] catCols = {"Nhóm hàng", "Số mặt hàng", "Tổng số lượng", "Tổng giá trị tồn kho"};
+        modelCategorySummary = new DefaultTableModel(catCols, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+        tblCategorySummary = new JTable(modelCategorySummary);
+        tblCategorySummary.setFont(UIUtils.BODY_FONT);
+        tblCategorySummary.setRowHeight(28);
+        tblCategorySummary.getTableHeader().setFont(UIUtils.BOLD_FONT);
+        tblCategorySummary.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
+        tblCategorySummary.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
+        tblCategorySummary.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
+
+        pnlCategory.add(new JScrollPane(tblCategorySummary), BorderLayout.CENTER);
+        centerGrid.add(pnlCategory);
+
+        // 2B. BẢNG CẢNH BÁO TỒN KHO & HẠN DÙNG
+        JPanel pnlAlerts = new JPanel(new BorderLayout(5, 5));
+        pnlAlerts.setBackground(Color.WHITE);
+        pnlAlerts.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(UIUtils.WARNING_COLOR, 2),
-                "DANH SÁCH MẶT HÀNG CẦN CHÚ Ý (TỒN KHO <= 5 HOẶC SẮP HẾT HẠN SỬ DỤNG)",
+                "HÀNG HÓA CẦN LƯU Ý (TỒN KHO <= 5 HOẶC SẮP HẾT HẠN)",
                 TitledBorder.LEFT, TitledBorder.TOP, UIUtils.HEADER_FONT, new Color(180, 100, 0)
         ));
 
-        String[] cols = {"Mã SP", "Tên sản phẩm", "Loại", "Tồn kho", "Giá bán", "Tình trạng cảnh báo"};
-        modelAlerts = new DefaultTableModel(cols, 0) {
+        String[] alertCols = {"Mã SP", "Tên sản phẩm", "Loại", "Tồn", "Giá bán", "Cảnh báo"};
+        modelAlerts = new DefaultTableModel(alertCols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -66,17 +103,24 @@ public class StatisticPanel extends JPanel {
         tblAlerts.setFont(UIUtils.BODY_FONT);
         tblAlerts.setRowHeight(26);
         tblAlerts.getTableHeader().setFont(UIUtils.BOLD_FONT);
+        tblAlerts.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
+        tblAlerts.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
 
-        centerPanel.add(new JScrollPane(tblAlerts), BorderLayout.CENTER);
+        pnlAlerts.add(new JScrollPane(tblAlerts), BorderLayout.CENTER);
+        centerGrid.add(pnlAlerts);
+
+        JPanel centerContainer = new JPanel(new BorderLayout(5, 8));
+        centerContainer.setBackground(UIUtils.BG_LIGHT);
+        centerContainer.add(centerGrid, BorderLayout.CENTER);
 
         JPanel centerBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        centerBottom.setBackground(Color.WHITE);
+        centerBottom.setBackground(UIUtils.BG_LIGHT);
         JButton btnRefresh = UIUtils.createStyledButton("Cập nhật số liệu", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnRefresh.addActionListener(e -> refreshStatistics());
         centerBottom.add(btnRefresh);
-        centerPanel.add(centerBottom, BorderLayout.SOUTH);
+        centerContainer.add(centerBottom, BorderLayout.SOUTH);
 
-        add(centerPanel, BorderLayout.CENTER);
+        add(centerContainer, BorderLayout.CENTER);
 
         // --- 3. BOTTOM: Thông tin Đồ Án & Nhóm tác giả ---
         JPanel infoPanel = new JPanel(new BorderLayout());
@@ -128,7 +172,21 @@ public class StatisticPanel extends JPanel {
         lblTotalInvoices.setText(String.valueOf(statisticService.getTotalInvoicesCount()));
         lblTotalInventory.setText(statisticService.getTotalInventoryQuantity() + " sản phẩm");
 
-        // Cập nhật bảng cảnh báo
+        // 1. Cập nhật bảng cơ cấu danh mục
+        modelCategorySummary.setRowCount(0);
+        for (Category cat : Category.values()) {
+            long count = statisticService.getCountByCategory(cat);
+            int qty = statisticService.getQuantityByCategory(cat);
+            double val = statisticService.getInventoryValueByCategory(cat);
+            modelCategorySummary.addRow(new Object[]{
+                    cat.getDisplayName(),
+                    count + " loại",
+                    qty + " món",
+                    UIUtils.formatCurrency(val)
+            });
+        }
+
+        // 2. Cập nhật bảng cảnh báo
         modelAlerts.setRowCount(0);
         List<Product> lowStock = productService.getLowStockProducts(5);
         List<Product> expiring = productService.getExpiringProducts();
@@ -151,4 +209,3 @@ public class StatisticPanel extends JPanel {
         }
     }
 }
-

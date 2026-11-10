@@ -61,6 +61,10 @@ public abstract class Customer implements Discountable, Serializable {
         }
     }
 
+    public int getLoyaltyPoints() {
+        return (int) (totalSpent / 100000); // Khách thường tích lũy 1 điểm mỗi 100.000 đ chi tiêu
+    }
+
     /**
      * Phương thức trừu tượng: Tỷ lệ chiết khấu (%) theo từng loại khách hàng.
      */

@@ -21,6 +21,7 @@ public class ProductPanel extends JPanel {
     private JButton btnSearch;
     private JButton btnResetFilter;
     private JButton btnAlertFilter;
+    private JButton btnExportCsv;
 
     // Form Input Components
     private JTextField txtId;
@@ -92,10 +93,12 @@ public class ProductPanel extends JPanel {
         btnSearch = UIUtils.createStyledButton("Lọc / Tìm", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnResetFilter = UIUtils.createStyledButton("Làm mới", UIUtils.GRAY_COLOR, Color.WHITE);
         btnAlertFilter = UIUtils.createStyledButton("Cảnh báo tồn/hạn", UIUtils.WARNING_COLOR, Color.WHITE);
+        btnExportCsv = UIUtils.createStyledButton("Xuất Excel/CSV", new Color(13, 110, 253), Color.WHITE);
 
         topPanel.add(btnSearch);
         topPanel.add(btnResetFilter);
         topPanel.add(btnAlertFilter);
+        topPanel.add(btnExportCsv);
 
         add(topPanel, BorderLayout.NORTH);
 
@@ -256,6 +259,7 @@ public class ProductPanel extends JPanel {
     public JButton getBtnSearch() { return btnSearch; }
     public JButton getBtnResetFilter() { return btnResetFilter; }
     public JButton getBtnAlertFilter() { return btnAlertFilter; }
+    public JButton getBtnExportCsv() { return btnExportCsv; }
 
     public JTextField getTxtId() { return txtId; }
     public JTextField getTxtName() { return txtName; }

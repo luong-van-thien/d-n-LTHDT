@@ -36,18 +36,31 @@ public class PosController {
     }
 
     private void initListeners() {
-        // 1. Tìm kiếm sản phẩm bán
+        // 1. Tìm kiếm sản phẩm bán & Lọc danh mục
         view.getTxtSearchProduct().addActionListener(e -> handleSearchProduct());
         view.getTxtSearchProduct().getDocument().addDocumentListener(new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { handleSearchProduct(); }
             @Override public void removeUpdate(DocumentEvent e) { handleSearchProduct(); }
             @Override public void changedUpdate(DocumentEvent e) { handleSearchProduct(); }
         });
+        view.getCboCategoryFilter().addActionListener(e -> handleSearchProduct());
 
-        // 2. Thêm vào giỏ hàng
+        // Nhấp đúp chuột vào bảng sản phẩm để thêm nhanh 1 SP vào giỏ
+        view.getTblAvailableProducts().addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2 && view.getTblAvailableProducts().getSelectedRow() >= 0) {
+                    handleQuickAddOne();
+                }
+            }
+        });
+
+        // 2. Thêm vào giỏ hàng bằng nút
         view.getBtnAddToCart().addActionListener(e -> handleAddToCart());
 
-        // 3. Xóa sản phẩm khỏi giỏ
+        // 3. Tăng/Giảm/Xóa món trong giỏ
+        view.getBtnIncreaseQty().addActionListener(e -> handleIncreaseCartQty());
+        view.getBtnDecreaseQty().addActionListener(e -> handleDecreaseCartQty());
         view.getBtnRemoveFromCart().addActionListener(e -> handleRemoveFromCart());
 
         // 4. Xóa trắng giỏ hàng
@@ -57,14 +70,16 @@ public class PosController {
             recalculateSummary();
         });
 
-        // 5. Thay đổi khách hàng -> tính lại chiết khấu
+        // 5. Thay đổi khách hàng -> tính lại chiết khấu & điểm thưởng
         view.getCboCustomer().addActionListener(e -> {
             Customer selected = (Customer) view.getCboCustomer().getSelectedItem();
             if (selected == null) {
-                view.getLblCustomerType().setText("Khách vãng lai (Giảm 0%)");
+                view.getLblCustomerType().setText("Khách lẻ (Giảm 0%)");
+                view.getLblCustomerPoints().setText("Điểm: 0");
             } else {
                 view.getLblCustomerType().setText(String.format("%s (Giảm %.0f%%)",
                         selected.getCustomerType(), selected.getDiscountRate() * 100));
+                view.getLblCustomerPoints().setText(String.format("Điểm: %d", selected.getLoyaltyPoints()));
             }
             recalculateSummary();
         });
@@ -77,6 +92,25 @@ public class PosController {
             @Override public void insertUpdate(DocumentEvent e) { updateReturnCash(); }
             @Override public void removeUpdate(DocumentEvent e) { updateReturnCash(); }
             @Override public void changedUpdate(DocumentEvent e) { updateReturnCash(); }
+        });
+
+        // Hàng nút chọn nhanh tiền mặt (Quick Cash Buttons)
+        view.getBtnExactCash().addActionListener(e -> view.getTxtCashGiven().setText(String.format(java.util.Locale.US, "%.0f", currentFinalAmount)));
+        view.getBtnCash50k().addActionListener(e -> view.getTxtCashGiven().setText("50000"));
+        view.getBtnCash100k().addActionListener(e -> view.getTxtCashGiven().setText("100000"));
+        view.getBtnCash200k().addActionListener(e -> view.getTxtCashGiven().setText("200000"));
+        view.getBtnCash500k().addActionListener(e -> view.getTxtCashGiven().setText("500000"));
+
+        // Hủy đơn / Làm mới quầy
+        view.getBtnCancelOrder().addActionListener(e -> {
+            if (!currentCart.isEmpty()) {
+                int opt = JOptionPane.showConfirmDialog(view, "Bạn có muốn hủy toàn bộ giỏ hàng và làm mới quầy không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+                if (opt != JOptionPane.YES_OPTION) return;
+            }
+            currentCart.clear();
+            view.updateCartTable(currentCart);
+            view.getTxtCashGiven().setText("0");
+            recalculateSummary();
         });
 
         // 8. Nút Thanh toán & In hóa đơn
@@ -94,8 +128,89 @@ public class PosController {
 
     private void handleSearchProduct() {
         String keyword = view.getTxtSearchProduct().getText().trim();
-        List<Product> filtered = productService.searchAndFilter(keyword, null);
+        Category category = null;
+        int filterIndex = view.getCboCategoryFilter().getSelectedIndex();
+        if (filterIndex == 1) category = Category.FOOD;
+        else if (filterIndex == 2) category = Category.BEVERAGE;
+        else if (filterIndex == 3) category = Category.ELECTRONIC;
+
+        List<Product> filtered = productService.searchAndFilter(keyword, category);
         view.updateAvailableProducts(filtered);
+    }
+
+    private void handleQuickAddOne() {
+        int row = view.getTblAvailableProducts().getSelectedRow();
+        if (row < 0) return;
+
+        String productId = (String) view.getTblAvailableProducts().getValueAt(row, 0);
+        Product product = productService.getProductById(productId);
+        if (product == null) return;
+
+        InvoiceItem existingItem = null;
+        for (InvoiceItem item : currentCart) {
+            if (item.getProduct().getId().equals(productId)) {
+                existingItem = item;
+                break;
+            }
+        }
+
+        int currentQtyInCart = (existingItem != null) ? existingItem.getQuantity() : 0;
+        if (currentQtyInCart + 1 > product.getQuantity()) {
+            JOptionPane.showMessageDialog(view,
+                    String.format("Kho chỉ còn %d sản phẩm '%s'!", product.getQuantity(), product.getName()),
+                    "Không đủ hàng", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (existingItem != null) {
+            existingItem.setQuantity(existingItem.getQuantity() + 1);
+        } else {
+            currentCart.add(new InvoiceItem(product, 1, product.getSellingPrice()));
+        }
+
+        view.updateCartTable(currentCart);
+        recalculateSummary();
+    }
+
+    private void handleIncreaseCartQty() {
+        int row = view.getTblCart().getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(view, "Vui lòng chọn 1 mặt hàng trong giỏ để tăng số lượng!", "Nhắc nhở", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        InvoiceItem item = currentCart.get(row);
+        Product p = productService.getProductById(item.getProduct().getId());
+        if (p == null) return;
+
+        if (item.getQuantity() + 1 > p.getQuantity()) {
+            JOptionPane.showMessageDialog(view, "Kho chỉ còn " + p.getQuantity() + " sản phẩm!", "Không đủ hàng", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        item.setQuantity(item.getQuantity() + 1);
+        view.updateCartTable(currentCart);
+        view.getTblCart().setRowSelectionInterval(row, row);
+        recalculateSummary();
+    }
+
+    private void handleDecreaseCartQty() {
+        int row = view.getTblCart().getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(view, "Vui lòng chọn 1 mặt hàng trong giỏ để giảm số lượng!", "Nhắc nhở", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        InvoiceItem item = currentCart.get(row);
+        if (item.getQuantity() - 1 <= 0) {
+            currentCart.remove(row);
+            view.updateCartTable(currentCart);
+        } else {
+            item.setQuantity(item.getQuantity() - 1);
+            view.updateCartTable(currentCart);
+            view.getTblCart().setRowSelectionInterval(row, row);
+        }
+        recalculateSummary();
     }
 
     private void handleAddToCart() {

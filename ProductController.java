@@ -1,4 +1,9 @@
 import javax.swing.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -70,6 +75,38 @@ public class ProductController {
 
         // 9. ComboBox Sắp xếp (Dùng Lambda Expression và Comparator)
         view.getCboSort().addActionListener(e -> handleSort());
+
+        // 10. Nút Xuất Excel/CSV danh sách kho
+        view.getBtnExportCsv().addActionListener(e -> handleExportCsv());
+    }
+
+    private void handleExportCsv() {
+        List<Product> products = productService.getAllProducts();
+        if (products.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Kho hàng hiện tại chưa có sản phẩm nào!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        File exportFile = new File("BaoCao_Kho_Hang.csv");
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(exportFile), StandardCharsets.UTF_8))) {
+            writer.write("\uFEFF"); // UTF-8 BOM để Excel hiển thị đúng dấu tiếng Việt
+            writer.write("Mã SP,Tên Sản Phẩm,Danh Mục,Giá Nhập,Giá Bán,Tồn Kho,Lợi Nhuận/SP\n");
+            for (Product p : products) {
+                writer.write(String.format("\"%s\",\"%s\",\"%s\",%.0f,%.0f,%d,%.0f\n",
+                        p.getId(),
+                        p.getName(),
+                        p.getCategory().getDisplayName(),
+                        p.getImportPrice(),
+                        p.getSellingPrice(),
+                        p.getQuantity(),
+                        p.calculateProfit()));
+            }
+            JOptionPane.showMessageDialog(view, "Đã xuất báo cáo kho hàng thành công ra tệp:\n" + exportFile.getAbsolutePath(),
+                    "Xuất file thành công", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(view, "Lỗi khi xuất file: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void loadAllProducts() {
