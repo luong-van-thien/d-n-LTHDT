@@ -6,33 +6,20 @@
 
 ---
 
-## 👥 THÀNH VIÊN NHÓM & PHÂN CÔNG CÔNG VIỆC
+## 👥 BẢNG PHÂN CÔNG NHIỆM VỤ (NHÓM 4 NGƯỜI)
 
-> 📊 **File đính kèm:** Nhóm đã tạo sẵn 2 file bảng phân công đẹp mắt trong thư mục:
-> * 📗 File Excel: **[Bang_Phan_Cong_Nhiem_Vu.xlsx](Bang_Phan_Cong_Nhiem_Vu.xlsx)**
-> * 📘 File Word: **[Bang_Phan_Cong_Nhiem_Vu.docx](Bang_Phan_Cong_Nhiem_Vu.docx)**
+| STT | Họ và Tên | MSSV | Vai trò | Nhiệm vụ chính phụ trách | Tỷ lệ đóng góp |
+| :---: | :--- | :---: | :---: | :--- | :---: |
+| 1 | **Lương Văn Thiện** | `N24DCCN076` | Trưởng nhóm | Thiết kế kiến trúc OOP, các lớp Sản phẩm & Khách hàng | **25%** |
+| 2 | **Trần Nhật Nguyên** | `N22DCCN057` | Thành viên | Phân hệ Quản lý Kho, bảng dữ liệu & lọc tìm kiếm | **25%** |
+| 3 | **Nguyễn Hải Phong** | `N24DCCN059` | Thành viên | Phân hệ Bán hàng (POS), giỏ hàng & xuất hóa đơn | **25%** |
+| 4 | **Ngô Đức Thành** | `N24DCCN074` | Thành viên | Phân hệ Lưu trữ File CSV, Exception & Thống kê | **25%** |
 
-### Tóm tắt tỷ lệ đóng góp (Nhóm 4 người - Mỗi bạn 25%):
-
-1. **Lương Văn Thiện (N24DCCN076) - Trưởng nhóm (25%)**
-   * Thiết kế các lớp OOP, kế thừa, đa hình cho sản phẩm và khách hàng.
-   * File phụ trách: `Product.java`, `FoodProduct.java`, `BeverageProduct.java`, `ElectronicProduct.java`, `Customer.java`, `VIPCustomer.java`...
-
-2. **Trần Nhật Nguyên (N22DCCN057) - Thành viên (25%)**
-   * Làm giao diện Quản lý kho, bảng dữ liệu, tìm kiếm và sắp xếp Lambda.
-   * File phụ trách: `ProductPanel.java`, `ProductController.java`, `ProductService.java`.
-
-3. **Nguyễn Hải Phong (N24DCCN059) - Thành viên (25%)**
-   * Làm giao diện Bán hàng (POS), giỏ hàng, tính giảm giá và in hóa đơn text.
-   * File phụ trách: `PosPanel.java`, `PosController.java`, `OrderService.java`, `Invoice.java`.
-
-4. **Ngô Đức Thành (N24DCCN074) - Thành viên (25%)**
-   * Xử lý đọc/ghi file CSV, các lớp Exception, màn hình Thống kê doanh thu.
-   * File phụ trách: `ProductRepository.java`, `CustomerRepository.java`, `StatisticPanel.java`, `*Exception.java`.
+> **Tổng tỷ lệ đóng góp:** 100% (Mỗi thành viên hoàn thành tốt 25% công việc).
 
 ---
 
-## 💡 CÁC KIẾN THỨC OOP ĐÃ ÁP DỤNG TRONG ĐỒ ÁN
+## 💡 CÁC KIẾN THỨC OOP ÁP DỤNG TRONG ĐỒ ÁN
 
 1. **Đóng gói (Encapsulation):** Các thuộc tính để `private`/`protected`, truy xuất qua `getter/setter`, kiểm tra dữ liệu không cho nhập giá hoặc số lượng âm.
 2. **Kế thừa (Inheritance):** 
@@ -52,6 +39,15 @@
 6. **Collections Framework:** Dùng `ArrayList` (danh sách), `HashMap` (tra cứu nhanh O(1) theo mã ID), `HashSet` (chặn trùng mã ID).
 7. **Giao diện Java Swing & Mô hình MVC:** Giao diện gồm 4 Tab trực quan (`JTabbedPane`), chia rõ Model - View - Controller.
 8. **Lưu trữ dữ liệu (File I/O):** Tự động lưu và đọc dữ liệu từ `products.csv`, `customers.csv`, `invoices.csv`.
+
+---
+
+## 🖥️ CÁC CHỨC NĂNG CHÍNH TRONG PHẦN MỀM
+
+* **Tab 1 - Quản lý Kho & Sản phẩm:** Hiển thị danh sách sản phẩm, thêm, sửa, xóa, tìm kiếm, sắp xếp và lọc cảnh báo hàng sắp hết / sắp hết hạn.
+* **Tab 2 - Quầy thu ngân (POS):** Chọn sản phẩm đưa vào giỏ hàng, chọn loại khách hàng để tính giảm giá, tính tiền thừa và in hóa đơn bán lẻ ra file text.
+* **Tab 3 - Lịch sử hóa đơn:** Xem lại các hóa đơn đã thanh toán và có nút mở file hóa đơn text đã in.
+* **Tab 4 - Thống kê & Cảnh báo:** Thống kê tổng doanh thu, lợi nhuận ước tính, số lượng hóa đơn, tổng tồn kho và cảnh báo các mặt hàng cần nhập thêm hoặc thanh lý.
 
 ---
 
