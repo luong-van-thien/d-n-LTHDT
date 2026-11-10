@@ -1,0 +1,9 @@
+# Bỏ qua các file biên dịch nhị phân (bytecode)
+*.class
+
+# Bỏ qua thư mục cấu hình cá nhân của VS Code
+.vscode/
+
+# Bỏ qua file nhật ký / log
+*.log
+
