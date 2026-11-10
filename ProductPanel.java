@@ -89,9 +89,9 @@ public class ProductPanel extends JPanel {
         });
         topPanel.add(cboSort);
 
-        btnSearch = UIUtils.createStyledButton("🔍 Lọc / Tìm", UIUtils.PRIMARY_COLOR, Color.WHITE);
-        btnResetFilter = UIUtils.createStyledButton("🔄 Làm mới", UIUtils.GRAY_COLOR, Color.WHITE);
-        btnAlertFilter = UIUtils.createStyledButton("⚠️ Cảnh báo tồn/hạn", UIUtils.WARNING_COLOR, Color.WHITE);
+        btnSearch = UIUtils.createStyledButton("Lọc / Tìm", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        btnResetFilter = UIUtils.createStyledButton("Làm mới", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnAlertFilter = UIUtils.createStyledButton("Cảnh báo tồn/hạn", UIUtils.WARNING_COLOR, Color.WHITE);
 
         topPanel.add(btnSearch);
         topPanel.add(btnResetFilter);
@@ -213,10 +213,10 @@ public class ProductPanel extends JPanel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 8));
         buttonPanel.setBackground(Color.WHITE);
 
-        btnAdd = UIUtils.createStyledButton("➕ Thêm mới", UIUtils.SUCCESS_COLOR, Color.WHITE);
-        btnUpdate = UIUtils.createStyledButton("✏️ Cập nhật", UIUtils.PRIMARY_COLOR, Color.WHITE);
-        btnDelete = UIUtils.createStyledButton("🗑️ Xóa", UIUtils.DANGER_COLOR, Color.WHITE);
-        btnClear = UIUtils.createStyledButton("🔄 Xóa trắng form", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnAdd = UIUtils.createStyledButton("Thêm mới", UIUtils.SUCCESS_COLOR, Color.WHITE);
+        btnUpdate = UIUtils.createStyledButton("Cập nhật", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        btnDelete = UIUtils.createStyledButton("Xóa", UIUtils.DANGER_COLOR, Color.WHITE);
+        btnClear = UIUtils.createStyledButton("Xóa trắng form", UIUtils.GRAY_COLOR, Color.WHITE);
 
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);

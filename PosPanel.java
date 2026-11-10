@@ -83,7 +83,7 @@ public class PosPanel extends JPanel {
         ((JSpinner.DefaultEditor) spinQuantity.getEditor()).getTextField().setColumns(3);
         leftBottom.add(spinQuantity);
 
-        btnAddToCart = UIUtils.createStyledButton("Thêm vào giỏ ➔", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        btnAddToCart = UIUtils.createStyledButton("Thêm vào giỏ", UIUtils.PRIMARY_COLOR, Color.WHITE);
         leftBottom.add(btnAddToCart);
         leftPanel.add(leftBottom, BorderLayout.SOUTH);
 
@@ -111,15 +111,15 @@ public class PosPanel extends JPanel {
 
         JPanel centerBottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
         centerBottom.setBackground(Color.WHITE);
-        btnRemoveFromCart = UIUtils.createStyledButton("❌ Xóa sản phẩm", UIUtils.DANGER_COLOR, Color.WHITE);
-        btnClearCart = UIUtils.createStyledButton("🗑️ Làm trống giỏ", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnRemoveFromCart = UIUtils.createStyledButton("Xóa sản phẩm", UIUtils.DANGER_COLOR, Color.WHITE);
+        btnClearCart = UIUtils.createStyledButton("Làm trống giỏ", UIUtils.GRAY_COLOR, Color.WHITE);
         centerBottom.add(btnRemoveFromCart);
         centerBottom.add(btnClearCart);
         centerPanel.add(centerBottom, BorderLayout.SOUTH);
 
         // --- 3. RIGHT PANEL: Thông tin khách hàng & Thanh toán ---
         JPanel rightPanel = new JPanel(new BorderLayout(5, 5));
-        rightPanel.setPreferredSize(new Dimension(320, 0));
+        rightPanel.setPreferredSize(new Dimension(380, 0));
         rightPanel.setBackground(Color.WHITE);
         rightPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(200, 205, 215), 1),
@@ -128,18 +128,19 @@ public class PosPanel extends JPanel {
 
         JPanel payForm = new JPanel(new GridBagLayout());
         payForm.setBackground(Color.WHITE);
+        payForm.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.insets = new Insets(8, 8, 8, 8);
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.3;
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.38;
         payForm.add(new JLabel("Khách hàng:"), gbc);
-        gbc.gridx = 1; gbc.weightx = 0.7;
+        gbc.gridx = 1; gbc.weightx = 0.62;
         cboCustomer = new JComboBox<>();
         payForm.add(cboCustomer, gbc);
 
         gbc.gridx = 1; gbc.gridy = 1;
-        btnNewCustomer = UIUtils.createStyledButton("➕ Tạo khách hàng mới", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        btnNewCustomer = UIUtils.createStyledButton("+ Thêm khách hàng mới", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnNewCustomer.setFont(new Font("Segoe UI", Font.BOLD, 12));
         payForm.add(btnNewCustomer, gbc);
 
@@ -198,20 +199,19 @@ public class PosPanel extends JPanel {
 
         rightPanel.add(payForm, BorderLayout.CENTER);
 
-        btnCheckout = UIUtils.createStyledButton("💳 THANH TOÁN & IN HÓA ĐƠN", UIUtils.SUCCESS_COLOR, Color.WHITE);
+        btnCheckout = UIUtils.createStyledButton("THANH TOÁN & IN HÓA ĐƠN", UIUtils.SUCCESS_COLOR, Color.WHITE);
         btnCheckout.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btnCheckout.setPreferredSize(new Dimension(0, 50));
         rightPanel.add(btnCheckout, BorderLayout.SOUTH);
 
-        JSplitPane splitLeft = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, centerPanel);
-        splitLeft.setDividerLocation(360);
-        splitLeft.setResizeWeight(0.4);
+        // Bố cục 3 cột rõ ràng, tự động co giãn, không bị méo lệch hay che khuất chữ
+        JPanel contentContainer = new JPanel(new BorderLayout(10, 0));
+        contentContainer.setBackground(UIUtils.BG_LIGHT);
+        contentContainer.add(leftPanel, BorderLayout.WEST);
+        contentContainer.add(centerPanel, BorderLayout.CENTER);
+        contentContainer.add(rightPanel, BorderLayout.EAST);
 
-        JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, splitLeft, rightPanel);
-        mainSplit.setDividerLocation(780);
-        mainSplit.setResizeWeight(0.7);
-
-        add(mainSplit, BorderLayout.CENTER);
+        add(contentContainer, BorderLayout.CENTER);
     }
 
     public void updateAvailableProducts(List<Product> products) {

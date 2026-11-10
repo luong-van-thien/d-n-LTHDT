@@ -41,10 +41,10 @@ public class StatisticPanel extends JPanel {
         lblTotalInvoices = new JLabel("0", JLabel.CENTER);
         lblTotalInventory = new JLabel("0 SP", JLabel.CENTER);
 
-        topCards.add(createKpiCard("💰 TỔNG DOANH THU", lblTotalRevenue, UIUtils.PRIMARY_COLOR));
-        topCards.add(createKpiCard("📈 LỢI NHUẬN ƯỚC TÍNH", lblTotalProfit, UIUtils.SUCCESS_COLOR));
-        topCards.add(createKpiCard("🧾 SỐ LƯỢNG HÓA ĐƠN", lblTotalInvoices, new Color(111, 66, 193)));
-        topCards.add(createKpiCard("📦 TỔNG HÀNG TRONG KHO", lblTotalInventory, new Color(253, 126, 20)));
+        topCards.add(createKpiCard("TỔNG DOANH THU", lblTotalRevenue, UIUtils.PRIMARY_COLOR));
+        topCards.add(createKpiCard("LỢI NHUẬN ƯỚC TÍNH", lblTotalProfit, UIUtils.SUCCESS_COLOR));
+        topCards.add(createKpiCard("SỐ LƯỢNG HÓA ĐƠN", lblTotalInvoices, new Color(111, 66, 193)));
+        topCards.add(createKpiCard("TỔNG HÀNG TRONG KHO", lblTotalInventory, new Color(253, 126, 20)));
 
         add(topCards, BorderLayout.NORTH);
 
@@ -53,7 +53,7 @@ public class StatisticPanel extends JPanel {
         centerPanel.setBackground(Color.WHITE);
         centerPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(UIUtils.WARNING_COLOR, 2),
-                "⚠️ DANH SÁCH MẶT HÀNG CẦN CHÚ Ý (TỒN KHO <= 5 HOẶC SẮP HẾT HẠN SỬ DỤNG)",
+                "DANH SÁCH MẶT HÀNG CẦN CHÚ Ý (TỒN KHO <= 5 HOẶC SẮP HẾT HẠN SỬ DỤNG)",
                 TitledBorder.LEFT, TitledBorder.TOP, UIUtils.HEADER_FONT, new Color(180, 100, 0)
         ));
 
@@ -71,7 +71,7 @@ public class StatisticPanel extends JPanel {
 
         JPanel centerBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         centerBottom.setBackground(Color.WHITE);
-        JButton btnRefresh = UIUtils.createStyledButton("🔄 Cập nhật số liệu", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        JButton btnRefresh = UIUtils.createStyledButton("Cập nhật số liệu", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnRefresh.addActionListener(e -> refreshStatistics());
         centerBottom.add(btnRefresh);
         centerPanel.add(centerBottom, BorderLayout.SOUTH);
@@ -86,7 +86,7 @@ public class StatisticPanel extends JPanel {
                 BorderFactory.createEmptyBorder(10, 15, 10, 15)
         ));
 
-        JLabel lblTitle = new JLabel("🎓 ĐỒ ÁN GIỮA KỲ: HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI (MINIMART SYSTEM)");
+        JLabel lblTitle = new JLabel("ĐỒ ÁN GIỮA KỲ: HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI (MINIMART SYSTEM)");
         lblTitle.setFont(UIUtils.BOLD_FONT);
         lblTitle.setForeground(UIUtils.PRIMARY_COLOR);
 

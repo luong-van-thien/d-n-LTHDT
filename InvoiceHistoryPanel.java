@@ -45,8 +45,8 @@ public class InvoiceHistoryPanel extends JPanel {
         topPanel.add(txtSearch);
 
         JButton btnSearch = UIUtils.createStyledButton("Tìm kiếm", UIUtils.PRIMARY_COLOR, Color.WHITE);
-        btnReload = UIUtils.createStyledButton("🔄 Tải lại", UIUtils.GRAY_COLOR, Color.WHITE);
-        btnOpenReceiptFile = UIUtils.createStyledButton("📄 Mở File Hóa Đơn In (.txt)", UIUtils.SUCCESS_COLOR, Color.WHITE);
+        btnReload = UIUtils.createStyledButton("Tải lại", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnOpenReceiptFile = UIUtils.createStyledButton("Mở File Hóa Đơn In (.txt)", UIUtils.SUCCESS_COLOR, Color.WHITE);
 
         topPanel.add(btnSearch);
         topPanel.add(btnReload);

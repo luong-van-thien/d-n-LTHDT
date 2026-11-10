@@ -35,9 +35,10 @@ public class MainFrame extends JFrame {
 
         // 3. Cấu hình Frame
         setTitle("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI - MINIMART SYSTEM [PTIT OOP]");
-        setSize(1240, 780);
+        setSize(1260, 780);
         setMinimumSize(new Dimension(1000, 650));
         setLocationRelativeTo(null);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         initUI();
@@ -52,7 +53,7 @@ public class MainFrame extends JFrame {
         headerPanel.setBackground(new Color(24, 43, 73));
         headerPanel.setBorder(BorderFactory.createEmptyBorder(12, 20, 12, 20));
 
-        JLabel lblLogo = new JLabel("🛒 SIÊU THỊ MINI (MINIMART) - PHẦN MỀM BÁN HÀNG & QUẢN LÝ KHO");
+        JLabel lblLogo = new JLabel("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI (MINIMART)");
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblLogo.setForeground(Color.WHITE);
 
@@ -87,11 +88,11 @@ public class MainFrame extends JFrame {
 
         posController = new PosController(posPanel, productService, customerRepo, orderService, refreshAllData);
 
-        // Thêm các tab
-        tabbedPane.addTab("  📦 Quản Lý Kho & Sản Phẩm  ", productPanel);
-        tabbedPane.addTab("  💳 Quầy Thu Ngân (POS)  ", posPanel);
-        tabbedPane.addTab("  📜 Lịch Sử Hóa Đơn  ", invoiceHistoryPanel);
-        tabbedPane.addTab("  📊 Thống Kê & Cảnh Báo  ", statisticPanel);
+        // Thêm các tab (Dùng số thứ tự rõ ràng, không dùng emoji gây lỗi ô vuông)
+        tabbedPane.addTab("  1. Quản Lý Kho & Sản Phẩm  ", productPanel);
+        tabbedPane.addTab("  2. Quầy Thu Ngân (POS)  ", posPanel);
+        tabbedPane.addTab("  3. Lịch Sử Hóa Đơn  ", invoiceHistoryPanel);
+        tabbedPane.addTab("  4. Thống Kê & Cảnh Báo  ", statisticPanel);
 
         // Lắng nghe khi chuyển tab -> tự động làm mới dữ liệu tab đó
         tabbedPane.addChangeListener(e -> {
