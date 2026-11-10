@@ -99,6 +99,7 @@ public class PosPanel extends JPanel {
         tblAvailableProducts.setFont(UIUtils.BODY_FONT);
         tblAvailableProducts.setRowHeight(26);
         tblAvailableProducts.getTableHeader().setFont(UIUtils.BOLD_FONT);
+        tblAvailableProducts.getTableHeader().setReorderingAllowed(false);
         tblAvailableProducts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
@@ -156,6 +157,7 @@ public class PosPanel extends JPanel {
         tblCart.setFont(UIUtils.BODY_FONT);
         tblCart.setRowHeight(28);
         tblCart.getTableHeader().setFont(UIUtils.BOLD_FONT);
+        tblCart.getTableHeader().setReorderingAllowed(false);
         tblCart.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblCart.getColumnModel().getColumn(0).setPreferredWidth(70);
         tblCart.getColumnModel().getColumn(1).setPreferredWidth(170);

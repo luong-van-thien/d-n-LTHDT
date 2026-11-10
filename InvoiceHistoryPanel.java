@@ -84,7 +84,17 @@ public class InvoiceHistoryPanel extends JPanel {
         tblInvoices.setFont(UIUtils.BODY_FONT);
         tblInvoices.setRowHeight(26);
         tblInvoices.getTableHeader().setFont(UIUtils.BOLD_FONT);
+        tblInvoices.getTableHeader().setReorderingAllowed(false);
         tblInvoices.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        tblInvoices.getColumnModel().getColumn(0).setPreferredWidth(140);
+        tblInvoices.getColumnModel().getColumn(1).setPreferredWidth(140);
+        tblInvoices.getColumnModel().getColumn(2).setPreferredWidth(160);
+        tblInvoices.getColumnModel().getColumn(3).setPreferredWidth(95);
+        tblInvoices.getColumnModel().getColumn(4).setPreferredWidth(85);
+        tblInvoices.getColumnModel().getColumn(5).setPreferredWidth(95);
+        tblInvoices.getColumnModel().getColumn(6).setPreferredWidth(95);
+        tblInvoices.getColumnModel().getColumn(7).setPreferredWidth(95);
 
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
@@ -123,6 +133,15 @@ public class InvoiceHistoryPanel extends JPanel {
         tblDetails.setFont(UIUtils.BODY_FONT);
         tblDetails.setRowHeight(24);
         tblDetails.getTableHeader().setFont(UIUtils.BOLD_FONT);
+        tblDetails.getTableHeader().setReorderingAllowed(false);
+
+        tblDetails.getColumnModel().getColumn(0).setPreferredWidth(70);
+        tblDetails.getColumnModel().getColumn(1).setPreferredWidth(210);
+        tblDetails.getColumnModel().getColumn(2).setPreferredWidth(110);
+        tblDetails.getColumnModel().getColumn(3).setPreferredWidth(90);
+        tblDetails.getColumnModel().getColumn(4).setPreferredWidth(70);
+        tblDetails.getColumnModel().getColumn(5).setPreferredWidth(100);
+
         tblDetails.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
         tblDetails.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
         tblDetails.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);

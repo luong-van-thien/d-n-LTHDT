@@ -71,5 +71,35 @@ public class StatisticService {
                 .mapToDouble(p -> p.getImportPrice() * p.getQuantity())
                 .sum();
     }
+
+    public double calculateTotalRetailValue() {
+        return productRepo.getAll().stream()
+                .mapToDouble(p -> p.getSellingPrice() * p.getQuantity())
+                .sum();
+    }
+
+    public long getSafeStockCount() {
+        return productRepo.getAll().stream()
+                .filter(p -> p.getQuantity() > 5)
+                .count();
+    }
+
+    public long getOutOfStockCount() {
+        return productRepo.getAll().stream()
+                .filter(p -> p.getQuantity() == 0)
+                .count();
+    }
+
+    public double getAverageOrderValue() {
+        List<Invoice> invoices = invoiceRepo.getAll();
+        if (invoices.isEmpty()) return 0.0;
+        return calculateTotalRevenue() / invoices.size();
+    }
+
+    public double getTotalDiscountGiven() {
+        return invoiceRepo.getAll().stream()
+                .mapToDouble(Invoice::getDiscountAmount)
+                .sum();
+    }
 }
 

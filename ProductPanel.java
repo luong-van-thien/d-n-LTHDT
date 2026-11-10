@@ -116,7 +116,17 @@ public class ProductPanel extends JPanel {
         tblProducts.setRowHeight(26);
         tblProducts.getTableHeader().setFont(UIUtils.BOLD_FONT);
         tblProducts.getTableHeader().setBackground(new Color(235, 240, 245));
+        tblProducts.getTableHeader().setReorderingAllowed(false);
         tblProducts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        tblProducts.getColumnModel().getColumn(0).setPreferredWidth(65);
+        tblProducts.getColumnModel().getColumn(1).setPreferredWidth(210);
+        tblProducts.getColumnModel().getColumn(2).setPreferredWidth(100);
+        tblProducts.getColumnModel().getColumn(3).setPreferredWidth(85);
+        tblProducts.getColumnModel().getColumn(4).setPreferredWidth(85);
+        tblProducts.getColumnModel().getColumn(5).setPreferredWidth(60);
+        tblProducts.getColumnModel().getColumn(6).setPreferredWidth(95);
+        tblProducts.getColumnModel().getColumn(7).setPreferredWidth(230);
 
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
         rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
