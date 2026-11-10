@@ -112,7 +112,7 @@ public class PosPanel extends JPanel {
         JPanel centerBottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
         centerBottom.setBackground(Color.WHITE);
         btnRemoveFromCart = UIUtils.createStyledButton("❌ Xóa sản phẩm", UIUtils.DANGER_COLOR, Color.WHITE);
-        btnClearCart = UIUtils.createStyledButton("🗑️ Làm trống giỏ", new Color(108, 117, 125), Color.WHITE);
+        btnClearCart = UIUtils.createStyledButton("🗑️ Làm trống giỏ", UIUtils.GRAY_COLOR, Color.WHITE);
         centerBottom.add(btnRemoveFromCart);
         centerBottom.add(btnClearCart);
         centerPanel.add(centerBottom, BorderLayout.SOUTH);
@@ -139,8 +139,8 @@ public class PosPanel extends JPanel {
         payForm.add(cboCustomer, gbc);
 
         gbc.gridx = 1; gbc.gridy = 1;
-        btnNewCustomer = new JButton("➕ Tạo khách hàng mới");
-        btnNewCustomer.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        btnNewCustomer = UIUtils.createStyledButton("➕ Tạo khách hàng mới", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        btnNewCustomer.setFont(new Font("Segoe UI", Font.BOLD, 12));
         payForm.add(btnNewCustomer, gbc);
 
         gbc.gridx = 0; gbc.gridy = 2;
