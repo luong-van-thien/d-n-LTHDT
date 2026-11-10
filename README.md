@@ -10,9 +10,9 @@
 | STT | Họ và Tên | Mã Sinh Viên (MSSV) | Vai trò | Nhiệm vụ chính phụ trách | File code đảm nhiệm chính | Tỷ lệ đóng góp | Mức độ hoàn thành |
 | :---: | :--- | :---: | :---: | :--- | :--- | :---: | :---: |
 | **1** | **Lương Văn Thiện** | `N24DCCN076` | **Trưởng nhóm** | Thiết kế kiến trúc tổng thể, xây dựng các lớp đối tượng cốt lõi (OOP Entity), Kế thừa & Đa hình, điều phối dự án. | `Product.java`, `FoodProduct.java`, `BeverageProduct.java`, `ElectronicProduct.java`, `Customer.java`, `RegularCustomer.java`, `VIPCustomer.java` | **25%** | **100% (Tốt)** |
-| **2** | *[Họ tên Thành viên 2]* | `[MSSV]` | Thành viên | Xây dựng giao diện Quản lý Kho, bảng JTable dữ liệu, thanh tìm kiếm & sắp xếp bằng Lambda Expressions & Comparator. | `ProductPanel.java`, `ProductController.java`, `ProductService.java` | **25%** | **100% (Tốt)** |
-| **3** | *[Họ tên Thành viên 3]* | `[MSSV]` | Thành viên | Xây dựng phân hệ Quầy Thu Ngân (POS), giỏ hàng, tính chiết khấu đa hình, trừ tồn kho và logic xuất in hóa đơn bán lẻ. | `PosPanel.java`, `PosController.java`, `OrderService.java`, `Invoice.java`, `InvoiceItem.java` | **25%** | **100% (Tốt)** |
-| **4** | *[Họ tên Thành viên 4]* | `[MSSV]` | Thành viên | Xây dựng tầng Đọc/Ghi dữ liệu File CSV, hệ thống Custom Exceptions, màn hình Dashboard Thống kê & Giám sát cảnh báo. | `ProductRepository.java`, `CustomerRepository.java`, `InvoiceRepository.java`, `StatisticPanel.java`, `StatisticService.java`, `*Exception.java` | **25%** | **100% (Tốt)** |
+| **2** | **Trần Nhật Nguyên** | `N22DCCN057` | Thành viên | Xây dựng giao diện Quản lý Kho & Sản phẩm, bảng JTable dữ liệu, thanh tìm kiếm & sắp xếp bằng Lambda Expressions & Comparator. | `ProductPanel.java`, `ProductController.java`, `ProductService.java` | **25%** | **100% (Tốt)** |
+| **3** | **Nguyễn Hải Phong** | `N24DCCN059` | Thành viên | Xây dựng phân hệ Quầy Thu Ngân (POS), giỏ hàng, tính chiết khấu đa hình, trừ tồn kho và logic xuất in hóa đơn bán lẻ. | `PosPanel.java`, `PosController.java`, `OrderService.java`, `Invoice.java`, `InvoiceItem.java` | **25%** | **100% (Tốt)** |
+| **4** | **Ngô Đức Thành** | `N24DCCN074` | Thành viên | Xây dựng tầng Đọc/Ghi dữ liệu File CSV, hệ thống Custom Exceptions, màn hình Dashboard Thống kê & Giám sát cảnh báo. | `ProductRepository.java`, `CustomerRepository.java`, `InvoiceRepository.java`, `StatisticPanel.java`, `StatisticService.java`, `*Exception.java` | **25%** | **100% (Tốt)** |
 
 > **Tổng tỷ lệ đóng góp toàn nhóm:** 100% (Mỗi thành viên đóng góp đều 25%, hoàn thành đúng tiến độ và yêu cầu đề ra).
 

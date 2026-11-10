@@ -91,7 +91,7 @@ public class StatisticPanel extends JPanel {
         lblTitle.setForeground(UIUtils.PRIMARY_COLOR);
 
         JLabel lblDetails = new JLabel("<html>Môn học: <b>Lập trình hướng đối tượng (Java)</b> | GV hướng dẫn: <b>ThS. Nguyễn Thị Tuyết Hải</b> (PTIT HCM)<br>" +
-                "Nhóm 4 sinh viên | Áp dụng đầy đủ: OOP, Kế thừa, Đa hình, Collections, Exception, Lambda & Swing MVC</html>");
+                "<b>Nhóm SV thực hiện:</b> Lương Văn Thiện (N24DCCN076 - Trưởng nhóm), Trần Nhật Nguyên (N22DCCN057), Nguyễn Hải Phong (N24DCCN059), Ngô Đức Thành (N24DCCN074)</html>");
         lblDetails.setFont(UIUtils.BODY_FONT);
 
         infoPanel.add(lblTitle, BorderLayout.NORTH);

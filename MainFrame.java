@@ -148,7 +148,11 @@ public class MainFrame extends JFrame {
             String msg = "ĐỒ ÁN GIỮA KỲ: HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI (MINIMART)\n\n" +
                     "• Môn học: Lập trình hướng đối tượng (Java)\n" +
                     "• Giảng viên: ThS. Nguyễn Thị Tuyết Hải - PTIT HCM\n" +
-                    "• Nhóm thực hiện: 4 thành viên\n" +
+                    "• Nhóm sinh viên thực hiện:\n" +
+                    "   1. Lương Văn Thiện - N24DCCN076 (Trưởng nhóm)\n" +
+                    "   2. Trần Nhật Nguyên - N22DCCN057\n" +
+                    "   3. Nguyễn Hải Phong - N24DCCN059\n" +
+                    "   4. Ngô Đức Thành - N24DCCN074\n\n" +
                     "• Kiến trúc: MVC Pattern (Model - View - Controller)\n" +
                     "• Áp dụng đầy đủ: Encapsulation, Inheritance, Polymorphism, Abstract Class,\n" +
                     "  Interfaces, Lambda Expressions, Exception Handling, Collections, Swing GUI & File I/O.\n\n" +
