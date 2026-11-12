@@ -131,13 +131,13 @@ public class ProductController {
                 new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
 
             writer.write("========================================================================================\n");
-            writer.write("                       SIÊU THỊ MINI (MINIMART SYSTEM) - PTIT HCM                       \n");
+            writer.write("                            SIÊU THỊ MINI - PTIT HCM                            \n");
             writer.write("                               PHIẾU ĐỀ NGHỊ NHẬP HÀNG                                  \n");
             writer.write("========================================================================================\n");
             writer.write(String.format("Mã phiếu : PN-%s\n", timestamp));
             writer.write(String.format("Ngày lập : %s\n", java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))));
             writer.write("Đơn vị đề xuất: Bộ phận Quản trị Kho hàng & Hàng tồn\n");
-            writer.write(String.format("Lý do lập: Có %d mặt hàng rơi vào trạng thái nguy cấp (tồn kho <= 5 hoặc cận date).\n", needRestock.size()));
+            writer.write(String.format("Lý do lập: Có %d mặt hàng rơi vào trạng thái nguy cấp (tồn kho <= 5 hoặc cận hạn sử dụng).\n", needRestock.size()));
             writer.write("----------------------------------------------------------------------------------------\n");
             writer.write(String.format("%-8s %-25s %-12s %-10s %-14s %-15s\n",
                     "Mã SP", "Tên sản phẩm", "Tồn hiện tại", "Đề xuất bù", "Giá nhập (đ)", "Dự toán (đ)"));
@@ -200,9 +200,9 @@ public class ProductController {
                         p.calculateProfit()));
             }
             JOptionPane.showMessageDialog(view, "Đã xuất báo cáo kho hàng thành công ra tệp:\n" + exportFile.getAbsolutePath(),
-                    "Xuất file thành công", JOptionPane.INFORMATION_MESSAGE);
+                    "Xuất tệp thành công", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(view, "Lỗi khi xuất file: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Lỗi khi xuất tệp: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 

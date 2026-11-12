@@ -146,7 +146,7 @@ public class Invoice implements Exportable, Serializable {
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(destinationPath), StandardCharsets.UTF_8))) {
             writer.write("============================================================\n");
-            writer.write("                  SIÊU THỊ MINI (MINIMART)                  \n");
+            writer.write("                       SIÊU THỊ MINI                        \n");
             writer.write("           Học viện Công nghệ Bưu chính Viễn thông          \n");
             writer.write("                     HÓA ĐƠN BÁN LẺ                         \n");
             writer.write("============================================================\n");

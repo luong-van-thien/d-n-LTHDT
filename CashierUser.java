@@ -41,6 +41,6 @@ public class CashierUser extends User {
 
     @Override
     public String getRoleDescription() {
-        return "Bán hàng POS và Tra cứu Lịch sử Hóa đơn (Khóa Tab Kho hàng & Khóa Tab Thống kê)";
+        return "Bán hàng tại quầy và Tra cứu Lịch sử Hóa đơn (Khóa mục Kho hàng & Khóa mục Thống kê)";
     }
 }

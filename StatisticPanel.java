@@ -301,7 +301,7 @@ public class StatisticPanel extends JPanel {
 
         JPanel footerBtns = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         footerBtns.setBackground(Color.WHITE);
-        JButton btnExportCsv = UIUtils.createStyledButton("Xuất Excel/CSV Thống Kê", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        JButton btnExportCsv = UIUtils.createStyledButton("Xuất Báo Cáo Thống Kê", UIUtils.PRIMARY_COLOR, Color.WHITE);
         JButton btnRefresh = UIUtils.createStyledButton("Cập nhật số liệu", UIUtils.SUCCESS_COLOR, Color.WHITE);
 
         btnRefresh.addActionListener(e -> refreshStatistics());
@@ -459,9 +459,9 @@ public class StatisticPanel extends JPanel {
             }
 
             JOptionPane.showMessageDialog(this, "Đã xuất báo cáo thống kê thành công ra tệp:\n" + exportFile.getAbsolutePath(),
-                    "Xuất file thành công", JOptionPane.INFORMATION_MESSAGE);
+                    "Xuất tệp thành công", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xuất file: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất tệp: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

@@ -2,8 +2,8 @@
  * Enum đại diện cho các vai trò trong hệ thống siêu thị.
  */
 public enum Role {
-    ADMIN("Quản lý (Admin)"),
-    CASHIER("Nhân viên thu ngân (Cashier)");
+    ADMIN("Quản trị viên"),
+    CASHIER("Nhân viên thu ngân");
 
     private final String displayName;
 

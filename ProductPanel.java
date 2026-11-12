@@ -100,7 +100,7 @@ public class ProductPanel extends JPanel {
         btnAlertFilter = UIUtils.createStyledButton("Cảnh báo tồn/hạn", UIUtils.WARNING_COLOR, Color.WHITE);
         btnAlertFilter.setToolTipText("Bật/Tắt chế độ xem các sản phẩm tồn kho ít (<= 5) hoặc sắp hết hạn");
         btnCreateRestockOrder = UIUtils.createStyledButton("Tạo Phiếu Nhập Hàng", new Color(194, 65, 12), Color.WHITE);
-        btnExportCsv = UIUtils.createStyledButton("Xuất Excel/CSV", new Color(13, 110, 253), Color.WHITE);
+        btnExportCsv = UIUtils.createStyledButton("Xuất file báo cáo", new Color(13, 110, 253), Color.WHITE);
 
         topPanel.add(btnSearch);
         topPanel.add(btnResetFilter);
@@ -278,8 +278,8 @@ public class ProductPanel extends JPanel {
         btnAdd = UIUtils.createStyledButton("Thêm mới", UIUtils.SUCCESS_COLOR, Color.WHITE);
         btnUpdate = UIUtils.createStyledButton("Cập nhật", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnDelete = UIUtils.createStyledButton("Xóa", UIUtils.DANGER_COLOR, Color.WHITE);
-        btnClear = UIUtils.createStyledButton("Tạo mới / Xóa form", UIUtils.GRAY_COLOR, Color.WHITE);
-        btnClear.setToolTipText("Xóa trắng form và tự động điền Mã sản phẩm mới tiếp theo để thêm hàng");
+        btnClear = UIUtils.createStyledButton("Làm mới biểu mẫu", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnClear.setToolTipText("Làm mới biểu mẫu và tự động điền Mã sản phẩm mới tiếp theo để thêm hàng");
 
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);
@@ -373,7 +373,7 @@ public class ProductPanel extends JPanel {
 
         if (bottomBorder != null && bottomPanel != null) {
             bottomBorder.setTitle(isCashier
-                    ? "THÔNG TIN CHI TIẾT SẢN PHẨM [CHẾ ĐỘ THU NGÂN - CHỈ ĐỌC (READ-ONLY)]"
+                    ? "THÔNG TIN CHI TIẾT SẢN PHẨM [CHẾ ĐỘ THU NGÂN - CHỈ ĐỌC]"
                     : "THÔNG TIN CHI TIẾT SẢN PHẨM");
             bottomBorder.setTitleColor(isCashier ? UIUtils.WARNING_COLOR : UIUtils.PRIMARY_COLOR);
             bottomPanel.repaint();

@@ -28,7 +28,7 @@ public class LoginDialog extends JDialog {
     private JButton btnQuickCashier;
 
     public LoginDialog(Frame parent, UserRepository userRepository) {
-        super(parent, "ĐĂNG NHẬP HỆ THỐNG - MINIMART SYSTEM", true);
+        super(parent, "ĐĂNG NHẬP HỆ THỐNG - QUẢN LÝ BÁN HÀNG & KHO MINI", true);
         this.userRepository = userRepository;
 
         initComponents();
@@ -51,7 +51,7 @@ public class LoginDialog extends JDialog {
         bannerPanel.setBackground(new Color(24, 43, 73));
         bannerPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
-        JLabel lblTitle = new JLabel("HỆ THỐNG QUẢN LÝ SIÊU THỊ MINIMART", JLabel.CENTER);
+        JLabel lblTitle = new JLabel("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI", JLabel.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblTitle.setForeground(Color.WHITE);
 
@@ -117,17 +117,17 @@ public class LoginDialog extends JDialog {
             centerPanel.add(lblQuick);
 
             // Không dùng emoji biểu tượng để tránh lỗi ô vuông (tofu) trên Windows Swing
-            btnQuickAdmin = UIUtils.createStyledButton("Quản lý (Admin)", new Color(13, 110, 253), Color.WHITE);
+            btnQuickAdmin = UIUtils.createStyledButton("Quản trị viên", new Color(13, 110, 253), Color.WHITE);
             btnQuickAdmin.setFont(new Font("Segoe UI", Font.BOLD, 12));
             btnQuickAdmin.setBounds(40, 218, 205, 36);
             centerPanel.add(btnQuickAdmin);
 
-            btnQuickCashier = UIUtils.createStyledButton("Thu ngân (Cashier)", new Color(22, 163, 74), Color.WHITE);
+            btnQuickCashier = UIUtils.createStyledButton("Thu ngân", new Color(22, 163, 74), Color.WHITE);
             btnQuickCashier.setFont(new Font("Segoe UI", Font.BOLD, 12));
             btnQuickCashier.setBounds(255, 218, 205, 36);
             centerPanel.add(btnQuickCashier);
 
-            JLabel lblHint = new JLabel("<html><i>• <b>Admin:</b> Toàn quyền cả 4 Tab, quản lý kho & xem báo cáo tài chính.<br>• <b>Cashier:</b> Bán hàng POS, xem lịch sử, khóa Tab 1 (Kho) & Tab 4 (Thống kê).</i></html>");
+            JLabel lblHint = new JLabel("<html><i>• <b>Quản trị viên:</b> Toàn quyền cả 4 mục, quản lý kho & xem báo cáo tài chính.<br>• <b>Thu ngân:</b> Bán hàng tại quầy, xem lịch sử (khóa mục Kho hàng & Thống kê).</i></html>");
             lblHint.setFont(new Font("Segoe UI", Font.PLAIN, 11));
             lblHint.setForeground(new Color(100, 116, 139));
             lblHint.setBounds(40, 260, 430, 40);

@@ -59,8 +59,8 @@ public class InvoiceHistoryPanel extends JPanel {
 
         JButton btnSearch = UIUtils.createStyledButton("Tìm kiếm", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnReload = UIUtils.createStyledButton("Tải lại", UIUtils.GRAY_COLOR, Color.WHITE);
-        btnOpenReceiptFile = UIUtils.createStyledButton("Mở File In (.txt)", UIUtils.SUCCESS_COLOR, Color.WHITE);
-        btnExportCsv = UIUtils.createStyledButton("Xuất Excel/CSV", new Color(13, 110, 253), Color.WHITE);
+        btnOpenReceiptFile = UIUtils.createStyledButton("Mở tệp hóa đơn in", UIUtils.SUCCESS_COLOR, Color.WHITE);
+        btnExportCsv = UIUtils.createStyledButton("Xuất file báo cáo", new Color(13, 110, 253), Color.WHITE);
 
         topPanel.add(btnSearch);
         topPanel.add(btnReload);
@@ -257,17 +257,17 @@ public class InvoiceHistoryPanel extends JPanel {
         String id = (String) tblInvoices.getValueAt(row, 0);
         File receiptFile = new File(id + ".txt");
         if (!receiptFile.exists()) {
-            JOptionPane.showMessageDialog(this, "Không tìm thấy file in: " + receiptFile.getName(), "Thông báo", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Không tìm thấy tệp hóa đơn in: " + receiptFile.getName(), "Thông báo", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
             if (Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(receiptFile);
             } else {
-                JOptionPane.showMessageDialog(this, "Vị trí file: " + receiptFile.getAbsolutePath());
+                JOptionPane.showMessageDialog(this, "Vị trí tệp: " + receiptFile.getAbsolutePath());
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi mở file: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Lỗi mở tệp: " + ex.getMessage());
         }
     }
 
@@ -298,9 +298,9 @@ public class InvoiceHistoryPanel extends JPanel {
                         inv.getReturnCash()));
             }
             JOptionPane.showMessageDialog(this, "Đã xuất báo cáo hóa đơn thành công ra tệp:\n" + exportFile.getAbsolutePath(),
-                    "Xuất file thành công", JOptionPane.INFORMATION_MESSAGE);
+                    "Xuất tệp thành công", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi xuất file: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất tệp: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

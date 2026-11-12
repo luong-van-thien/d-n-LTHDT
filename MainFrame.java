@@ -47,7 +47,7 @@ public class MainFrame extends JFrame {
         statisticService = new StatisticService(productRepo, invoiceRepo);
 
         // 3. Cấu hình Frame
-        setTitle("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI - MINIMART SYSTEM [PTIT OOP]");
+        setTitle("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI - PTIT");
         setSize(1260, 780);
         setMinimumSize(new Dimension(1000, 650));
         setLocationRelativeTo(null);
@@ -73,7 +73,7 @@ public class MainFrame extends JFrame {
         JPanel pnlTitle = new JPanel(new GridLayout(2, 1, 0, 3));
         pnlTitle.setOpaque(false);
 
-        JLabel lblLogo = new JLabel("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI (MINIMART)");
+        JLabel lblLogo = new JLabel("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI");
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 17));
         lblLogo.setForeground(Color.WHITE);
 
@@ -129,7 +129,7 @@ public class MainFrame extends JFrame {
 
         // Thêm các tab (Dùng số thứ tự rõ ràng, không dùng emoji gây lỗi ô vuông)
         tabbedPane.addTab("  1. Quản Lý Kho & Sản Phẩm  ", productPanel);
-        tabbedPane.addTab("  2. Quầy Thu Ngân (POS)  ", posPanel);
+        tabbedPane.addTab("  2. Quầy Bán Hàng & Thu Ngân  ", posPanel);
         tabbedPane.addTab("  3. Lịch Sử Hóa Đơn  ", invoiceHistoryPanel);
         tabbedPane.addTab("  4. Thống Kê & Cảnh Báo  ", statisticPanel);
 
@@ -220,7 +220,7 @@ public class MainFrame extends JFrame {
         JMenu menuSystem = new JMenu("Hệ thống");
         menuSystem.setFont(UIUtils.BOLD_FONT);
 
-        JMenuItem itemReload = new JMenuItem("Tải lại toàn bộ dữ liệu từ File CSV");
+        JMenuItem itemReload = new JMenuItem("Tải lại toàn bộ dữ liệu từ tệp");
         itemReload.addActionListener(e -> {
             productRepo.saveToFile();
             customerRepo.saveToFile();
@@ -254,7 +254,7 @@ public class MainFrame extends JFrame {
 
         JMenuItem itemAbout = new JMenuItem("Thông tin đồ án & Nhóm tác giả");
         itemAbout.addActionListener(e -> {
-            String msg = "ĐỒ ÁN GIỮA KỲ: HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI (MINIMART)\n\n" +
+            String msg = "ĐỒ ÁN GIỮA KỲ: HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI\n\n" +
                     "• Môn học: Lập trình hướng đối tượng (Java)\n" +
                     "• Giảng viên hướng dẫn: ThS. Nguyễn Thị Tuyết Hải - PTIT HCM\n" +
                     "• Nhóm sinh viên thực hiện:\n" +
@@ -262,11 +262,12 @@ public class MainFrame extends JFrame {
                     "   2. Trần Nhật Nguyên - N22DCCN057\n" +
                     "   3. Nguyễn Hải Phong - N24DCCN059\n" +
                     "   4. Ngô Đức Thành - N24DCCN074\n\n" +
-                    "• Kiến trúc: MVC Pattern (Model - View - Controller)\n" +
-                    "• Phân quyền người dùng (RBAC): Admin & Cashier\n" +
-                    "• Áp dụng OOP: Encapsulation, Inheritance, Polymorphism, Abstract Class,\n" +
-                    "  Interfaces, Lambda Expressions, Custom Exceptions, Collections, Swing GUI & File I/O.\n\n" +
-                    "© 2026 PTIT HCM - All rights reserved.";
+                    "• Kiến trúc: Mô hình MVC (Model - View - Controller)\n" +
+                    "• Phân quyền người dùng: Quản trị viên & Nhân viên thu ngân\n" +
+                    "• Áp dụng OOP: Đóng gói (Encapsulation), Kế thừa (Inheritance),\n" +
+                    "  Đa hình (Polymorphism), Lớp trừu tượng, Giao diện (Interface),\n" +
+                    "  Biểu thức Lambda, Ngoại lệ tùy chỉnh, Cấu trúc dữ liệu & Giao diện đồ họa Swing.\n\n" +
+                    "© 2026 PTIT HCM - Đã đăng ký bản quyền.";
             JOptionPane.showMessageDialog(this, msg, "Giới thiệu đồ án", JOptionPane.INFORMATION_MESSAGE);
         });
 
