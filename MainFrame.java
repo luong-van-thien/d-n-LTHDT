@@ -86,23 +86,19 @@ public class MainFrame extends JFrame {
         headerPanel.add(pnlTitle, BorderLayout.WEST);
 
         // Bên phải Header: Thông tin Tài khoản đang đăng nhập + Nút Đăng xuất
-        JPanel pnlUserSection = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 5));
+        JPanel pnlUserSection = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 5));
         pnlUserSection.setOpaque(false);
 
         lblUserInfo = new JLabel("Người dùng: ...");
         lblUserInfo.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblUserInfo.setForeground(new Color(254, 240, 138)); // Vàng nhạt nổi bật
 
-        JButton btnSwitchUser = UIUtils.createStyledButton("Đổi tài khoản", new Color(59, 130, 246), Color.WHITE);
-        btnSwitchUser.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnSwitchUser.addActionListener(e -> handleLogout());
-
         JButton btnLogout = UIUtils.createStyledButton("Đăng xuất", new Color(220, 38, 38), Color.WHITE);
         btnLogout.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnLogout.setToolTipText("Đăng xuất khỏi tài khoản hiện tại để đăng nhập tài khoản khác");
         btnLogout.addActionListener(e -> handleLogout());
 
         pnlUserSection.add(lblUserInfo);
-        pnlUserSection.add(btnSwitchUser);
         pnlUserSection.add(btnLogout);
         headerPanel.add(pnlUserSection, BorderLayout.EAST);
 
@@ -236,8 +232,8 @@ public class MainFrame extends JFrame {
             JOptionPane.showMessageDialog(this, "Đã đồng bộ lại toàn bộ dữ liệu thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         });
 
-        JMenuItem itemSwitch = new JMenuItem("Đổi tài khoản đăng nhập");
-        itemSwitch.addActionListener(e -> handleLogout());
+        JMenuItem itemLogout = new JMenuItem("Đăng xuất tài khoản");
+        itemLogout.addActionListener(e -> handleLogout());
 
         JMenuItem itemExit = new JMenuItem("Thoát chương trình");
         itemExit.addActionListener(e -> {
@@ -248,7 +244,7 @@ public class MainFrame extends JFrame {
         });
 
         menuSystem.add(itemReload);
-        menuSystem.add(itemSwitch);
+        menuSystem.add(itemLogout);
         menuSystem.addSeparator();
         menuSystem.add(itemExit);
 
