@@ -37,3 +37,4 @@ public class AdminUser extends User {
         return "Toàn quyền quản trị kho, nhập xuất hàng, thanh toán và báo cáo doanh thu";
     }
 }
+

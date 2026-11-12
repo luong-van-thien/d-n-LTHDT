@@ -62,7 +62,7 @@ public class PosPanel extends JPanel {
         // --- 1. LEFT PANEL: Danh sách sản phẩm có thể bán ---
         // =========================================================================
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
-        leftPanel.setPreferredSize(new Dimension(370, 0));
+        leftPanel.setPreferredSize(new Dimension(465, 0));
         leftPanel.setBackground(Color.WHITE);
         leftPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(200, 205, 215), 1),
@@ -105,9 +105,9 @@ public class PosPanel extends JPanel {
         tblAvailableProducts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         tblAvailableProducts.getColumnModel().getColumn(0).setPreferredWidth(65);
-        tblAvailableProducts.getColumnModel().getColumn(1).setPreferredWidth(160);
-        tblAvailableProducts.getColumnModel().getColumn(2).setPreferredWidth(85);
-        tblAvailableProducts.getColumnModel().getColumn(3).setPreferredWidth(55);
+        tblAvailableProducts.getColumnModel().getColumn(1).setPreferredWidth(215); // Nới rộng cho tên món dài
+        tblAvailableProducts.getColumnModel().getColumn(2).setPreferredWidth(90);
+        tblAvailableProducts.getColumnModel().getColumn(3).setPreferredWidth(60);
         tblAvailableProducts.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
         tblAvailableProducts.getColumnModel().getColumn(1).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
         tblAvailableProducts.getColumnModel().getColumn(2).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
@@ -176,11 +176,26 @@ public class PosPanel extends JPanel {
         scrollCart.setBorder(BorderFactory.createLineBorder(new Color(230, 235, 240), 1));
         centerPanel.add(scrollCart, BorderLayout.CENTER);
 
-        // Thanh công cụ giỏ hàng: Tăng/Giảm/Xóa/Làm trống
-        JPanel centerBottom = new JPanel(new BorderLayout(5, 5));
+        // Thanh công cụ giỏ hàng: Tách 2 hàng rõ ràng, triệt tiêu 100% lỗi lẹm chữ "it hàng"
+        JPanel centerBottom = new JPanel(new BorderLayout(0, 6));
         centerBottom.setBackground(Color.WHITE);
         centerBottom.setBorder(BorderFactory.createEmptyBorder(6, 8, 8, 8));
 
+        // Hàng trên: Thanh trạng thái tổng số lượng giỏ hàng (Rộng rãi 100% chiều ngang)
+        JPanel summaryBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 4));
+        summaryBar.setBackground(new Color(245, 247, 250));
+        summaryBar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(225, 230, 238), 1),
+                BorderFactory.createEmptyBorder(2, 8, 2, 8)
+        ));
+
+        lblCartSummary = new JLabel("Tổng giỏ hàng: 0 mặt hàng (0 sản phẩm)", JLabel.RIGHT);
+        lblCartSummary.setFont(UIUtils.BOLD_FONT);
+        lblCartSummary.setForeground(new Color(30, 41, 59));
+        summaryBar.add(lblCartSummary);
+        centerBottom.add(summaryBar, BorderLayout.NORTH);
+
+        // Hàng dưới: 6 nút thao tác giỏ hàng
         JPanel cartActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         cartActions.setBackground(Color.WHITE);
 
@@ -198,12 +213,7 @@ public class PosPanel extends JPanel {
         cartActions.add(btnHoldBill);
         cartActions.add(btnResumeBill);
 
-        lblCartSummary = new JLabel("Tổng: 0 mặt hàng (0 sản phẩm)", JLabel.RIGHT);
-        lblCartSummary.setFont(UIUtils.BOLD_FONT);
-        lblCartSummary.setForeground(new Color(50, 60, 70));
-
-        centerBottom.add(cartActions, BorderLayout.WEST);
-        centerBottom.add(lblCartSummary, BorderLayout.EAST);
+        centerBottom.add(cartActions, BorderLayout.SOUTH);
         centerPanel.add(centerBottom, BorderLayout.SOUTH);
 
         // =========================================================================
@@ -463,7 +473,7 @@ public class PosPanel extends JPanel {
             });
         }
 
-        lblCartSummary.setText(String.format("Tổng: %d mặt hàng (%d sản phẩm)", totalItems, totalQuantity));
+        lblCartSummary.setText(String.format("Tổng giỏ hàng: %d mặt hàng (%d sản phẩm)", totalItems, totalQuantity));
     }
 
     public void setCustomerList(List<Customer> customers) {

@@ -174,11 +174,19 @@ public class MainFrame extends JFrame {
         lblUserInfo.setText(String.format("👤 %s  |  Vai trò: %s",
                 user.getFullName(), user.getRole().getDisplayName()));
 
-        // 2. Phân quyền Tab 4: Thống kê & Doanh thu
-        boolean canViewStats = user.canViewStatistics();
-        tabbedPane.setEnabledAt(3, canViewStats);
-        if (!canViewStats && tabbedPane.getSelectedIndex() == 3) {
-            tabbedPane.setSelectedIndex(1); // Đưa về Tab POS
+        // 2. Phân quyền các Tab theo phương thức đa hình canAccessTab
+        boolean canAccessWarehouse = user.canAccessTab(0);
+        boolean canAccessStats = user.canAccessTab(3);
+
+        tabbedPane.setEnabledAt(0, canAccessWarehouse);
+        tabbedPane.setEnabledAt(3, canAccessStats);
+
+        tabbedPane.setTitleAt(0, canAccessWarehouse ? "  1. Quản Lý Kho & Sản Phẩm  " : "  1. Quản Lý Kho [ĐÃ KHÓA]  ");
+        tabbedPane.setTitleAt(3, canAccessStats ? "  4. Thống Kê & Cảnh Báo  " : "  4. Thống Kê [ĐÃ KHÓA]  ");
+
+        // Nếu là Thu ngân (không có quyền Tab 0), tự động điều hướng sang Tab 1 (POS)
+        if (!canAccessWarehouse) {
+            tabbedPane.setSelectedIndex(1);
         }
 
         // 3. Phân quyền Tab 1: Quản lý kho

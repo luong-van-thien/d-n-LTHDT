@@ -36,14 +36,14 @@ public class ProductPanel extends JPanel {
     private JPanel extraCardPanel;
     private CardLayout extraCardLayout;
 
-    // Food fields
-    private JTextField txtFoodNsx;
-    private JTextField txtFoodHsd;
+    // Food fields (Dùng JDateChooser chuẩn hóa, chặn hoàn toàn lỗi ParseException)
+    private JDateChooser dateFoodNsx;
+    private JDateChooser dateFoodHsd;
 
     // Beverage fields
     private JTextField txtBevVolume;
     private JCheckBox chkBevAlcohol;
-    private JTextField txtBevHsd;
+    private JDateChooser dateBevHsd;
 
     // Electronic fields
     private JTextField txtElecWarranty;
@@ -226,12 +226,12 @@ public class ProductPanel extends JPanel {
         // Card Food
         JPanel foodPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         foodPanel.setBackground(Color.WHITE);
-        foodPanel.add(new JLabel("Ngày SX (yyyy-MM-dd):"));
-        txtFoodNsx = new JTextField(LocalDate.now().minusMonths(1).toString(), 9);
-        foodPanel.add(txtFoodNsx);
-        foodPanel.add(new JLabel("Hạn SD (yyyy-MM-dd):"));
-        txtFoodHsd = new JTextField(LocalDate.now().plusMonths(6).toString(), 9);
-        foodPanel.add(txtFoodHsd);
+        foodPanel.add(new JLabel("Ngày SX:"));
+        dateFoodNsx = new JDateChooser(LocalDate.now().minusMonths(1));
+        foodPanel.add(dateFoodNsx);
+        foodPanel.add(new JLabel("Hạn SD:"));
+        dateFoodHsd = new JDateChooser(LocalDate.now().plusMonths(6));
+        foodPanel.add(dateFoodHsd);
 
         // Card Beverage
         JPanel bevPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
@@ -243,8 +243,8 @@ public class ProductPanel extends JPanel {
         chkBevAlcohol.setBackground(Color.WHITE);
         bevPanel.add(chkBevAlcohol);
         bevPanel.add(new JLabel("HSD:"));
-        txtBevHsd = new JTextField(LocalDate.now().plusMonths(9).toString(), 9);
-        bevPanel.add(txtBevHsd);
+        dateBevHsd = new JDateChooser(LocalDate.now().plusMonths(9));
+        bevPanel.add(dateBevHsd);
 
         // Card Electronic
         JPanel elecPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
@@ -324,11 +324,11 @@ public class ProductPanel extends JPanel {
     public JTextField getTxtSellingPrice() { return txtSellingPrice; }
     public JTextField getTxtQuantity() { return txtQuantity; }
 
-    public JTextField getTxtFoodNsx() { return txtFoodNsx; }
-    public JTextField getTxtFoodHsd() { return txtFoodHsd; }
+    public JDateChooser getDateFoodNsx() { return dateFoodNsx; }
+    public JDateChooser getDateFoodHsd() { return dateFoodHsd; }
     public JTextField getTxtBevVolume() { return txtBevVolume; }
     public JCheckBox getChkBevAlcohol() { return chkBevAlcohol; }
-    public JTextField getTxtBevHsd() { return txtBevHsd; }
+    public JDateChooser getDateBevHsd() { return dateBevHsd; }
     public JTextField getTxtElecWarranty() { return txtElecWarranty; }
     public JTextField getTxtElecWatt() { return txtElecWatt; }
 
@@ -358,11 +358,11 @@ public class ProductPanel extends JPanel {
         txtQuantity.setEditable(!isCashier);
         cboCategory.setEnabled(!isCashier);
 
-        txtFoodNsx.setEditable(!isCashier);
-        txtFoodHsd.setEditable(!isCashier);
+        dateFoodNsx.setEnabled(!isCashier);
+        dateFoodHsd.setEnabled(!isCashier);
         txtBevVolume.setEditable(!isCashier);
         chkBevAlcohol.setEnabled(!isCashier);
-        txtBevHsd.setEditable(!isCashier);
+        dateBevHsd.setEnabled(!isCashier);
         txtElecWarranty.setEditable(!isCashier);
         txtElecWatt.setEditable(!isCashier);
 

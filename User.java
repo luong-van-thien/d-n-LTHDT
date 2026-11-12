@@ -76,3 +76,4 @@ public abstract class User {
         return String.format("%s (%s - %s)", fullName, username, role.getDisplayName());
     }
 }
+

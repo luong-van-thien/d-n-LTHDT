@@ -82,13 +82,30 @@ public class InvoiceRepository {
                     for (String it : itemTokens) {
                         String[] p = it.split("#");
                         if (p.length >= 3) {
-                            String pId = p[0].trim();
-                            int qty = Integer.parseInt(p[1].trim());
-                            double price = Double.parseDouble(p[2].trim());
+                            String pId;
+                            String pName = null;
+                            int qty;
+                            double price;
+
+                            // Hỗ trợ cả định dạng mới (pId#pName#qty#unitPrice) và định dạng cũ (pId#qty#unitPrice)
+                            if (p.length >= 4) {
+                                pId = p[0].trim();
+                                pName = p[1].trim();
+                                qty = Integer.parseInt(p[2].trim());
+                                price = Double.parseDouble(p[3].trim());
+                            } else {
+                                pId = p[0].trim();
+                                qty = Integer.parseInt(p[1].trim());
+                                price = Double.parseDouble(p[2].trim());
+                            }
+
                             Product prod = (productRepo != null) ? productRepo.findById(pId) : null;
                             if (prod == null) {
-                                prod = new FoodProduct(pId, "Sản phẩm " + pId, price * 0.8, price, qty, java.time.LocalDate.now(), java.time.LocalDate.now().plusMonths(6));
+                                String finalName = (pName != null && !pName.isEmpty()) ? pName : ("Sản phẩm " + pId);
+                                prod = new FoodProduct(pId, finalName, price * 0.8, price, qty, java.time.LocalDate.now(), java.time.LocalDate.now().plusMonths(6));
                             }
+
+                            // Chốt cứng đơn giá bán tại thời điểm lập hóa đơn (Snapshot Price)
                             inv.addItem(new InvoiceItem(prod, qty, price));
                         }
                     }
@@ -114,7 +131,9 @@ public class InvoiceRepository {
                 List<InvoiceItem> items = inv.getItems();
                 for (int i = 0; i < items.size(); i++) {
                     InvoiceItem item = items.get(i);
+                    String safeName = item.getProduct().getName().replace("#", "").replace(";", "").replace(",", " ").trim();
                     sbItems.append(item.getProduct().getId()).append("#")
+                           .append(safeName).append("#")
                            .append(item.getQuantity()).append("#")
                            .append(String.format(Locale.US, "%.0f", item.getUnitPrice()));
                     if (i < items.size() - 1) sbItems.append(";");

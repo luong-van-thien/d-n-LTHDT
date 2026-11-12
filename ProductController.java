@@ -33,9 +33,11 @@ public class ProductController {
         view.getTblProducts().getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = view.getTblProducts().getSelectedRow();
-                if (selectedRow >= 0) {
-                    String id = (String) view.getTblProducts().getValueAt(selectedRow, 0);
-                    displayProductDetails(id);
+                if (selectedRow >= 0 && selectedRow < view.getTblProducts().getRowCount()) {
+                    Object val = view.getTblProducts().getValueAt(selectedRow, 0);
+                    if (val != null) {
+                        displayProductDetails(val.toString());
+                    }
                 }
             }
         });
@@ -214,12 +216,12 @@ public class ProductController {
         view.getExtraCardLayout().show(view.getExtraCardPanel(), p.getCategory().name());
 
         if (p instanceof FoodProduct fp) {
-            view.getTxtFoodNsx().setText(fp.getManufactureDate() != null ? fp.getManufactureDate().toString() : "");
-            view.getTxtFoodHsd().setText(fp.getExpirationDate() != null ? fp.getExpirationDate().toString() : "");
+            view.getDateFoodNsx().setLocalDate(fp.getManufactureDate());
+            view.getDateFoodHsd().setLocalDate(fp.getExpirationDate());
         } else if (p instanceof BeverageProduct bp) {
             view.getTxtBevVolume().setText(String.valueOf(bp.getVolumeMl()));
             view.getChkBevAlcohol().setSelected(bp.isAlcoholic());
-            view.getTxtBevHsd().setText(bp.getExpirationDate() != null ? bp.getExpirationDate().toString() : "");
+            view.getDateBevHsd().setLocalDate(bp.getExpirationDate());
         } else if (p instanceof ElectronicProduct ep) {
             view.getTxtElecWarranty().setText(String.valueOf(ep.getWarrantyMonths()));
             view.getTxtElecWatt().setText(String.valueOf(ep.getPowerWatt()));
@@ -272,6 +274,8 @@ public class ProductController {
                 clearForm();
             } catch (NotFoundException ex) {
                 JOptionPane.showMessageDialog(view, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(view, "Lỗi khi xóa sản phẩm: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -360,25 +364,11 @@ public class ProductController {
         }
 
         if (cat == Category.FOOD) {
-            String nsxStr = view.getTxtFoodNsx().getText().trim();
-            String hsdStr = view.getTxtFoodHsd().getText().trim();
+            LocalDate nsx = view.getDateFoodNsx().getLocalDate();
+            LocalDate hsd = view.getDateFoodHsd().getLocalDate();
 
-            if (nsxStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Ngày sản xuất (NSX) cho thực phẩm!");
-            if (hsdStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Hạn sử dụng (HSD) cho thực phẩm!");
-
-            LocalDate nsx;
-            LocalDate hsd;
-            try {
-                nsx = LocalDate.parse(nsxStr, DATE_FMT);
-            } catch (Exception e) {
-                throw new InvalidDataException("Ngày sản xuất (NSX) không đúng định dạng yyyy-MM-dd (ví dụ: 2026-01-15)!");
-            }
-
-            try {
-                hsd = LocalDate.parse(hsdStr, DATE_FMT);
-            } catch (Exception e) {
-                throw new InvalidDataException("Hạn sử dụng (HSD) không đúng định dạng yyyy-MM-dd (ví dụ: 2026-12-31)!");
-            }
+            if (nsx == null) throw new InvalidDataException("Vui lòng chọn Ngày sản xuất (NSX) cho thực phẩm!");
+            if (hsd == null) throw new InvalidDataException("Vui lòng chọn Hạn sử dụng (HSD) cho thực phẩm!");
 
             if (hsd.isBefore(nsx)) {
                 throw new InvalidDataException("Hạn sử dụng (HSD) không thể trước Ngày sản xuất (NSX)!");
@@ -401,15 +391,7 @@ public class ProductController {
             }
 
             boolean alc = view.getChkBevAlcohol().isSelected();
-            LocalDate hsd = null;
-            String hsdStr = view.getTxtBevHsd().getText().trim();
-            if (!hsdStr.isEmpty()) {
-                try {
-                    hsd = LocalDate.parse(hsdStr, DATE_FMT);
-                } catch (Exception e) {
-                    throw new InvalidDataException("HSD đồ uống phải theo định dạng yyyy-MM-dd!");
-                }
-            }
+            LocalDate hsd = view.getDateBevHsd().getLocalDate();
             return new BeverageProduct(id, name, importPrice, sellingPrice, qty, vol, alc, hsd);
 
         } else {
@@ -446,6 +428,13 @@ public class ProductController {
         view.getTxtImportPrice().setText("");
         view.getTxtSellingPrice().setText("");
         view.getTxtQuantity().setText("");
+        view.getDateFoodNsx().setLocalDate(LocalDate.now().minusMonths(1));
+        view.getDateFoodHsd().setLocalDate(LocalDate.now().plusMonths(6));
+        view.getDateBevHsd().setLocalDate(LocalDate.now().plusMonths(9));
+        view.getTxtBevVolume().setText("330");
+        view.getChkBevAlcohol().setSelected(false);
+        view.getTxtElecWarranty().setText("12");
+        view.getTxtElecWatt().setText("1000");
         view.getTblProducts().clearSelection();
     }
 }

@@ -84,8 +84,37 @@ Hệ thống được bảo mật và phân chia vai trò rõ ràng ngay từ M�
 
 ---
 
-## 🚀 HƯỚNG DẪN CHẠY PHẦN MỀM
+## 🚀 HƯỚNG DẪN CHẠY & ĐÓNG GÓI PHẦN MỀM
 
-* **Cách 1 (Chạy nhanh):** Nhấp đúp chuột vào file **`run.bat`** trong thư mục `MiniMartSystem`.
-* **Cách 2 (Trên VS Code):** Mở thư mục `MiniMartSystem` trên VS Code, mở file `MainApp.java` và bấm **F5** (Run).
-* **Biên dịch lại code:** Nhấp đúp chuột vào file **`compile.bat`**.
+* **Cách 1 (Chạy file thực thi .jar):** Nhấp đúp chuột vào file **`MiniMartSystem.jar`** hoặc gõ lệnh:
+  ```bash
+  java -jar MiniMartSystem.jar
+  ```
+* **Cách 2 (Chạy nhanh bằng script):** Nhấp đúp chuột vào file **`run.bat`**.
+* **Cách 3 (Trên VS Code):** Mở thư mục `MiniMartSystem`, mở file `MainApp.java` và bấm **F5** (Run).
+* **Đóng gói file .jar nộp bài:** Nhấp đúp chuột vào **`build_jar.bat`** để tự động biên dịch và xuất file `.jar`.
+  *(Ghi chú: Để ẩn 2 nút demo trước khi đóng gói, chỉ cần đổi `public static boolean SHOW_DEMO_BUTTONS = false;` trong `LoginDialog.java`).*
+
+---
+
+## 🎓 CẨM NANG BẢO VỆ ĐỒ ÁN TRƯỚC HỘI ĐỒNG (FAQ & LUẬN ĐIỂM)
+
+### ❓ Câu 1: "Tại sao lại áp dụng Đa hình (Polymorphism) cho `calculateProfit()`? Bình thường Lợi nhuận = Giá bán - Giá nhập là xong rồi mà?"
+> **Trả lời thuyết phục:**
+> *"Thưa Thầy/Cô, trong thực tế quản trị siêu thị mini, mỗi ngành hàng chịu các chi phí rủi ro và đặc thù vận hành hoàn toàn khác nhau. Nếu chỉ tính thô Giá bán - Giá nhập thì báo cáo tài chính sẽ bị ảo và không chính xác:*
+> 1. *Với **Thực phẩm (FoodProduct):** Chịu chi phí hao hụt tự nhiên và bảo quản mát (trừ 5%). Đặc biệt khi hàng cận date ($\le$ 7 ngày), siêu thị bắt buộc giảm giá 20% để kích cầu xả hàng, tránh việc hết hạn phải tiêu hủy toàn bộ.*
+> 2. *Với **Đồ uống (BeverageProduct):** Chịu chi phí lưu kho cồng kềnh và vận chuyển két/thùng nặng (trừ 3%). Nếu là bia/rượu có cồn, siêu thị phải trích nộp 10% Thuế tiêu thụ đặc biệt.*
+> 3. *Với **Đồ điện gia dụng (ElectronicProduct):** Siêu thị chịu trách nhiệm bảo hành đổi trả, nên bắt buộc trích lập 10% Quỹ dự phòng bảo hành và dịch vụ hậu mãi.*
+> *Do đó, việc dùng phương thức trừu tượng và ghi đè đa hình `calculateProfit()` ở từng lớp con phản ánh trung thực bài toán kinh doanh thực tế."*
+
+### ❓ Câu 2: "Tại sao dùng Kế thừa Customer $\rightarrow$ Regular / VIP? Ngoài đời khách đủ điểm lên VIP thì Java làm sao đổi object từ Regular sang VIP?"
+> **Trả lời thuyết phục (Rất được hội đồng đánh giá cao):**
+> *"Thưa Thầy/Cô, trong phạm vi đồ án môn học OOP, nhóm em sử dụng Kế thừa để minh họa trực quan mối quan hệ 'is-a' giữa Customer và hai nhóm đối tượng có hành vi chiết khấu khác nhau (`RegularCustomer` 0%, `VIPCustomer` 5%). Khi khách đạt mốc 5.000.000 đ, hệ thống khởi tạo đối tượng `VIPCustomer` mới mang toàn bộ thông tin lịch sử và thay thế vào Repository.*
+> 
+> *Tuy nhiên, nhóm nhận thức rõ **hạn chế của việc dùng Kế thừa ở đây**: Trong Java, một object không thể tự đột biến kiểu (dynamic class mutation) trong runtime.*
+> *Nếu nâng cấp lên quy mô dự án thực tế lớn (Enterprise), hướng giải quyết chuẩn là áp dụng **Strategy Pattern** hoặc **State Pattern** (Composition over Inheritance):*
+> *Lớp `Customer` sẽ chứa một thuộc tính `MembershipStrategy`. Khi đủ điều kiện, ta chỉ cần gọi `customer.setMembershipStrategy(new VIPStrategy())`. Đối tượng khách hàng giữ nguyên tham chiếu duy nhất mà hành vi tính chiết khấu vẫn hoàn toàn đa hình và linh hoạt."*
+
+### ❓ Câu 3: "Khi lưu hóa đơn xuống `invoices.csv`, bạn lưu giá bán lúc đó hay chỉ lưu mã sản phẩm?"
+> **Trả lời:**
+> *"Hệ thống của nhóm **chốt cứng đơn giá bán tại thời điểm giao dịch (Snapshot Price)** vào file `invoices.csv` theo định dạng `MãSP#TênSP#SốLượng#ĐơnGiáLúcBán`. Tuyệt đối không chỉ lưu mã SP rồi móc nối động với bảng giá hiện tại, vì giá bán trên kệ sẽ biến động trong tương lai, nếu móc nối động thì tổng tiền hóa đơn cũ trong quá khứ sẽ bị sai lệch hoàn toàn."*

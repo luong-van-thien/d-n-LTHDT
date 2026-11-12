@@ -6,9 +6,16 @@ import java.awt.event.KeyEvent;
 /**
  * Cửa sổ Đăng nhập Hệ thống (LoginDialog).
  * Tích hợp Phân quyền Người dùng (RBAC - Role-Based Access Control).
- * Cung cấp nút đăng nhập nhanh 1-Click phục vụ việc chấm bài & báo cáo đồ án.
+ * Hỗ trợ cờ SHOW_DEMO_BUTTONS để ẩn/hiện các nút đăng nhập nhanh khi xuất bản .jar.
  */
 public class LoginDialog extends JDialog {
+    // =========================================================================
+    // CỜ CẤU HÌNH BẢN BUILD NỘP BÀI:
+    // Đặt là true: Hiện các nút đăng nhập nhanh phục vụ chấm bài & báo cáo.
+    // Đặt là false: Ẩn hoàn toàn các nút demo để đóng gói bản thương mại chính thức (.jar).
+    // =========================================================================
+    public static boolean SHOW_DEMO_BUTTONS = true;
+
     private final UserRepository userRepository;
     private User loggedInUser = null;
     private boolean success = false;
@@ -28,7 +35,12 @@ public class LoginDialog extends JDialog {
     }
 
     private void initComponents() {
-        setSize(460, 420);
+        if (SHOW_DEMO_BUTTONS) {
+            setSize(520, 430);
+        } else {
+            setSize(480, 265);
+        }
+
         setResizable(false);
         setLocationRelativeTo(getParent());
         setLayout(new BorderLayout());
@@ -59,66 +71,80 @@ public class LoginDialog extends JDialog {
         JLabel lblInstruction = new JLabel("Vui lòng đăng nhập để truy cập hệ thống:");
         lblInstruction.setFont(UIUtils.BOLD_FONT);
         lblInstruction.setForeground(new Color(30, 41, 59));
-        lblInstruction.setBounds(35, 15, 380, 25);
+        lblInstruction.setBounds(40, 15, 420, 25);
         centerPanel.add(lblInstruction);
 
         JLabel lblUser = new JLabel("Tên đăng nhập:");
         lblUser.setFont(UIUtils.BODY_FONT);
-        lblUser.setBounds(35, 50, 120, 25);
+        lblUser.setBounds(40, 50, 120, 25);
         centerPanel.add(lblUser);
 
         txtUsername = new JTextField("admin");
         txtUsername.setFont(UIUtils.BODY_FONT);
-        txtUsername.setBounds(155, 48, 260, 30);
+        txtUsername.setBounds(165, 48, 290, 30);
         centerPanel.add(txtUsername);
 
         JLabel lblPass = new JLabel("Mật khẩu:");
         lblPass.setFont(UIUtils.BODY_FONT);
-        lblPass.setBounds(35, 90, 120, 25);
+        lblPass.setBounds(40, 90, 120, 25);
         centerPanel.add(lblPass);
 
         txtPassword = new JPasswordField("admin123");
         txtPassword.setFont(UIUtils.BODY_FONT);
-        txtPassword.setBounds(155, 88, 260, 30);
+        txtPassword.setBounds(165, 88, 290, 30);
         centerPanel.add(txtPassword);
 
         // Nút Đăng nhập & Thoát
         btnLogin = UIUtils.createStyledButton("ĐĂNG NHẬP", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnLogin.setFont(UIUtils.BOLD_FONT);
-        btnLogin.setBounds(155, 130, 140, 35);
+        btnLogin.setBounds(165, 130, 150, 36);
         centerPanel.add(btnLogin);
 
         btnCancel = UIUtils.createStyledButton("Thoát", UIUtils.GRAY_COLOR, Color.WHITE);
-        btnCancel.setBounds(305, 130, 110, 35);
+        btnCancel.setBounds(330, 130, 125, 36);
         centerPanel.add(btnCancel);
 
-        // Đường kẻ phân cách
-        JSeparator sep = new JSeparator();
-        sep.setBounds(35, 180, 380, 2);
-        centerPanel.add(sep);
+        // PHẦN DEMO / CHẤM BÀI 1-CLICK (Chỉ hiển thị khi SHOW_DEMO_BUTTONS = true)
+        if (SHOW_DEMO_BUTTONS) {
+            JSeparator sep = new JSeparator();
+            sep.setBounds(40, 180, 420, 2);
+            centerPanel.add(sep);
 
-        // PHẦN DEMO / CHẤM BÀI 1-CLICK
-        JLabel lblQuick = new JLabel("Đăng nhập nhanh (Dành cho Giảng viên & Thử nghiệm):");
-        lblQuick.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblQuick.setForeground(new Color(100, 116, 139));
-        lblQuick.setBounds(35, 190, 380, 22);
-        centerPanel.add(lblQuick);
+            JLabel lblQuick = new JLabel("Đăng nhập nhanh (Dành cho Giảng viên & Thử nghiệm):");
+            lblQuick.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            lblQuick.setForeground(new Color(100, 116, 139));
+            lblQuick.setBounds(40, 190, 420, 22);
+            centerPanel.add(lblQuick);
 
-        btnQuickAdmin = UIUtils.createStyledButton("⚡ Vào quyền Quản lý (Admin)", new Color(13, 110, 253), Color.WHITE);
-        btnQuickAdmin.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btnQuickAdmin.setBounds(35, 218, 185, 34);
-        centerPanel.add(btnQuickAdmin);
+            // Nút bấm được nới rộng 205px để KHÔNG BAO GIỜ bị cắt chữ thành "Admi..."
+            btnQuickAdmin = UIUtils.createStyledButton("⚡ Quản lý (Admin)", new Color(13, 110, 253), Color.WHITE);
+            btnQuickAdmin.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            btnQuickAdmin.setBounds(40, 218, 205, 36);
+            centerPanel.add(btnQuickAdmin);
 
-        btnQuickCashier = UIUtils.createStyledButton("⚡ Vào quyền Thu ngân (Cashier)", new Color(22, 163, 74), Color.WHITE);
-        btnQuickCashier.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btnQuickCashier.setBounds(230, 218, 185, 34);
-        centerPanel.add(btnQuickCashier);
+            btnQuickCashier = UIUtils.createStyledButton("⚡ Thu ngân (Cashier)", new Color(22, 163, 74), Color.WHITE);
+            btnQuickCashier.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            btnQuickCashier.setBounds(255, 218, 205, 36);
+            centerPanel.add(btnQuickCashier);
 
-        JLabel lblHint = new JLabel("<html><i>• <b>Admin:</b> Xem toàn bộ 4 tab, sửa kho & xem báo cáo tài chính.<br>• <b>Cashier:</b> Chỉ bán hàng POS, xem lịch sử & khóa tab thống kê.</i></html>");
-        lblHint.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblHint.setForeground(new Color(100, 116, 139));
-        lblHint.setBounds(35, 258, 380, 40);
-        centerPanel.add(lblHint);
+            JLabel lblHint = new JLabel("<html><i>• <b>Admin:</b> Toàn quyền cả 4 Tab, quản lý kho & xem báo cáo tài chính.<br>• <b>Cashier:</b> Bán hàng POS, xem lịch sử, khóa Tab 1 (Kho) & Tab 4 (Thống kê).</i></html>");
+            lblHint.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            lblHint.setForeground(new Color(100, 116, 139));
+            lblHint.setBounds(40, 260, 430, 40);
+            centerPanel.add(lblHint);
+
+            btnQuickAdmin.addActionListener(e -> {
+                txtUsername.setText("admin");
+                txtPassword.setText("admin123");
+                performLogin();
+            });
+
+            btnQuickCashier.addActionListener(e -> {
+                txtUsername.setText("cashier");
+                txtPassword.setText("cashier123");
+                performLogin();
+            });
+        }
 
         add(centerPanel, BorderLayout.CENTER);
 
@@ -140,19 +166,6 @@ public class LoginDialog extends JDialog {
         };
         txtUsername.addKeyListener(enterListener);
         txtPassword.addKeyListener(enterListener);
-
-        // Đăng nhập nhanh
-        btnQuickAdmin.addActionListener(e -> {
-            txtUsername.setText("admin");
-            txtPassword.setText("admin123");
-            performLogin();
-        });
-
-        btnQuickCashier.addActionListener(e -> {
-            txtUsername.setText("cashier");
-            txtPassword.setText("cashier123");
-            performLogin();
-        });
     }
 
     private void performLogin() {
