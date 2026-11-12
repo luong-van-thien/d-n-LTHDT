@@ -7,3 +7,8 @@
 # Bỏ qua file nhật ký / log
 *.log
 
+# File xuất báo cáo & hóa đơn sinh ra trong lúc chạy thử
+BaoCao_*.csv
+PhieuNhapHang_*.txt
+HD-*.txt
+

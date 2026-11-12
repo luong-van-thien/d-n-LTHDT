@@ -114,4 +114,52 @@ public class UIUtils {
         renderer.setHorizontalAlignment(alignment);
         return renderer;
     }
+
+    /**
+     * Cài đặt tính năng hủy chọn dòng thông minh cho JTable:
+     * 1. Bấm vào khoảng trống màu trắng bên dưới các dòng -> Tự động hủy chọn (tắt màu xanh).
+     * 2. Bấm lại vào chính dòng đang được chọn -> Tự động hủy chọn (Toggle unselect).
+     * 3. Bấm ra thanh cuộn hoặc vùng đệm viewport -> Tự động hủy chọn.
+     */
+    public static void installSmartDeselection(JTable table, JScrollPane scrollPane) {
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        java.awt.event.MouseAdapter adapter = new java.awt.event.MouseAdapter() {
+            private boolean wasSelected = false;
+
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                if (row == -1) {
+                    table.clearSelection();
+                    wasSelected = false;
+                } else {
+                    wasSelected = (table.getSelectedRow() == row);
+                }
+            }
+
+            @Override
+            public void mouseReleased(java.awt.event.MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                if (row != -1 && wasSelected && table.getSelectedRow() == row) {
+                    // Người dùng bấm lại vào chính dòng đang được chọn -> Tắt vệt màu xanh
+                    table.clearSelection();
+                }
+            }
+        };
+
+        table.addMouseListener(adapter);
+
+        if (scrollPane != null && scrollPane.getViewport() != null) {
+            scrollPane.getViewport().addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mousePressed(java.awt.event.MouseEvent e) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row == -1) {
+                        table.clearSelection();
+                    }
+                }
+            });
+        }
+    }
 }

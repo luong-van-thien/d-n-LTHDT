@@ -140,7 +140,9 @@ public class StatisticPanel extends JPanel {
         tblCategorySummary.getColumnModel().getColumn(2).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
         tblCategorySummary.getColumnModel().getColumn(3).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
 
-        pnlCategory.add(new JScrollPane(tblCategorySummary), BorderLayout.CENTER);
+        JScrollPane scrollCat = new JScrollPane(tblCategorySummary);
+        pnlCategory.add(scrollCat, BorderLayout.CENTER);
+        UIUtils.installSmartDeselection(tblCategorySummary, scrollCat);
         centerGrid.add(pnlCategory);
 
         // 2B. BẢNG CẢNH BÁO TỒN KHO & HẠN DÙNG
@@ -177,7 +179,23 @@ public class StatisticPanel extends JPanel {
         tblAlerts.getColumnModel().getColumn(4).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
         tblAlerts.getColumnModel().getColumn(5).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
 
-        pnlAlerts.add(new JScrollPane(tblAlerts), BorderLayout.CENTER);
+        JScrollPane scrollAlerts = new JScrollPane(tblAlerts);
+        pnlAlerts.add(scrollAlerts, BorderLayout.CENTER);
+        UIUtils.installSmartDeselection(tblAlerts, scrollAlerts);
+
+        // Bấm ra vùng trống của Panel -> Tự động hủy chọn dòng ở cả 2 bảng
+        java.awt.event.MouseAdapter clearBothListener = new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                tblCategorySummary.clearSelection();
+                tblAlerts.clearSelection();
+            }
+        };
+        pnlCategory.addMouseListener(clearBothListener);
+        pnlAlerts.addMouseListener(clearBothListener);
+        centerGrid.addMouseListener(clearBothListener);
+        this.addMouseListener(clearBothListener);
+
         centerGrid.add(pnlAlerts);
 
         // =========================================================================

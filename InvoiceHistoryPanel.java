@@ -108,6 +108,7 @@ public class InvoiceHistoryPanel extends JPanel {
                 BorderFactory.createLineBorder(new Color(200, 205, 215), 1),
                 "DANH SÁCH HÓA ĐƠN ĐÃ GIAO DỊCH", TitledBorder.LEFT, TitledBorder.TOP, UIUtils.HEADER_FONT, UIUtils.PRIMARY_COLOR
         ));
+        UIUtils.installSmartDeselection(tblInvoices, scrollMaster);
         centerPanel.add(scrollMaster);
 
         // 2. DETAIL TABLE: Chi tiết các mặt hàng trong hóa đơn
@@ -150,7 +151,9 @@ public class InvoiceHistoryPanel extends JPanel {
         tblDetails.getColumnModel().getColumn(4).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
         tblDetails.getColumnModel().getColumn(5).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
 
-        detailContainer.add(new JScrollPane(tblDetails), BorderLayout.CENTER);
+        JScrollPane scrollDetails = new JScrollPane(tblDetails);
+        UIUtils.installSmartDeselection(tblDetails, scrollDetails);
+        detailContainer.add(scrollDetails, BorderLayout.CENTER);
         centerPanel.add(detailContainer);
 
         add(centerPanel, BorderLayout.CENTER);

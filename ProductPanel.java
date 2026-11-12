@@ -183,19 +183,7 @@ public class ProductPanel extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(tblProducts);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 224, 230), 1));
-
-        // Click vào vùng trống của bảng hoặc thanh cuộn sẽ tự động hủy chọn dòng để người dùng thêm mới dễ dàng
-        java.awt.event.MouseAdapter deselectListener = new java.awt.event.MouseAdapter() {
-            @Override
-            public void mousePressed(java.awt.event.MouseEvent e) {
-                int row = tblProducts.rowAtPoint(e.getPoint());
-                if (row == -1) {
-                    tblProducts.clearSelection();
-                }
-            }
-        };
-        tblProducts.addMouseListener(deselectListener);
-        scrollPane.getViewport().addMouseListener(deselectListener);
+        UIUtils.installSmartDeselection(tblProducts, scrollPane);
 
         add(scrollPane, BorderLayout.CENTER);
 

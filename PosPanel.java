@@ -115,6 +115,7 @@ public class PosPanel extends JPanel {
 
         JScrollPane scrollProd = new JScrollPane(tblAvailableProducts);
         scrollProd.setBorder(BorderFactory.createLineBorder(new Color(230, 235, 240), 1));
+        UIUtils.installSmartDeselection(tblAvailableProducts, scrollProd);
         leftPanel.add(scrollProd, BorderLayout.CENTER);
 
         // Thanh thao tác dưới bên trái
@@ -174,6 +175,7 @@ public class PosPanel extends JPanel {
 
         JScrollPane scrollCart = new JScrollPane(tblCart);
         scrollCart.setBorder(BorderFactory.createLineBorder(new Color(230, 235, 240), 1));
+        UIUtils.installSmartDeselection(tblCart, scrollCart);
         centerPanel.add(scrollCart, BorderLayout.CENTER);
 
         // Thanh công cụ giỏ hàng: Tách 2 hàng rõ ràng, triệt tiêu 100% lỗi lẹm chữ "it hàng"
