@@ -310,42 +310,96 @@ public class ProductController {
         String name = view.getTxtName().getText().trim();
         Category cat = (Category) view.getCboCategory().getSelectedItem();
 
-        if (id.isEmpty()) throw new InvalidDataException("Mã sản phẩm không được để trống!");
-        if (name.isEmpty()) throw new InvalidDataException("Tên sản phẩm không được để trống!");
+        if (id.isEmpty()) throw new InvalidDataException("Vui lòng không để trống Mã sản phẩm!");
+        if (name.isEmpty()) throw new InvalidDataException("Vui lòng không để trống Tên sản phẩm!");
+        if (cat == null) throw new InvalidDataException("Vui lòng chọn Loại danh mục sản phẩm!");
+
+        String importPriceStr = view.getTxtImportPrice().getText().trim();
+        String sellingPriceStr = view.getTxtSellingPrice().getText().trim();
+        String qtyStr = view.getTxtQuantity().getText().trim();
+
+        if (importPriceStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Giá nhập hàng!");
+        if (sellingPriceStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Giá bán sản phẩm!");
+        if (qtyStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Số lượng tồn kho!");
 
         double importPrice;
         double sellingPrice;
         int qty;
 
         try {
-            importPrice = Double.parseDouble(view.getTxtImportPrice().getText().trim());
-            sellingPrice = Double.parseDouble(view.getTxtSellingPrice().getText().trim());
-            qty = Integer.parseInt(view.getTxtQuantity().getText().trim());
+            importPrice = Double.parseDouble(importPriceStr);
         } catch (NumberFormatException e) {
-            throw new InvalidDataException("Giá nhập, giá bán và số lượng phải là các số hợp lệ!");
+            throw new InvalidDataException("Giá nhập phải là chữ số hợp lệ (ví dụ: 15000), không được chứa ký tự chữ!");
         }
 
-        if (importPrice < 0 || sellingPrice < 0 || qty < 0) {
-            throw new InvalidDataException("Giá hoặc số lượng không được nhỏ hơn 0!");
+        try {
+            sellingPrice = Double.parseDouble(sellingPriceStr);
+        } catch (NumberFormatException e) {
+            throw new InvalidDataException("Giá bán phải là chữ số hợp lệ (ví dụ: 25000), không được chứa ký tự chữ!");
+        }
+
+        try {
+            qty = Integer.parseInt(qtyStr);
+        } catch (NumberFormatException e) {
+            throw new InvalidDataException("Số lượng tồn kho phải là số nguyên hợp lệ (ví dụ: 50)!");
+        }
+
+        if (importPrice < 0) {
+            throw new InvalidDataException("Giá nhập không thể là số âm!");
+        }
+        if (sellingPrice < 0) {
+            throw new InvalidDataException("Giá bán không thể là số âm!");
+        }
+        if (sellingPrice < importPrice) {
+            throw new InvalidDataException(String.format(
+                    "Giá bán (%s) đang thấp hơn giá nhập (%s)! Cửa hàng sẽ bị lỗ kinh doanh, vui lòng kiểm tra lại!",
+                    UIUtils.formatCurrency(sellingPrice), UIUtils.formatCurrency(importPrice)));
+        }
+        if (qty < 0) {
+            throw new InvalidDataException("Số lượng tồn kho không thể là số âm!");
         }
 
         if (cat == Category.FOOD) {
+            String nsxStr = view.getTxtFoodNsx().getText().trim();
+            String hsdStr = view.getTxtFoodHsd().getText().trim();
+
+            if (nsxStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Ngày sản xuất (NSX) cho thực phẩm!");
+            if (hsdStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Hạn sử dụng (HSD) cho thực phẩm!");
+
             LocalDate nsx;
             LocalDate hsd;
             try {
-                nsx = LocalDate.parse(view.getTxtFoodNsx().getText().trim(), DATE_FMT);
-                hsd = LocalDate.parse(view.getTxtFoodHsd().getText().trim(), DATE_FMT);
+                nsx = LocalDate.parse(nsxStr, DATE_FMT);
             } catch (Exception e) {
-                throw new InvalidDataException("Định dạng ngày (NSX/HSD) phải là yyyy-MM-dd (ví dụ: 2026-12-31)!");
+                throw new InvalidDataException("Ngày sản xuất (NSX) không đúng định dạng yyyy-MM-dd (ví dụ: 2026-01-15)!");
             }
+
+            try {
+                hsd = LocalDate.parse(hsdStr, DATE_FMT);
+            } catch (Exception e) {
+                throw new InvalidDataException("Hạn sử dụng (HSD) không đúng định dạng yyyy-MM-dd (ví dụ: 2026-12-31)!");
+            }
+
+            if (hsd.isBefore(nsx)) {
+                throw new InvalidDataException("Hạn sử dụng (HSD) không thể trước Ngày sản xuất (NSX)!");
+            }
+
             return new FoodProduct(id, name, importPrice, sellingPrice, qty, nsx, hsd);
+
         } else if (cat == Category.BEVERAGE) {
+            String volStr = view.getTxtBevVolume().getText().trim();
+            if (volStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Dung tích (ml) của đồ uống!");
+
             int vol;
             try {
-                vol = Integer.parseInt(view.getTxtBevVolume().getText().trim());
+                vol = Integer.parseInt(volStr);
             } catch (Exception e) {
-                throw new InvalidDataException("Dung tích phải là số nguyên (ml)!");
+                throw new InvalidDataException("Dung tích đồ uống phải là số nguyên (ml)!");
             }
+            if (vol <= 0) {
+                throw new InvalidDataException("Dung tích đồ uống phải lớn hơn 0 ml!");
+            }
+
             boolean alc = view.getChkBevAlcohol().isSelected();
             LocalDate hsd = null;
             String hsdStr = view.getTxtBevHsd().getText().trim();
@@ -357,15 +411,30 @@ public class ProductController {
                 }
             }
             return new BeverageProduct(id, name, importPrice, sellingPrice, qty, vol, alc, hsd);
+
         } else {
+            String warStr = view.getTxtElecWarranty().getText().trim();
+            String wattStr = view.getTxtElecWatt().getText().trim();
+
+            if (warStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Thời gian bảo hành (tháng)!");
+            if (wattStr.isEmpty()) throw new InvalidDataException("Vui lòng nhập Công suất tiêu thụ (Watt)!");
+
             int war;
             int watt;
             try {
-                war = Integer.parseInt(view.getTxtElecWarranty().getText().trim());
-                watt = Integer.parseInt(view.getTxtElecWatt().getText().trim());
+                war = Integer.parseInt(warStr);
             } catch (Exception e) {
-                throw new InvalidDataException("Thời gian bảo hành và công suất phải là số nguyên!");
+                throw new InvalidDataException("Thời gian bảo hành phải là số nguyên (tháng)!");
             }
+            try {
+                watt = Integer.parseInt(wattStr);
+            } catch (Exception e) {
+                throw new InvalidDataException("Công suất phải là số nguyên (Watt)!");
+            }
+
+            if (war < 0) throw new InvalidDataException("Thời gian bảo hành không được là số âm!");
+            if (watt < 0) throw new InvalidDataException("Công suất không được là số âm!");
+
             return new ElectronicProduct(id, name, importPrice, sellingPrice, qty, war, watt);
         }
     }

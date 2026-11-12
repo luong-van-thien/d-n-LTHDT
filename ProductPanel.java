@@ -55,6 +55,9 @@ public class ProductPanel extends JPanel {
     private JButton btnDelete;
     private JButton btnClear;
 
+    private JPanel bottomPanel;
+    private TitledBorder bottomBorder;
+
     public ProductPanel() {
         setLayout(new BorderLayout(10, 10));
         setBackground(UIUtils.BG_LIGHT);
@@ -131,12 +134,18 @@ public class ProductPanel extends JPanel {
         tblProducts.getColumnModel().getColumn(6).setPreferredWidth(95);
         tblProducts.getColumnModel().getColumn(7).setPreferredWidth(230);
 
-        // Đánh dấu màu nổi bật (Highlight) cảnh báo cho các dòng nguy cấp
+        // Đánh dấu màu nổi bật (Highlight) cảnh báo cho các dòng nguy cấp & Thêm ToolTip đầy đủ
         tblProducts.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
                                                            boolean isSelected, boolean hasFocus, int row, int col) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+
+                if (value != null && !value.toString().trim().isEmpty()) {
+                    setToolTipText("<html><body style='padding: 3px; font-family: Segoe UI; font-size: 11px;'>" + value.toString() + "</body></html>");
+                } else {
+                    setToolTipText(null);
+                }
 
                 if (!isSelected) {
                     try {
@@ -175,12 +184,13 @@ public class ProductPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         // 3. BOTTOM PANEL: Form nhập liệu & Buttons
-        JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
-        bottomPanel.setBackground(Color.WHITE);
-        bottomPanel.setBorder(BorderFactory.createTitledBorder(
+        bottomBorder = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(200, 205, 215), 1),
                 "THÔNG TIN CHI TIẾT SẢN PHẨM", TitledBorder.LEFT, TitledBorder.TOP, UIUtils.HEADER_FONT, UIUtils.PRIMARY_COLOR
-        ));
+        );
+        bottomPanel = new JPanel(new BorderLayout(10, 10));
+        bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.setBorder(bottomBorder);
 
         JPanel formGrid = new JPanel(new GridLayout(3, 4, 10, 8));
         formGrid.setBackground(Color.WHITE);
@@ -328,5 +338,41 @@ public class ProductPanel extends JPanel {
     public JButton getBtnClear() { return btnClear; }
     public CardLayout getExtraCardLayout() { return extraCardLayout; }
     public JPanel getExtraCardPanel() { return extraCardPanel; }
+
+    /**
+     * Bật/Tắt chế độ Thu ngân (Cashier Mode).
+     * Khi bật: Khóa các thao tác sửa đổi kho (Thêm, Sửa, Xóa, Nhập hàng) để đảm bảo an toàn dữ liệu.
+     */
+    public void setCashierMode(boolean isCashier) {
+        btnAdd.setEnabled(!isCashier);
+        btnUpdate.setEnabled(!isCashier);
+        btnDelete.setEnabled(!isCashier);
+        btnClear.setEnabled(!isCashier);
+        btnCreateRestockOrder.setEnabled(!isCashier);
+        btnExportCsv.setEnabled(!isCashier);
+
+        txtId.setEditable(!isCashier);
+        txtName.setEditable(!isCashier);
+        txtImportPrice.setEditable(!isCashier);
+        txtSellingPrice.setEditable(!isCashier);
+        txtQuantity.setEditable(!isCashier);
+        cboCategory.setEnabled(!isCashier);
+
+        txtFoodNsx.setEditable(!isCashier);
+        txtFoodHsd.setEditable(!isCashier);
+        txtBevVolume.setEditable(!isCashier);
+        chkBevAlcohol.setEnabled(!isCashier);
+        txtBevHsd.setEditable(!isCashier);
+        txtElecWarranty.setEditable(!isCashier);
+        txtElecWatt.setEditable(!isCashier);
+
+        if (bottomBorder != null && bottomPanel != null) {
+            bottomBorder.setTitle(isCashier
+                    ? "THÔNG TIN CHI TIẾT SẢN PHẨM [CHẾ ĐỘ THU NGÂN - CHỈ ĐỌC (READ-ONLY)]"
+                    : "THÔNG TIN CHI TIẾT SẢN PHẨM");
+            bottomBorder.setTitleColor(isCashier ? UIUtils.WARNING_COLOR : UIUtils.PRIMARY_COLOR);
+            bottomPanel.repaint();
+        }
+    }
 }
 

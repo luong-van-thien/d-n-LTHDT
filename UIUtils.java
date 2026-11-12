@@ -91,4 +91,27 @@ public class UIUtils {
         btn.setBorder(BorderFactory.createEmptyBorder(9, 16, 9, 16));
         return btn;
     }
+
+    /**
+     * Tạo TableCellRenderer hỗ trợ hiển thị ToolTip đầy đủ nội dung khi rê chuột vào ô.
+     * Giải quyết triệt để vấn đề tên sản phẩm hoặc thông số kỹ thuật quá dài bị cắt bớt bằng dấu '...'.
+     */
+    public static javax.swing.table.DefaultTableCellRenderer createToolTipRenderer(int alignment) {
+        javax.swing.table.DefaultTableCellRenderer renderer = new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (value != null && !value.toString().trim().isEmpty()) {
+                    setToolTipText("<html><body style='padding: 3px; font-family: Segoe UI; font-size: 11px;'>" + value.toString() + "</body></html>");
+                } else {
+                    setToolTipText(null);
+                }
+                return c;
+            }
+        };
+        renderer.setHorizontalAlignment(alignment);
+        return renderer;
+    }
 }

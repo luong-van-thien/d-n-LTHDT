@@ -495,8 +495,18 @@ public class PosController {
             String name = txtName.getText().trim();
             String phone = txtPhone.getText().trim();
 
-            if (name.isEmpty() || phone.isEmpty()) {
-                JOptionPane.showMessageDialog(view, "Vui lòng nhập đầy đủ tên và số điện thoại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(view, "Vui lòng nhập họ và tên khách hàng!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (phone.isEmpty()) {
+                JOptionPane.showMessageDialog(view, "Vui lòng nhập số điện thoại khách hàng!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!phone.matches("^0\\d{9}$")) {
+                JOptionPane.showMessageDialog(view, "Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 chữ số và bắt đầu bằng số 0 (Ví dụ: 0912345678).", "Lỗi định dạng", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -516,21 +526,32 @@ public class PosController {
 
     private void handleCheckout() {
         if (currentCart.isEmpty()) {
-            JOptionPane.showMessageDialog(view, "Giỏ hàng đang trống!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Giỏ hàng đang trống! Vui lòng chọn sản phẩm vào giỏ trước khi thanh toán.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         double cashGiven;
         try {
             String text = view.getTxtCashGiven().getText().trim().replace(",", "").replace(".", "");
+            if (text.isEmpty()) {
+                throw new NumberFormatException("Empty");
+            }
             cashGiven = Double.parseDouble(text);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(view, "Vui lòng nhập số tiền khách đưa hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Vui lòng nhập số tiền khách đưa hợp lệ (chỉ nhập số nguyên, ví dụ: 50000)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            view.getTxtCashGiven().requestFocus();
             return;
         }
 
         if (cashGiven < currentFinalAmount) {
-            JOptionPane.showMessageDialog(view, "Tiền khách đưa chưa đủ để thanh toán!", "Lỗi thanh toán", JOptionPane.ERROR_MESSAGE);
+            double missing = currentFinalAmount - cashGiven;
+            JOptionPane.showMessageDialog(view,
+                    String.format("Tiền khách đưa (%s) chưa đủ để thanh toán hóa đơn (%s)!\nCòn thiếu: %s",
+                            UIUtils.formatCurrency(cashGiven),
+                            UIUtils.formatCurrency(currentFinalAmount),
+                            UIUtils.formatCurrency(missing)),
+                    "Lỗi thanh toán", JOptionPane.ERROR_MESSAGE);
+            view.getTxtCashGiven().requestFocus();
             return;
         }
 

@@ -135,9 +135,10 @@ public class StatisticPanel extends JPanel {
         tblCategorySummary.setRowHeight(28);
         tblCategorySummary.getTableHeader().setFont(UIUtils.BOLD_FONT);
         tblCategorySummary.getTableHeader().setReorderingAllowed(false);
-        tblCategorySummary.getColumnModel().getColumn(1).setCellRenderer(rightRenderer);
-        tblCategorySummary.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
-        tblCategorySummary.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
+        tblCategorySummary.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblCategorySummary.getColumnModel().getColumn(1).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblCategorySummary.getColumnModel().getColumn(2).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblCategorySummary.getColumnModel().getColumn(3).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
 
         pnlCategory.add(new JScrollPane(tblCategorySummary), BorderLayout.CENTER);
         centerGrid.add(pnlCategory);
@@ -169,8 +170,12 @@ public class StatisticPanel extends JPanel {
         tblAlerts.getColumnModel().getColumn(4).setPreferredWidth(85);
         tblAlerts.getColumnModel().getColumn(5).setPreferredWidth(140);
 
-        tblAlerts.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
-        tblAlerts.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
+        tblAlerts.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblAlerts.getColumnModel().getColumn(1).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblAlerts.getColumnModel().getColumn(2).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblAlerts.getColumnModel().getColumn(3).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblAlerts.getColumnModel().getColumn(4).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblAlerts.getColumnModel().getColumn(5).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
 
         pnlAlerts.add(new JScrollPane(tblAlerts), BorderLayout.CENTER);
         centerGrid.add(pnlAlerts);

@@ -104,14 +104,14 @@ public class PosPanel extends JPanel {
         tblAvailableProducts.getTableHeader().setReorderingAllowed(false);
         tblAvailableProducts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
         tblAvailableProducts.getColumnModel().getColumn(0).setPreferredWidth(65);
         tblAvailableProducts.getColumnModel().getColumn(1).setPreferredWidth(160);
         tblAvailableProducts.getColumnModel().getColumn(2).setPreferredWidth(85);
         tblAvailableProducts.getColumnModel().getColumn(3).setPreferredWidth(55);
-        tblAvailableProducts.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
-        tblAvailableProducts.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
+        tblAvailableProducts.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblAvailableProducts.getColumnModel().getColumn(1).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblAvailableProducts.getColumnModel().getColumn(2).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblAvailableProducts.getColumnModel().getColumn(3).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
 
         JScrollPane scrollProd = new JScrollPane(tblAvailableProducts);
         scrollProd.setBorder(BorderFactory.createLineBorder(new Color(230, 235, 240), 1));
@@ -166,9 +166,11 @@ public class PosPanel extends JPanel {
         tblCart.getColumnModel().getColumn(2).setPreferredWidth(90);
         tblCart.getColumnModel().getColumn(3).setPreferredWidth(65);
         tblCart.getColumnModel().getColumn(4).setPreferredWidth(100);
-        tblCart.getColumnModel().getColumn(2).setCellRenderer(rightRenderer);
-        tblCart.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
-        tblCart.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
+        tblCart.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblCart.getColumnModel().getColumn(1).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblCart.getColumnModel().getColumn(2).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblCart.getColumnModel().getColumn(3).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblCart.getColumnModel().getColumn(4).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
 
         JScrollPane scrollCart = new JScrollPane(tblCart);
         scrollCart.setBorder(BorderFactory.createLineBorder(new Color(230, 235, 240), 1));

@@ -96,10 +96,11 @@ public class InvoiceHistoryPanel extends JPanel {
         tblInvoices.getColumnModel().getColumn(6).setPreferredWidth(95);
         tblInvoices.getColumnModel().getColumn(7).setPreferredWidth(95);
 
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+        for (int i = 0; i < 3; i++) {
+            tblInvoices.getColumnModel().getColumn(i).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        }
         for (int i = 3; i <= 7; i++) {
-            tblInvoices.getColumnModel().getColumn(i).setCellRenderer(rightRenderer);
+            tblInvoices.getColumnModel().getColumn(i).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
         }
 
         JScrollPane scrollMaster = new JScrollPane(tblInvoices);
@@ -142,9 +143,12 @@ public class InvoiceHistoryPanel extends JPanel {
         tblDetails.getColumnModel().getColumn(4).setPreferredWidth(70);
         tblDetails.getColumnModel().getColumn(5).setPreferredWidth(100);
 
-        tblDetails.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
-        tblDetails.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
-        tblDetails.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
+        for (int i = 0; i < 3; i++) {
+            tblDetails.getColumnModel().getColumn(i).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        }
+        tblDetails.getColumnModel().getColumn(3).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblDetails.getColumnModel().getColumn(4).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
+        tblDetails.getColumnModel().getColumn(5).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
 
         detailContainer.add(new JScrollPane(tblDetails), BorderLayout.CENTER);
         centerPanel.add(detailContainer);
