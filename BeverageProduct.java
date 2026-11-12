@@ -59,17 +59,17 @@ public class BeverageProduct extends Product {
     }
 
     /**
-     * Tính lợi nhuận:
-     * Nếu là đồ uống có cồn, phải trích nộp 10% thuế tiêu thụ đặc biệt trên giá bán.
+     * Tính lợi nhuận đa hình (Polymorphism):
+     * Đối với đồ uống trong siêu thị:
+     * 1. Nếu là đồ uống có cồn (bia, rượu): Phải trích nộp 10% Thuế tiêu thụ đặc biệt trên giá bán.
+     * 2. Phí lưu kho và vận chuyển hàng lỏng cồng kềnh (thùng, két, lon/chai): trích 3% giá bán.
      */
     @Override
     public double calculateProfit() {
-        double profit = sellingPrice - importPrice;
-        if (alcoholic) {
-            double tax = sellingPrice * 0.10; // Thuế tiêu thụ đặc biệt
-            profit -= tax;
-        }
-        return profit;
+        double baseProfit = sellingPrice - importPrice;
+        double storageCost = sellingPrice * 0.03; // 3% phí vận chuyển & lưu kho cồng kềnh
+        double specialTax = alcoholic ? (sellingPrice * 0.10) : 0.0; // 10% thuế TTĐB nếu có cồn
+        return baseProfit - storageCost - specialTax;
     }
 
     @Override

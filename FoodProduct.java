@@ -57,16 +57,20 @@ public class FoodProduct extends Product {
     }
 
     /**
-     * Tính lợi nhuận:
-     * Nếu sắp hết hạn (<= 7 ngày), siêu thị giảm giá 20% để xả hàng, lợi nhuận tính theo giá giảm.
+     * Tính lợi nhuận đa hình (Polymorphism):
+     * Trong ngành bán lẻ thực phẩm, lợi nhuận không đơn giản là (Giá bán - Giá nhập) mà phải trừ:
+     * 1. Phí hao hụt tự nhiên & bảo quản tươi/lạnh: 5% giá bán.
+     * 2. Nếu thực phẩm cận date (<= 7 ngày): Siêu thị bắt buộc giảm giá 20% để kích cầu xả hàng,
+     *    tránh nguy cơ hết hạn phải tiêu hủy toàn bộ.
      */
     @Override
     public double calculateProfit() {
-        double currentSellingPrice = sellingPrice;
+        double lossCost = sellingPrice * 0.05; // 5% phí hao hụt & bảo quản lạnh
+        double effectiveSellingPrice = sellingPrice;
         if (isExpiringSoon()) {
-            currentSellingPrice = sellingPrice * 0.8; // Giảm giá xả hàng
+            effectiveSellingPrice = sellingPrice * 0.80; // Giảm giá 20% xả hàng cận date
         }
-        return currentSellingPrice - importPrice;
+        return (effectiveSellingPrice - importPrice) - lossCost;
     }
 
     @Override

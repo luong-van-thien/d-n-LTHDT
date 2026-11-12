@@ -44,13 +44,15 @@ public class ElectronicProduct extends Product {
     }
 
     /**
-     * Tính lợi nhuận:
-     * Trích dự phòng 5% giá bán cho chi phí bảo hành, sửa chữa sau bán hàng.
+     * Tính lợi nhuận đa hình (Polymorphism):
+     * Đối với đồ điện gia dụng, siêu thị chịu trách nhiệm bảo hành, đổi trả hư hỏng sau bán hàng:
+     * - Trích lập Quỹ dự phòng bảo hành & dịch vụ hậu mãi: 10% giá bán (nếu BH >= 12 tháng) hoặc 5% (nếu BH < 12 tháng).
      */
     @Override
     public double calculateProfit() {
-        double warrantyCost = sellingPrice * 0.05;
-        return (sellingPrice - importPrice) - warrantyCost;
+        double warrantyRate = (warrantyMonths >= 12) ? 0.10 : 0.05; // Trích 10% nếu BH >= 12 tháng
+        double warrantyReserve = sellingPrice * warrantyRate; // Quỹ bảo hành
+        return (sellingPrice - importPrice) - warrantyReserve;
     }
 
     @Override

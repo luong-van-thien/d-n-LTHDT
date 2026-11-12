@@ -26,8 +26,11 @@
    * `Product` $\rightarrow$ `FoodProduct` (HSD), `BeverageProduct` (thể tích, cồn), `ElectronicProduct` (bảo hành, công suất).
    * `Customer` $\rightarrow$ `RegularCustomer` (khách thường), `VIPCustomer` (khách VIP).
 3. **Đa hình (Polymorphism):**
-   * Tính lợi nhuận `calculateProfit()` viết đè theo từng loại sản phẩm.
-   * Tính giảm giá `calculateDiscount()` tự động áp dụng chiết khấu theo loại khách hàng.
+   * Tính lợi nhuận `calculateProfit()` viết đè theo đặc thù từng ngành hàng thực tế:
+     * `FoodProduct`: Trừ 5% phí hao hụt & bảo quản lạnh; giảm giá 20% xả hàng nếu cận date.
+     * `BeverageProduct`: Trừ 3% phí vận chuyển/kho cồng kềnh; trích 10% thuế tiêu thụ đặc biệt nếu là đồ uống có cồn.
+     * `ElectronicProduct`: Trích 10% quỹ dự phòng rủi ro bảo hành và dịch vụ hậu mãi.
+   * Tính giảm giá `calculateDiscount()` tự động áp dụng chiết khấu đa hình theo loại khách hàng (`RegularCustomer`, `VIPCustomer`).
    * Ghi đè `toString()`, `equals()`, `hashCode()` của lớp `Object`.
 4. **Interface & Abstract Class:**
    * Lớp trừu tượng: `Product`, `Customer`.
