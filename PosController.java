@@ -64,8 +64,12 @@ public class PosController {
         view.getTblAvailableProducts().addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (e.getClickCount() == 2 && view.getTblAvailableProducts().getSelectedRow() >= 0) {
-                    handleQuickAddOne();
+                if (e.getClickCount() == 2) {
+                    int r = view.getTblAvailableProducts().rowAtPoint(e.getPoint());
+                    if (r >= 0) {
+                        view.getTblAvailableProducts().setRowSelectionInterval(r, r);
+                        handleQuickAddOne();
+                    }
                 }
             }
         });

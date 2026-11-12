@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -116,39 +117,60 @@ public class UIUtils {
     }
 
     /**
-     * Cài đặt tính năng hủy chọn dòng thông minh cho JTable:
-     * 1. Bấm vào khoảng trống màu trắng bên dưới các dòng -> Tự động hủy chọn (tắt màu xanh).
-     * 2. Bấm lại vào chính dòng đang được chọn -> Tự động hủy chọn (Toggle unselect).
-     * 3. Bấm ra thanh cuộn hoặc vùng đệm viewport -> Tự động hủy chọn.
+     * Tạo một JTable thông minh hỗ trợ cơ chế chọn/hủy chọn Toggle tự nhiên:
+     * - Bấm lần 1 vào dòng: Dòng được chọn và sáng màu xanh.
+     * - Bấm lần 2 vào chính dòng đó: Hủy chọn dòng, tắt vệt sáng màu xanh (Toggle).
+     * - Nhấp đúp (Double click): Giữ nguyên chọn dòng để các sự kiện nhấp đúp (như thêm giỏ hàng) kích hoạt bình thường.
+     */
+    public static JTable createCustomTable(TableModel model) {
+        JTable table = new JTable(model) {
+            private int lastSelectedRow = -1;
+            private long lastClickTime = 0;
+
+            @Override
+            public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend) {
+                long now = System.currentTimeMillis();
+                if (isRowSelected(rowIndex)) {
+                    // Nếu nhấp đúp chuột cực nhanh (< 400ms) thì giữ nguyên dòng chọn
+                    if (rowIndex == lastSelectedRow && (now - lastClickTime) < 400) {
+                        super.changeSelection(rowIndex, columnIndex, toggle, extend);
+                    } else {
+                        // Click lần 2 có chủ đích -> Hủy chọn dòng (tắt màu xanh)
+                        clearSelection();
+                        lastSelectedRow = -1;
+                        lastClickTime = 0;
+                        return;
+                    }
+                } else {
+                    super.changeSelection(rowIndex, columnIndex, toggle, extend);
+                }
+                lastSelectedRow = rowIndex;
+                lastClickTime = now;
+            }
+        };
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        return table;
+    }
+
+    /**
+     * Cài đặt tính năng hủy chọn dòng khi bấm vào khoảng trống bên dưới các dòng hoặc thanh cuộn viewport:
+     * - Bấm vào khoảng trống màu trắng bên dưới các dòng -> Tự động hủy chọn (tắt màu xanh).
+     * - Bấm ra thanh cuộn hoặc vùng đệm viewport -> Tự động hủy chọn.
      */
     public static void installSmartDeselection(JTable table, JScrollPane scrollPane) {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        java.awt.event.MouseAdapter adapter = new java.awt.event.MouseAdapter() {
-            private boolean wasSelected = false;
-
+        java.awt.event.MouseAdapter emptySpaceListener = new java.awt.event.MouseAdapter() {
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
                 if (row == -1) {
                     table.clearSelection();
-                    wasSelected = false;
-                } else {
-                    wasSelected = (table.getSelectedRow() == row);
-                }
-            }
-
-            @Override
-            public void mouseReleased(java.awt.event.MouseEvent e) {
-                int row = table.rowAtPoint(e.getPoint());
-                if (row != -1 && wasSelected && table.getSelectedRow() == row) {
-                    // Người dùng bấm lại vào chính dòng đang được chọn -> Tắt vệt màu xanh
-                    table.clearSelection();
                 }
             }
         };
 
-        table.addMouseListener(adapter);
+        table.addMouseListener(emptySpaceListener);
 
         if (scrollPane != null && scrollPane.getViewport() != null) {
             scrollPane.getViewport().addMouseListener(new java.awt.event.MouseAdapter() {

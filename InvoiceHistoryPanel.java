@@ -80,7 +80,7 @@ public class InvoiceHistoryPanel extends JPanel {
             public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        tblInvoices = new JTable(modelInvoices);
+        tblInvoices = UIUtils.createCustomTable(modelInvoices);
         tblInvoices.setFont(UIUtils.BODY_FONT);
         tblInvoices.setRowHeight(26);
         tblInvoices.getTableHeader().setFont(UIUtils.BOLD_FONT);
@@ -131,7 +131,7 @@ public class InvoiceHistoryPanel extends JPanel {
             public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        tblDetails = new JTable(modelDetails);
+        tblDetails = UIUtils.createCustomTable(modelDetails);
         tblDetails.setFont(UIUtils.BODY_FONT);
         tblDetails.setRowHeight(24);
         tblDetails.getTableHeader().setFont(UIUtils.BOLD_FONT);

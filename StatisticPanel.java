@@ -130,7 +130,7 @@ public class StatisticPanel extends JPanel {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
-        tblCategorySummary = new JTable(modelCategorySummary);
+        tblCategorySummary = UIUtils.createCustomTable(modelCategorySummary);
         tblCategorySummary.setFont(UIUtils.BODY_FONT);
         tblCategorySummary.setRowHeight(28);
         tblCategorySummary.getTableHeader().setFont(UIUtils.BOLD_FONT);
@@ -159,7 +159,7 @@ public class StatisticPanel extends JPanel {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
-        tblAlerts = new JTable(modelAlerts);
+        tblAlerts = UIUtils.createCustomTable(modelAlerts);
         tblAlerts.setFont(UIUtils.BODY_FONT);
         tblAlerts.setRowHeight(26);
         tblAlerts.getTableHeader().setFont(UIUtils.BOLD_FONT);
@@ -182,6 +182,18 @@ public class StatisticPanel extends JPanel {
         JScrollPane scrollAlerts = new JScrollPane(tblAlerts);
         pnlAlerts.add(scrollAlerts, BorderLayout.CENTER);
         UIUtils.installSmartDeselection(tblAlerts, scrollAlerts);
+
+        // Hủy chọn chéo giữa 2 bảng để không bao giờ bị tình trạng 2 bảng cùng sáng màu xanh cùng lúc
+        tblCategorySummary.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && tblCategorySummary.getSelectedRow() != -1) {
+                tblAlerts.clearSelection();
+            }
+        });
+        tblAlerts.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && tblAlerts.getSelectedRow() != -1) {
+                tblCategorySummary.clearSelection();
+            }
+        });
 
         // Bấm ra vùng trống của Panel -> Tự động hủy chọn dòng ở cả 2 bảng
         java.awt.event.MouseAdapter clearBothListener = new java.awt.event.MouseAdapter() {

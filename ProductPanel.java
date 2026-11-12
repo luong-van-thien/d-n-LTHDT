@@ -119,7 +119,7 @@ public class ProductPanel extends JPanel {
             }
         };
 
-        tblProducts = new JTable(tableModel);
+        tblProducts = UIUtils.createCustomTable(tableModel);
         tblProducts.setFont(UIUtils.BODY_FONT);
         tblProducts.setRowHeight(26);
         tblProducts.getTableHeader().setFont(UIUtils.BOLD_FONT);

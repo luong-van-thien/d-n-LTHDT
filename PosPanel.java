@@ -97,7 +97,7 @@ public class PosPanel extends JPanel {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
         };
-        tblAvailableProducts = new JTable(modelAvailableProducts);
+        tblAvailableProducts = UIUtils.createCustomTable(modelAvailableProducts);
         tblAvailableProducts.setFont(UIUtils.BODY_FONT);
         tblAvailableProducts.setRowHeight(26);
         tblAvailableProducts.getTableHeader().setFont(UIUtils.BOLD_FONT);
@@ -156,7 +156,7 @@ public class PosPanel extends JPanel {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
         };
-        tblCart = new JTable(modelCart);
+        tblCart = UIUtils.createCustomTable(modelCart);
         tblCart.setFont(UIUtils.BODY_FONT);
         tblCart.setRowHeight(28);
         tblCart.getTableHeader().setFont(UIUtils.BOLD_FONT);
