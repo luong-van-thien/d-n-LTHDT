@@ -39,7 +39,8 @@ public class JDateChooser extends JPanel {
         dateSpinner.setFont(UIUtils.BODY_FONT);
         dateSpinner.setPreferredSize(new Dimension(105, 26));
 
-        btnCalendar = new JButton("📅") {
+        // Vẽ biểu tượng lịch trực tiếp bằng Graphics2D (Triệt tiêu 100% lỗi ô vuông do font không hỗ trợ emoji)
+        btnCalendar = new JButton() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -47,18 +48,32 @@ public class JDateChooser extends JPanel {
                 if (getModel().isPressed()) {
                     g2.setColor(new Color(220, 225, 235));
                 } else if (getModel().isRollover()) {
-                    g2.setColor(new Color(240, 245, 255));
+                    g2.setColor(new Color(235, 242, 255));
                 } else {
                     g2.setColor(new Color(245, 247, 250));
                 }
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-                g2.setColor(new Color(200, 205, 215));
+                g2.setColor(new Color(180, 190, 205));
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
+
+                // Vẽ biểu tượng tờ lịch bằng hình học thuần túy
+                int cx = (getWidth() - 14) / 2;
+                int cy = (getHeight() - 14) / 2;
+                g2.setColor(Color.WHITE);
+                g2.fillRect(cx, cy, 14, 14);
+                g2.setColor(new Color(37, 99, 235)); // Màu xanh dương nẹp lịch
+                g2.fillRect(cx, cy, 14, 4);
+                g2.setColor(new Color(100, 116, 139));
+                g2.drawRect(cx, cy, 14, 14);
+                // Các chấm ngày trên lịch
+                g2.fillRect(cx + 3, cy + 6, 2, 2);
+                g2.fillRect(cx + 8, cy + 6, 2, 2);
+                g2.fillRect(cx + 3, cy + 10, 2, 2);
+                g2.fillRect(cx + 8, cy + 10, 2, 2);
+
                 g2.dispose();
-                super.paintComponent(g);
             }
         };
-        btnCalendar.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 12));
         btnCalendar.setFocusPainted(false);
         btnCalendar.setContentAreaFilled(false);
         btnCalendar.setBorderPainted(false);

@@ -89,7 +89,7 @@ public class MainFrame extends JFrame {
         JPanel pnlUserSection = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 5));
         pnlUserSection.setOpaque(false);
 
-        lblUserInfo = new JLabel("👤 Đang đăng nhập: ...");
+        lblUserInfo = new JLabel("Người dùng: ...");
         lblUserInfo.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblUserInfo.setForeground(new Color(254, 240, 138)); // Vàng nhạt nổi bật
 
@@ -170,8 +170,8 @@ public class MainFrame extends JFrame {
         this.currentUser = user;
         if (user == null) return;
 
-        // 1. Cập nhật Banner hiển thị người dùng
-        lblUserInfo.setText(String.format("👤 %s  |  Vai trò: %s",
+        // 1. Cập nhật Banner hiển thị người dùng (Không dùng emoji tránh lỗi ô vuông)
+        lblUserInfo.setText(String.format("Người dùng: %s  |  Vai trò: %s",
                 user.getFullName(), user.getRole().getDisplayName()));
 
         // 2. Phân quyền các Tab theo phương thức đa hình canAccessTab

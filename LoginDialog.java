@@ -116,13 +116,13 @@ public class LoginDialog extends JDialog {
             lblQuick.setBounds(40, 190, 420, 22);
             centerPanel.add(lblQuick);
 
-            // Nút bấm được nới rộng 205px để KHÔNG BAO GIỜ bị cắt chữ thành "Admi..."
-            btnQuickAdmin = UIUtils.createStyledButton("⚡ Quản lý (Admin)", new Color(13, 110, 253), Color.WHITE);
+            // Không dùng emoji biểu tượng để tránh lỗi ô vuông (tofu) trên Windows Swing
+            btnQuickAdmin = UIUtils.createStyledButton("Quản lý (Admin)", new Color(13, 110, 253), Color.WHITE);
             btnQuickAdmin.setFont(new Font("Segoe UI", Font.BOLD, 12));
             btnQuickAdmin.setBounds(40, 218, 205, 36);
             centerPanel.add(btnQuickAdmin);
 
-            btnQuickCashier = UIUtils.createStyledButton("⚡ Thu ngân (Cashier)", new Color(22, 163, 74), Color.WHITE);
+            btnQuickCashier = UIUtils.createStyledButton("Thu ngân (Cashier)", new Color(22, 163, 74), Color.WHITE);
             btnQuickCashier.setFont(new Font("Segoe UI", Font.BOLD, 12));
             btnQuickCashier.setBounds(255, 218, 205, 36);
             centerPanel.add(btnQuickCashier);
