@@ -2,6 +2,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.Desktop;
+import java.awt.Toolkit;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,20 @@ public class PosController {
     private double currentDiscountAmount = 0.0;
     private double currentFinalAmount = 0.0;
 
+    // Hàng đợi lưu tạm các hóa đơn bị treo (Hold Bills)
+    private static class HeldBill {
+        final Customer customer;
+        final List<InvoiceItem> items;
+        final java.time.LocalDateTime time;
+
+        HeldBill(Customer customer, List<InvoiceItem> items) {
+            this.customer = customer;
+            this.items = items;
+            this.time = java.time.LocalDateTime.now();
+        }
+    }
+    private final List<HeldBill> heldBills = new ArrayList<>();
+
     public PosController(PosPanel view, ProductService productService,
                          CustomerRepository customerRepo, OrderService orderService,
                          Runnable onDataChangedCallback) {
@@ -36,8 +51,8 @@ public class PosController {
     }
 
     private void initListeners() {
-        // 1. Tìm kiếm sản phẩm bán & Lọc danh mục
-        view.getTxtSearchProduct().addActionListener(e -> handleSearchProduct());
+        // 1. Quét mã vạch Barcode (phím Enter) & Tìm kiếm sản phẩm
+        view.getTxtSearchProduct().addActionListener(e -> handleBarcodeOrSearch());
         view.getTxtSearchProduct().getDocument().addDocumentListener(new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { handleSearchProduct(); }
             @Override public void removeUpdate(DocumentEvent e) { handleSearchProduct(); }
@@ -63,12 +78,14 @@ public class PosController {
         view.getBtnDecreaseQty().addActionListener(e -> handleDecreaseCartQty());
         view.getBtnRemoveFromCart().addActionListener(e -> handleRemoveFromCart());
 
-        // 4. Xóa trắng giỏ hàng
+        // 4. Xóa trắng giỏ hàng & Treo / Mở đơn hàng tạm (Hold / Resume Bill)
         view.getBtnClearCart().addActionListener(e -> {
             currentCart.clear();
             view.updateCartTable(currentCart);
             recalculateSummary();
         });
+        view.getBtnHoldBill().addActionListener(e -> handleHoldBill());
+        view.getBtnResumeBill().addActionListener(e -> handleResumeBill());
 
         // 5. Thay đổi khách hàng -> tính lại chiết khấu & điểm thưởng
         view.getCboCustomer().addActionListener(e -> {
@@ -124,6 +141,55 @@ public class PosController {
 
     public void loadCustomers() {
         view.setCustomerList(customerRepo.getAll());
+    }
+
+    /**
+     * Xử lý khi nhấn phím Enter trên ô tìm kiếm:
+     * Hỗ trợ tương thích phần cứng súng quét mã vạch (Barcode Scanner).
+     * Súng quét mã vạch sẽ nhập chuỗi mã SP + tự động gửi ký tự Enter.
+     */
+    private void handleBarcodeOrSearch() {
+        String code = view.getTxtSearchProduct().getText().trim();
+        if (code.isEmpty()) return;
+
+        Product product = productService.getProductById(code);
+        if (product != null) {
+            // Đúng mã SP (Barcode) -> Thêm ngay 1 món vào giỏ & phát tiếng bíp
+            addProductDirectlyToCart(product);
+            Toolkit.getDefaultToolkit().beep(); // Âm thanh bíp quét mã vạch
+            view.getTxtSearchProduct().setText("");
+            SwingUtilities.invokeLater(() -> view.getTxtSearchProduct().requestFocusInWindow());
+            return;
+        }
+
+        handleSearchProduct();
+    }
+
+    private void addProductDirectlyToCart(Product product) {
+        InvoiceItem existingItem = null;
+        for (InvoiceItem item : currentCart) {
+            if (item.getProduct().getId().equalsIgnoreCase(product.getId())) {
+                existingItem = item;
+                break;
+            }
+        }
+
+        int currentQtyInCart = (existingItem != null) ? existingItem.getQuantity() : 0;
+        if (currentQtyInCart + 1 > product.getQuantity()) {
+            JOptionPane.showMessageDialog(view,
+                    String.format("Kho chỉ còn %d sản phẩm '%s'!", product.getQuantity(), product.getName()),
+                    "Hết hàng trong kho", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (existingItem != null) {
+            existingItem.setQuantity(existingItem.getQuantity() + 1);
+        } else {
+            currentCart.add(new InvoiceItem(product, 1, product.getSellingPrice()));
+        }
+
+        view.updateCartTable(currentCart);
+        recalculateSummary();
     }
 
     private void handleSearchProduct() {
@@ -211,6 +277,97 @@ public class PosController {
             view.getTblCart().setRowSelectionInterval(row, row);
         }
         recalculateSummary();
+    }
+
+    /**
+     * Nghiệp vụ Treo Đơn (Hold Bill):
+     * Lưu tạm đơn hàng của khách hiện tại vào hàng đợi để phục vụ khách tiếp theo.
+     */
+    private void handleHoldBill() {
+        if (currentCart.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Giỏ hàng đang trống, không thể treo đơn!", "Nhắc nhở", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Customer cust = (Customer) view.getCboCustomer().getSelectedItem();
+        List<InvoiceItem> copyItems = new ArrayList<>();
+        for (InvoiceItem item : currentCart) {
+            copyItems.add(new InvoiceItem(item.getProduct(), item.getQuantity(), item.getUnitPrice()));
+        }
+
+        heldBills.add(new HeldBill(cust, copyItems));
+        currentCart.clear();
+        view.updateCartTable(currentCart);
+        view.getTxtCashGiven().setText("0");
+        recalculateSummary();
+        updateResumeButtonText();
+
+        JOptionPane.showMessageDialog(view,
+                String.format("Đã lưu tạm đơn hàng của khách [%s] vào hàng đợi!\nQuầy sẵn sàng tính tiền cho khách tiếp theo.",
+                        cust != null ? cust.getName() : "Khách lẻ"),
+                "Treo Đơn Thành Công", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /**
+     * Nghiệp vụ Mở Đơn Treo (Resume Bill):
+     * Mở lại hóa đơn đã lưu tạm khi khách quay lại quầy.
+     */
+    private void handleResumeBill() {
+        if (heldBills.isEmpty()) {
+            JOptionPane.showMessageDialog(view, "Hiện không có đơn hàng nào đang treo!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        if (!currentCart.isEmpty()) {
+            int opt = JOptionPane.showConfirmDialog(view,
+                    "Giỏ hàng hiện tại đang có sản phẩm. Bạn có muốn lưu tạm đơn này trước khi mở đơn khác không?",
+                    "Xác nhận", JOptionPane.YES_NO_CANCEL_OPTION);
+            if (opt == JOptionPane.CANCEL_OPTION) return;
+            if (opt == JOptionPane.YES_OPTION) {
+                handleHoldBill();
+            } else {
+                currentCart.clear();
+            }
+        }
+
+        String[] options = new String[heldBills.size()];
+        for (int i = 0; i < heldBills.size(); i++) {
+            HeldBill hb = heldBills.get(i);
+            String cName = hb.customer != null ? hb.customer.getName() : "Khách lẻ";
+            double total = hb.items.stream().mapToDouble(InvoiceItem::getSubTotal).sum();
+            options[i] = String.format("Đơn #%d: %s | %d món | %s (Lưu lúc: %s)",
+                    i + 1, cName, hb.items.size(), UIUtils.formatCurrency(total),
+                    hb.time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")));
+        }
+
+        String chosen = (String) JOptionPane.showInputDialog(view,
+                "Chọn đơn hàng đã treo cần mở lại để thanh toán:",
+                "Khôi Phục Đơn Treo",
+                JOptionPane.QUESTION_MESSAGE,
+                null, options, options[0]);
+
+        if (chosen != null) {
+            int idx = -1;
+            for (int i = 0; i < options.length; i++) {
+                if (options[i].equals(chosen)) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx >= 0) {
+                HeldBill restored = heldBills.remove(idx);
+                currentCart.clear();
+                currentCart.addAll(restored.items);
+                view.updateCartTable(currentCart);
+                view.getCboCustomer().setSelectedItem(restored.customer);
+                recalculateSummary();
+                updateResumeButtonText();
+            }
+        }
+    }
+
+    private void updateResumeButtonText() {
+        view.getBtnResumeBill().setText("Mở đơn treo (" + heldBills.size() + ")");
     }
 
     private void handleAddToCart() {
@@ -394,6 +551,10 @@ public class PosController {
                 if (file.exists() && Desktop.isDesktopSupported()) {
                     Desktop.getDesktop().open(file);
                 }
+            }
+
+            if (orderService.getLastUpgradeMessage() != null) {
+                JOptionPane.showMessageDialog(view, orderService.getLastUpgradeMessage(), "Nâng Hạng VIP!", JOptionPane.INFORMATION_MESSAGE);
             }
 
             currentCart.clear();

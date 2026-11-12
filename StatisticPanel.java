@@ -18,6 +18,9 @@ public class StatisticPanel extends JPanel {
     private final StatisticService statisticService;
     private final ProductService productService;
 
+    // Filter time range
+    private JComboBox<String> cboTimeRange;
+
     // Top 4 KPI Cards
     private JLabel lblTotalRevenue;
     private JLabel lblTotalProfit;
@@ -58,8 +61,31 @@ public class StatisticPanel extends JPanel {
 
     private void initComponents() {
         // =========================================================================
-        // 1. TOP: 4 THẺ KPI TỔNG QUAN
+        // 1. TOP: THANH LỌC THỜI GIAN & 4 THẺ KPI TỔNG QUAN
         // =========================================================================
+        JPanel filterBar = new JPanel(new BorderLayout(10, 0));
+        filterBar.setBackground(UIUtils.BG_LIGHT);
+        filterBar.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+
+        JLabel lblDashTitle = new JLabel("TỔNG QUAN TÌNH HÌNH KINH DOANH & KHO HÀNG");
+        lblDashTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblDashTitle.setForeground(UIUtils.PRIMARY_COLOR);
+        filterBar.add(lblDashTitle, BorderLayout.WEST);
+
+        JPanel rightFilter = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+        rightFilter.setBackground(UIUtils.BG_LIGHT);
+        rightFilter.add(new JLabel("Khoảng thời gian:"));
+        cboTimeRange = new JComboBox<>(new String[]{
+                "Toàn bộ thời gian (Tất cả)",
+                "Hôm nay",
+                "7 ngày qua (Tuần này)",
+                "Tháng này"
+        });
+        cboTimeRange.setFont(UIUtils.BOLD_FONT);
+        cboTimeRange.addActionListener(e -> refreshStatistics());
+        rightFilter.add(cboTimeRange);
+        filterBar.add(rightFilter, BorderLayout.EAST);
+
         JPanel topCards = new JPanel(new GridLayout(1, 4, 12, 0));
         topCards.setBackground(UIUtils.BG_LIGHT);
 
@@ -73,7 +99,12 @@ public class StatisticPanel extends JPanel {
         topCards.add(createKpiCard("SỐ LƯỢNG HÓA ĐƠN", lblTotalInvoices, new Color(111, 66, 193), "Giao dịch thành công"));
         topCards.add(createKpiCard("TỔNG HÀNG TRONG KHO", lblTotalInventory, new Color(253, 126, 20), "Số lượng sản phẩm còn lại"));
 
-        add(topCards, BorderLayout.NORTH);
+        JPanel topContainer = new JPanel(new BorderLayout(0, 6));
+        topContainer.setBackground(UIUtils.BG_LIGHT);
+        topContainer.add(filterBar, BorderLayout.NORTH);
+        topContainer.add(topCards, BorderLayout.CENTER);
+
+        add(topContainer, BorderLayout.NORTH);
 
         // =========================================================================
         // 2. CENTER: BẢNG DỮ LIỆU & CẢNH BÁO (Cao cân đối 220px)
@@ -306,9 +337,10 @@ public class StatisticPanel extends JPanel {
     }
 
     public void refreshStatistics() {
-        double revenue = statisticService.calculateTotalRevenue();
-        double profit = statisticService.calculateTotalEstimatedProfit();
-        int invoices = statisticService.getTotalInvoicesCount();
+        int timeMode = (cboTimeRange != null) ? cboTimeRange.getSelectedIndex() : 0;
+        double revenue = statisticService.calculateTotalRevenue(timeMode);
+        double profit = statisticService.calculateTotalEstimatedProfit(timeMode);
+        int invoices = statisticService.getTotalInvoicesCount(timeMode);
         int inventory = statisticService.getTotalInventoryQuantity();
 
         lblTotalRevenue.setText(UIUtils.formatCurrency(revenue));
@@ -365,8 +397,8 @@ public class StatisticPanel extends JPanel {
         lblLowStock.setText(statisticService.getLowStockCount(5) + " mặt hàng");
         lblOutOfStock.setText(statisticService.getOutOfStockCount() + " mặt hàng");
 
-        lblAvgOrderValue.setText(UIUtils.formatCurrency(statisticService.getAverageOrderValue()));
-        lblTotalDiscount.setText(UIUtils.formatCurrency(statisticService.getTotalDiscountGiven()));
+        lblAvgOrderValue.setText(UIUtils.formatCurrency(statisticService.getAverageOrderValue(timeMode)));
+        lblTotalDiscount.setText(UIUtils.formatCurrency(statisticService.getTotalDiscountGiven(timeMode)));
     }
 
     private void exportStatisticToCsv() {

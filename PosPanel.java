@@ -25,6 +25,8 @@ public class PosPanel extends JPanel {
     private JButton btnDecreaseQty;
     private JButton btnRemoveFromCart;
     private JButton btnClearCart;
+    private JButton btnHoldBill;
+    private JButton btnResumeBill;
     private JLabel lblCartSummary;
 
     // 3. Right: Checkout & Customer Info
@@ -184,11 +186,15 @@ public class PosPanel extends JPanel {
         btnDecreaseQty = UIUtils.createStyledButton("-1 SL", UIUtils.GRAY_COLOR, Color.WHITE);
         btnRemoveFromCart = UIUtils.createStyledButton("Xóa món", UIUtils.DANGER_COLOR, Color.WHITE);
         btnClearCart = UIUtils.createStyledButton("Làm trống", new Color(108, 117, 125), Color.WHITE);
+        btnHoldBill = UIUtils.createStyledButton("Treo đơn", new Color(217, 119, 6), Color.WHITE);
+        btnResumeBill = UIUtils.createStyledButton("Mở đơn treo (0)", new Color(13, 110, 253), Color.WHITE);
 
         cartActions.add(btnIncreaseQty);
         cartActions.add(btnDecreaseQty);
         cartActions.add(btnRemoveFromCart);
         cartActions.add(btnClearCart);
+        cartActions.add(btnHoldBill);
+        cartActions.add(btnResumeBill);
 
         lblCartSummary = new JLabel("Tổng: 0 mặt hàng (0 sản phẩm)", JLabel.RIGHT);
         lblCartSummary.setFont(UIUtils.BOLD_FONT);
@@ -477,6 +483,8 @@ public class PosPanel extends JPanel {
     public JButton getBtnDecreaseQty() { return btnDecreaseQty; }
     public JButton getBtnRemoveFromCart() { return btnRemoveFromCart; }
     public JButton getBtnClearCart() { return btnClearCart; }
+    public JButton getBtnHoldBill() { return btnHoldBill; }
+    public JButton getBtnResumeBill() { return btnResumeBill; }
     public JLabel getLblCartSummary() { return lblCartSummary; }
     public JComboBox<Customer> getCboCustomer() { return cboCustomer; }
     public JButton getBtnNewCustomer() { return btnNewCustomer; }

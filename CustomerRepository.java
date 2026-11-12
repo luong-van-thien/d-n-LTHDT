@@ -50,17 +50,39 @@ public class CustomerRepository {
         saveToFile();
     }
 
-    public synchronized void updateSpentAndPoints(String customerId, double amount) {
+    public synchronized String updateSpentAndPoints(String customerId, double amount) {
         Customer c = findById(customerId);
-        if (c != null) {
-            c.addSpent(amount);
-            if (c instanceof VIPCustomer) {
-                // Mỗi 10.000 VNĐ cộng 1 điểm loyalty
-                int earnedPoints = (int) (amount / 10000);
-                ((VIPCustomer) c).addPoints(earnedPoints);
+        if (c == null) return null;
+
+        c.addSpent(amount);
+
+        if (c instanceof VIPCustomer) {
+            // Mỗi 10.000 VNĐ cộng 1 điểm loyalty
+            int earnedPoints = (int) (amount / 10000);
+            ((VIPCustomer) c).addPoints(earnedPoints);
+            saveToFile();
+            return null;
+        } else if (c instanceof RegularCustomer) {
+            // Mốc nâng hạng VIP: Chi tiêu tích lũy đạt từ 5.000.000 đ
+            if (c.getTotalSpent() >= 5_000_000) {
+                int initialVipPoints = (int) (c.getTotalSpent() / 10000);
+                VIPCustomer upgradedVip = new VIPCustomer(c.getCustomerId(), c.getName(), c.getPhone(), c.getTotalSpent(), initialVipPoints);
+
+                // Nâng cấp đối tượng: thay thế đối tượng Regular cũ bằng đối tượng VIP mới
+                customerMap.put(c.getCustomerId(), upgradedVip);
+                int index = customerList.indexOf(c);
+                if (index >= 0) {
+                    customerList.set(index, upgradedVip);
+                }
+                saveToFile();
+                return String.format("CHÚC MỪNG KHÁCH HÀNG [%s] ĐÃ ĐẠT ĐIỀU KIỆN LÊN HẠNG VIP!\n" +
+                        "Tổng tích lũy: %,.0f đ | Điểm thưởng khởi tạo: %d điểm.\n" +
+                        "Từ đơn sau khách hàng sẽ được hưởng chiết khấu VIP 5%% - 10%%!",
+                        upgradedVip.getName(), upgradedVip.getTotalSpent(), initialVipPoints);
             }
             saveToFile();
         }
+        return null;
     }
 
     private void loadFromFile() {

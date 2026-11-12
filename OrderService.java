@@ -10,11 +10,16 @@ public class OrderService {
     private final ProductRepository productRepo;
     private final CustomerRepository customerRepo;
     private final InvoiceRepository invoiceRepo;
+    private String lastUpgradeMessage;
 
     public OrderService(ProductRepository productRepo, CustomerRepository customerRepo, InvoiceRepository invoiceRepo) {
         this.productRepo = productRepo;
         this.customerRepo = customerRepo;
         this.invoiceRepo = invoiceRepo;
+    }
+
+    public String getLastUpgradeMessage() {
+        return lastUpgradeMessage;
     }
 
     /**
@@ -62,9 +67,10 @@ public class OrderService {
             productRepo.updateQuantity(p.getId(), remaining);
         }
 
-        // 4. Cập nhật tích lũy chi tiêu và điểm cho khách hàng
+        // 4. Cập nhật tích lũy chi tiêu và kiểm tra nâng hạng VIP
+        this.lastUpgradeMessage = null;
         if (customer != null) {
-            customerRepo.updateSpentAndPoints(customer.getCustomerId(), invoice.getFinalAmount());
+            this.lastUpgradeMessage = customerRepo.updateSpentAndPoints(customer.getCustomerId(), invoice.getFinalAmount());
         }
 
         // 5. Lưu hóa đơn vào hệ thống

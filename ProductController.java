@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -6,6 +7,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -84,6 +86,83 @@ public class ProductController {
 
         // 10. Nút Xuất Excel/CSV danh sách kho
         view.getBtnExportCsv().addActionListener(e -> handleExportCsv());
+
+        // 11. Nút Tạo Phiếu Nhập Hàng Tự Động
+        view.getBtnCreateRestockOrder().addActionListener(e -> handleCreateRestockOrder());
+    }
+
+    private void handleCreateRestockOrder() {
+        List<Product> lowStock = productService.getLowStockProducts(5);
+        List<Product> expiring = productService.getExpiringProducts();
+        List<Product> needRestock = new ArrayList<>(lowStock);
+        for (Product p : expiring) {
+            if (!needRestock.contains(p)) {
+                needRestock.add(p);
+            }
+        }
+
+        if (needRestock.isEmpty()) {
+            JOptionPane.showMessageDialog(view,
+                    "Kho hàng đang ở trạng thái an toàn!\nKhông có mặt hàng nào cần nhập bù hoặc xử lý date.",
+                    "Kho Hàng An Toàn", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String timestamp = java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        String fileName = "PhieuNhapHang_" + timestamp + ".txt";
+        File file = new File(fileName);
+
+        double totalEstimatedCost = 0.0;
+        int targetSafeStock = 50; // Đề xuất nhập bù lên mức an toàn 50 SP
+
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
+
+            writer.write("========================================================================================\n");
+            writer.write("                       SIÊU THỊ MINI (MINIMART SYSTEM) - PTIT HCM                       \n");
+            writer.write("                               PHIẾU ĐỀ NGHỊ NHẬP HÀNG                                  \n");
+            writer.write("========================================================================================\n");
+            writer.write(String.format("Mã phiếu : PN-%s\n", timestamp));
+            writer.write(String.format("Ngày lập : %s\n", java.time.LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))));
+            writer.write("Đơn vị đề xuất: Bộ phận Quản trị Kho hàng & Hàng tồn\n");
+            writer.write(String.format("Lý do lập: Có %d mặt hàng rơi vào trạng thái nguy cấp (tồn kho <= 5 hoặc cận date).\n", needRestock.size()));
+            writer.write("----------------------------------------------------------------------------------------\n");
+            writer.write(String.format("%-8s %-25s %-12s %-10s %-14s %-15s\n",
+                    "Mã SP", "Tên sản phẩm", "Tồn hiện tại", "Đề xuất bù", "Giá nhập (đ)", "Dự toán (đ)"));
+            writer.write("----------------------------------------------------------------------------------------\n");
+
+            for (Product p : needRestock) {
+                int restockQty = Math.max(10, targetSafeStock - p.getQuantity());
+                double cost = restockQty * p.getImportPrice();
+                totalEstimatedCost += cost;
+
+                String pName = p.getName();
+                if (pName.length() > 24) pName = pName.substring(0, 22) + "..";
+
+                writer.write(String.format("%-8s %-25s %-12d %-10d %-14s %-15s\n",
+                        p.getId(), pName, p.getQuantity(), restockQty,
+                        UIUtils.formatCurrency(p.getImportPrice()),
+                        UIUtils.formatCurrency(cost)));
+            }
+
+            writer.write("----------------------------------------------------------------------------------------\n");
+            writer.write(String.format("TỔNG CHI PHÍ DỰ TOÁN NHẬP KHO: %,.0f VNĐ\n", totalEstimatedCost));
+            writer.write("========================================================================================\n");
+            writer.write("   NGƯỜI LẬP PHIẾU                  THỦ KHO PHÊ DUYỆT                 BAN GIÁM ĐỐC      \n");
+            writer.write("      (Ký & ghi rõ họ tên)             (Ký & ghi rõ họ tên)               (Đã duyệt)    \n\n\n\n");
+
+            int opt = JOptionPane.showConfirmDialog(view,
+                    String.format("Đã tạo Phiếu nhập hàng thành công cho %d mặt hàng cần bổ sung!\nTổng dự toán kinh phí: %s\n\nBạn có muốn mở file phiếu nhập hàng vừa tạo không?",
+                            needRestock.size(), UIUtils.formatCurrency(totalEstimatedCost)),
+                    "Tạo Phiếu Nhập Hàng Thành Công", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+
+            if (opt == JOptionPane.YES_OPTION && Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(file);
+            }
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(view, "Lỗi khi tạo phiếu nhập hàng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void handleExportCsv() {

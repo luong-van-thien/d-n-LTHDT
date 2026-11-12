@@ -21,6 +21,7 @@ public class ProductPanel extends JPanel {
     private JButton btnSearch;
     private JButton btnResetFilter;
     private JButton btnAlertFilter;
+    private JButton btnCreateRestockOrder;
     private JButton btnExportCsv;
 
     // Form Input Components
@@ -93,11 +94,13 @@ public class ProductPanel extends JPanel {
         btnSearch = UIUtils.createStyledButton("Lọc / Tìm", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnResetFilter = UIUtils.createStyledButton("Làm mới", UIUtils.GRAY_COLOR, Color.WHITE);
         btnAlertFilter = UIUtils.createStyledButton("Cảnh báo tồn/hạn", UIUtils.WARNING_COLOR, Color.WHITE);
+        btnCreateRestockOrder = UIUtils.createStyledButton("Tạo Phiếu Nhập Hàng", new Color(194, 65, 12), Color.WHITE);
         btnExportCsv = UIUtils.createStyledButton("Xuất Excel/CSV", new Color(13, 110, 253), Color.WHITE);
 
         topPanel.add(btnSearch);
         topPanel.add(btnResetFilter);
         topPanel.add(btnAlertFilter);
+        topPanel.add(btnCreateRestockOrder);
         topPanel.add(btnExportCsv);
 
         add(topPanel, BorderLayout.NORTH);
@@ -128,12 +131,44 @@ public class ProductPanel extends JPanel {
         tblProducts.getColumnModel().getColumn(6).setPreferredWidth(95);
         tblProducts.getColumnModel().getColumn(7).setPreferredWidth(230);
 
-        DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
-        tblProducts.getColumnModel().getColumn(3).setCellRenderer(rightRenderer);
-        tblProducts.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
-        tblProducts.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
-        tblProducts.getColumnModel().getColumn(6).setCellRenderer(rightRenderer);
+        // Đánh dấu màu nổi bật (Highlight) cảnh báo cho các dòng nguy cấp
+        tblProducts.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int col) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+
+                if (!isSelected) {
+                    try {
+                        Object qtyObj = table.getValueAt(row, 5);
+                        int qty = (qtyObj instanceof Integer) ? (Integer) qtyObj : Integer.parseInt(qtyObj.toString().trim());
+                        String warningInfo = table.getValueAt(row, 7) != null ? table.getValueAt(row, 7).toString() : "";
+
+                        if (qty == 0 || warningInfo.contains("[ĐÃ HẾT HẠN!")) {
+                            c.setBackground(new Color(254, 226, 226)); // Đỏ nhạt cho hàng hết / hết hạn
+                            c.setForeground(new Color(185, 28, 28));
+                        } else if (qty <= 5 || warningInfo.contains("[CẢNH BÁO")) {
+                            c.setBackground(new Color(254, 243, 199)); // Vàng cam cho hàng tồn ít / cận date
+                            c.setForeground(new Color(180, 83, 9));
+                        } else {
+                            c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 250, 252));
+                            c.setForeground(new Color(30, 41, 59));
+                        }
+                    } catch (Exception ex) {
+                        c.setBackground(Color.WHITE);
+                        c.setForeground(Color.BLACK);
+                    }
+                }
+
+                if (col >= 3 && col <= 6) {
+                    setHorizontalAlignment(JLabel.RIGHT);
+                } else {
+                    setHorizontalAlignment(JLabel.LEFT);
+                }
+
+                return c;
+            }
+        });
 
         JScrollPane scrollPane = new JScrollPane(tblProducts);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 224, 230), 1));
@@ -269,6 +304,7 @@ public class ProductPanel extends JPanel {
     public JButton getBtnSearch() { return btnSearch; }
     public JButton getBtnResetFilter() { return btnResetFilter; }
     public JButton getBtnAlertFilter() { return btnAlertFilter; }
+    public JButton getBtnCreateRestockOrder() { return btnCreateRestockOrder; }
     public JButton getBtnExportCsv() { return btnExportCsv; }
 
     public JTextField getTxtId() { return txtId; }

@@ -1,4 +1,7 @@
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Lớp Dịch vụ Thống kê & Báo cáo doanh thu (StatisticService).
@@ -12,20 +15,51 @@ public class StatisticService {
         this.invoiceRepo = invoiceRepo;
     }
 
-    public double calculateTotalRevenue() {
+    public List<Invoice> getFilteredInvoices(int timeMode) {
+        LocalDate today = LocalDate.now();
         return invoiceRepo.getAll().stream()
+                .filter(inv -> {
+                    LocalDate invDate = inv.getCreatedAt().toLocalDate();
+                    switch (timeMode) {
+                        case 1: // Hôm nay
+                            return invDate.isEqual(today);
+                        case 2: // 7 ngày qua
+                            return inv.getCreatedAt().isAfter(LocalDateTime.now().minusDays(7));
+                        case 3: // Tháng này
+                            return invDate.getMonth() == today.getMonth() && invDate.getYear() == today.getYear();
+                        default: // 0: Tất cả
+                            return true;
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    public double calculateTotalRevenue() {
+        return calculateTotalRevenue(0);
+    }
+
+    public double calculateTotalRevenue(int timeMode) {
+        return getFilteredInvoices(timeMode).stream()
                 .mapToDouble(Invoice::getFinalAmount)
                 .sum();
     }
 
     public double calculateTotalEstimatedProfit() {
-        return invoiceRepo.getAll().stream()
+        return calculateTotalEstimatedProfit(0);
+    }
+
+    public double calculateTotalEstimatedProfit(int timeMode) {
+        return getFilteredInvoices(timeMode).stream()
                 .mapToDouble(Invoice::calculateTotalProfit)
                 .sum();
     }
 
     public int getTotalInvoicesCount() {
-        return invoiceRepo.getAll().size();
+        return getTotalInvoicesCount(0);
+    }
+
+    public int getTotalInvoicesCount(int timeMode) {
+        return getFilteredInvoices(timeMode).size();
     }
 
     public int getTotalInventoryQuantity() {
@@ -91,13 +125,21 @@ public class StatisticService {
     }
 
     public double getAverageOrderValue() {
-        List<Invoice> invoices = invoiceRepo.getAll();
-        if (invoices.isEmpty()) return 0.0;
-        return calculateTotalRevenue() / invoices.size();
+        return getAverageOrderValue(0);
+    }
+
+    public double getAverageOrderValue(int timeMode) {
+        List<Invoice> list = getFilteredInvoices(timeMode);
+        if (list.isEmpty()) return 0.0;
+        return calculateTotalRevenue(timeMode) / list.size();
     }
 
     public double getTotalDiscountGiven() {
-        return invoiceRepo.getAll().stream()
+        return getTotalDiscountGiven(0);
+    }
+
+    public double getTotalDiscountGiven(int timeMode) {
+        return getFilteredInvoices(timeMode).stream()
                 .mapToDouble(Invoice::getDiscountAmount)
                 .sum();
     }
