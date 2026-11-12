@@ -19,6 +19,7 @@ public class ProductController {
     private final ProductPanel view;
     private final ProductService productService;
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
+    private boolean isAlertFiltering = false;
 
     public ProductController(ProductPanel view, ProductService productService) {
         this.view = view;
@@ -26,10 +27,11 @@ public class ProductController {
 
         initListeners();
         loadAllProducts();
+        clearForm(); // Tự động điền Mã SP kế tiếp ngay khi khởi động
     }
 
     private void initListeners() {
-        // 1. Sự kiện chọn dòng trên bảng -> Nạp dữ liệu vào form
+        // 1. Sự kiện chọn dòng trên bảng -> Nạp dữ liệu vào form; khi hủy chọn -> làm mới form
         view.getTblProducts().getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int selectedRow = view.getTblProducts().getSelectedRow();
@@ -38,6 +40,8 @@ public class ProductController {
                     if (val != null) {
                         displayProductDetails(val.toString());
                     }
+                } else if (selectedRow == -1) {
+                    clearForm();
                 }
             }
         });
@@ -64,23 +68,29 @@ public class ProductController {
         });
         view.getCboFilterCategory().addActionListener(e -> handleSearch());
 
-        // 7. Nút Làm mới bộ lọc
-        view.getBtnResetFilter().addActionListener(e -> {
-            view.getTxtSearch().setText("");
-            view.getCboFilterCategory().setSelectedIndex(0);
-            view.getCboSort().setSelectedIndex(0);
-            loadAllProducts();
-        });
+        // 7. Nút Quay lại tất cả sản phẩm (Làm mới bộ lọc)
+        view.getBtnResetFilter().addActionListener(e -> resetToAllProducts());
 
-        // 8. Nút Cảnh báo hàng tồn ít / sắp hết hạn
+        // 8. Nút Cảnh báo hàng tồn ít / sắp hết hạn (Hỗ trợ Toggle Bật/Tắt quay lại tức thì)
         view.getBtnAlertFilter().addActionListener(e -> {
-            List<Product> lowStock = productService.getLowStockProducts(5);
-            List<Product> expiring = productService.getExpiringProducts();
-            lowStock.addAll(expiring.stream().filter(p -> !lowStock.contains(p)).toList());
-            view.updateTable(lowStock);
-            JOptionPane.showMessageDialog(view,
-                    String.format("Đã phát hiện %d sản phẩm cần chú ý (tồn kho <= 5 hoặc sắp hết hạn)!", lowStock.size()),
-                    "Cảnh báo hàng hóa", JOptionPane.WARNING_MESSAGE);
+            if (!isAlertFiltering) {
+                List<Product> lowStock = productService.getLowStockProducts(5);
+                List<Product> expiring = productService.getExpiringProducts();
+                List<Product> alerts = new ArrayList<>(lowStock);
+                for (Product p : expiring) {
+                    if (!alerts.contains(p)) alerts.add(p);
+                }
+                view.updateTable(alerts);
+                isAlertFiltering = true;
+                view.getBtnAlertFilter().setText("Quay lại tất cả SP (" + alerts.size() + " cảnh báo)");
+                JOptionPane.showMessageDialog(view,
+                        String.format("Đã phát hiện %d sản phẩm cần chú ý (tồn kho <= 5 hoặc sắp hết hạn)!\n\n" +
+                                "(Mẹo: Bạn có thể bấm lại nút này hoặc bấm 'Quay lại tất cả SP' bất cứ lúc nào để xem lại toàn bộ kho)",
+                                alerts.size()),
+                        "Cảnh báo hàng hóa", JOptionPane.WARNING_MESSAGE);
+            } else {
+                resetToAllProducts();
+            }
         });
 
         // 9. ComboBox Sắp xếp (Dùng Lambda Expression và Comparator)
@@ -229,6 +239,21 @@ public class ProductController {
     }
 
     private void handleAddProduct() {
+        String currentId = view.getTxtId().getText().trim();
+
+        // Xử lý thông minh: Nếu người dùng đang chọn 1 sản phẩm có sẵn trên bảng (hoặc ô Mã SP đã tồn tại)
+        // mà bấm 'Thêm mới' -> Tự động chuyển sang chế độ Thêm mới với Mã SP kế tiếp, tránh lỗi trùng mã!
+        if (!view.getTxtId().isEditable() || productService.getProductById(currentId) != null) {
+            clearForm();
+            JOptionPane.showMessageDialog(view,
+                    "Hệ thống đã tự động chuyển sang chế độ Thêm mới!\n" +
+                    "Mã sản phẩm mới được sinh tự động: [" + view.getTxtId().getText() + "]\n\n" +
+                    "Vui lòng nhập Tên sản phẩm, Giá bán và bấm 'Thêm mới' một lần nữa để lưu vào kho.",
+                    "Sẵn sàng thêm sản phẩm mới", JOptionPane.INFORMATION_MESSAGE);
+            view.getTxtName().requestFocus();
+            return;
+        }
+
         try {
             Product p = buildProductFromInputs();
             productService.addProduct(p);
@@ -281,6 +306,9 @@ public class ProductController {
     }
 
     private void handleSearch() {
+        isAlertFiltering = false;
+        view.getBtnAlertFilter().setText("Cảnh báo tồn/hạn");
+
         String keyword = view.getTxtSearch().getText();
         int catIndex = view.getCboFilterCategory().getSelectedIndex();
         Category cat = null;
@@ -290,6 +318,15 @@ public class ProductController {
 
         List<Product> result = productService.searchAndFilter(keyword, cat);
         view.updateTable(result);
+    }
+
+    public void resetToAllProducts() {
+        isAlertFiltering = false;
+        view.getBtnAlertFilter().setText("Cảnh báo tồn/hạn");
+        view.getTxtSearch().setText("");
+        view.getCboFilterCategory().setSelectedIndex(0);
+        view.getCboSort().setSelectedIndex(0);
+        loadAllProducts();
     }
 
     private void handleSort() {
@@ -422,12 +459,13 @@ public class ProductController {
     }
 
     private void clearForm() {
-        view.getTxtId().setText("");
+        String nextId = productService.generateNextId();
+        view.getTxtId().setText(nextId);
         view.getTxtId().setEditable(true);
         view.getTxtName().setText("");
         view.getTxtImportPrice().setText("");
         view.getTxtSellingPrice().setText("");
-        view.getTxtQuantity().setText("");
+        view.getTxtQuantity().setText("50");
         view.getDateFoodNsx().setLocalDate(LocalDate.now().minusMonths(1));
         view.getDateFoodHsd().setLocalDate(LocalDate.now().plusMonths(6));
         view.getDateBevHsd().setLocalDate(LocalDate.now().plusMonths(9));
@@ -436,6 +474,7 @@ public class ProductController {
         view.getTxtElecWarranty().setText("12");
         view.getTxtElecWatt().setText("1000");
         view.getTblProducts().clearSelection();
+        view.getTxtName().requestFocus();
     }
 }
 

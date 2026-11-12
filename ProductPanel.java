@@ -95,8 +95,10 @@ public class ProductPanel extends JPanel {
         topPanel.add(cboSort);
 
         btnSearch = UIUtils.createStyledButton("Lọc / Tìm", UIUtils.PRIMARY_COLOR, Color.WHITE);
-        btnResetFilter = UIUtils.createStyledButton("Làm mới", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnResetFilter = UIUtils.createStyledButton("Quay lại tất cả SP", new Color(59, 130, 246), Color.WHITE);
+        btnResetFilter.setToolTipText("Bấm để hiển thị đầy đủ toàn bộ kho hàng");
         btnAlertFilter = UIUtils.createStyledButton("Cảnh báo tồn/hạn", UIUtils.WARNING_COLOR, Color.WHITE);
+        btnAlertFilter.setToolTipText("Bật/Tắt chế độ xem các sản phẩm tồn kho ít (<= 5) hoặc sắp hết hạn");
         btnCreateRestockOrder = UIUtils.createStyledButton("Tạo Phiếu Nhập Hàng", new Color(194, 65, 12), Color.WHITE);
         btnExportCsv = UIUtils.createStyledButton("Xuất Excel/CSV", new Color(13, 110, 253), Color.WHITE);
 
@@ -181,6 +183,20 @@ public class ProductPanel extends JPanel {
 
         JScrollPane scrollPane = new JScrollPane(tblProducts);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 224, 230), 1));
+
+        // Click vào vùng trống của bảng hoặc thanh cuộn sẽ tự động hủy chọn dòng để người dùng thêm mới dễ dàng
+        java.awt.event.MouseAdapter deselectListener = new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                int row = tblProducts.rowAtPoint(e.getPoint());
+                if (row == -1) {
+                    tblProducts.clearSelection();
+                }
+            }
+        };
+        tblProducts.addMouseListener(deselectListener);
+        scrollPane.getViewport().addMouseListener(deselectListener);
+
         add(scrollPane, BorderLayout.CENTER);
 
         // 3. BOTTOM PANEL: Form nhập liệu & Buttons
@@ -274,7 +290,8 @@ public class ProductPanel extends JPanel {
         btnAdd = UIUtils.createStyledButton("Thêm mới", UIUtils.SUCCESS_COLOR, Color.WHITE);
         btnUpdate = UIUtils.createStyledButton("Cập nhật", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnDelete = UIUtils.createStyledButton("Xóa", UIUtils.DANGER_COLOR, Color.WHITE);
-        btnClear = UIUtils.createStyledButton("Xóa trắng form", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnClear = UIUtils.createStyledButton("Tạo mới / Xóa form", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnClear.setToolTipText("Xóa trắng form và tự động điền Mã sản phẩm mới tiếp theo để thêm hàng");
 
         buttonPanel.add(btnAdd);
         buttonPanel.add(btnUpdate);

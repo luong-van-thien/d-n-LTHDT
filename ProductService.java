@@ -113,5 +113,23 @@ public class ProductService {
                 .filter(Product::isExpiringSoon)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Tự động sinh mã sản phẩm mới tiếp theo (ví dụ: SP010, SP011...).
+     * Giúp người dùng không phải đoán mã hoặc bị lỗi trùng mã SP khi thêm mới.
+     */
+    public String generateNextId() {
+        int maxNum = 0;
+        for (Product p : productRepo.getAll()) {
+            String id = p.getId();
+            if (id != null && id.toUpperCase().startsWith("SP")) {
+                try {
+                    int num = Integer.parseInt(id.substring(2).trim());
+                    if (num > maxNum) maxNum = num;
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return String.format("SP%03d", maxNum + 1);
+    }
 }
 
