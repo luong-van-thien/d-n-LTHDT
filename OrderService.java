@@ -22,6 +22,10 @@ public class OrderService {
         return lastUpgradeMessage;
     }
 
+    public VIPCustomer getLastUpgradedCustomer() {
+        return customerRepo.getLastUpgradedCustomer();
+    }
+
     /**
      * Tiến hành thanh toán đơn hàng (Checkout).
      */

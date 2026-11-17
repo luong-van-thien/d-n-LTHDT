@@ -10,9 +10,14 @@ public class CustomerRepository {
 
     private final Map<String, Customer> customerMap = new HashMap<>();
     private final List<Customer> customerList = new ArrayList<>();
+    private VIPCustomer lastUpgradedCustomer = null;
 
     public CustomerRepository() {
         loadFromFile();
+    }
+
+    public VIPCustomer getLastUpgradedCustomer() {
+        return lastUpgradedCustomer;
     }
 
     public synchronized List<Customer> getAll() {
@@ -51,6 +56,7 @@ public class CustomerRepository {
     }
 
     public synchronized String updateSpentAndPoints(String customerId, double amount) {
+        this.lastUpgradedCustomer = null;
         Customer c = findById(customerId);
         if (c == null) return null;
 
@@ -63,8 +69,8 @@ public class CustomerRepository {
             saveToFile();
             return null;
         } else if (c instanceof RegularCustomer) {
-            // Mốc nâng hạng VIP: Chi tiêu tích lũy đạt từ 5.000.000 đ
-            if (c.getTotalSpent() >= 5_000_000) {
+            // Mốc nâng hạng VIP: Chi tiêu tích lũy đạt từ 2.000.000 VNĐ
+            if (c.getTotalSpent() >= 2_000_000) {
                 int initialVipPoints = (int) (c.getTotalSpent() / 10000);
                 VIPCustomer upgradedVip = new VIPCustomer(c.getCustomerId(), c.getName(), c.getPhone(), c.getTotalSpent(), initialVipPoints);
 
@@ -74,10 +80,11 @@ public class CustomerRepository {
                 if (index >= 0) {
                     customerList.set(index, upgradedVip);
                 }
+                this.lastUpgradedCustomer = upgradedVip;
                 saveToFile();
                 return String.format("CHÚC MỪNG KHÁCH HÀNG [%s] ĐÃ ĐẠT ĐIỀU KIỆN LÊN HẠNG VIP!\n" +
                         "Tổng tích lũy: %,.0f đ | Điểm thưởng khởi tạo: %d điểm.\n" +
-                        "Từ đơn sau khách hàng sẽ được hưởng chiết khấu VIP 5%% - 10%%!",
+                        "Từ đơn sau khách hàng sẽ được hưởng chiết khấu VIP 5%%!",
                         upgradedVip.getName(), upgradedVip.getTotalSpent(), initialVipPoints);
             }
             saveToFile();

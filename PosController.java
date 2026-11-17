@@ -564,23 +564,21 @@ public class PosController {
         try {
             Invoice invoice = orderService.checkout(customer, currentCart, cashGiven);
 
-            int opt = JOptionPane.showConfirmDialog(view,
-                    String.format("Thanh toán thành công hóa đơn [%s]!\nSố tiền: %s\nTiền thối lại: %s\n\nBạn có muốn mở file hóa đơn text vừa in không?",
-                            invoice.getInvoiceId(),
-                            UIUtils.formatCurrency(invoice.getFinalAmount()),
-                            UIUtils.formatCurrency(invoice.getReturnCash())),
-                    "Thanh toán thành công", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-
-            if (opt == JOptionPane.YES_OPTION) {
-                File file = new File(invoice.getInvoiceId() + ".txt");
-                if (file.exists() && Desktop.isDesktopSupported()) {
-                    Desktop.getDesktop().open(file);
-                }
+            // 1. Kiểm tra và vinh danh nếu khách hàng được tự động nâng hạng VIP
+            if (orderService.getLastUpgradedCustomer() != null) {
+                VIPCelebrationDialog vipDialog = new VIPCelebrationDialog(
+                        SwingUtilities.getWindowAncestor(view),
+                        orderService.getLastUpgradedCustomer()
+                );
+                vipDialog.setVisible(true);
             }
 
-            if (orderService.getLastUpgradeMessage() != null) {
-                JOptionPane.showMessageDialog(view, orderService.getLastUpgradeMessage(), "Nâng Hạng VIP!", JOptionPane.INFORMATION_MESSAGE);
-            }
+            // 2. Mở trực tiếp Hộp thoại Hóa đơn in nhiệt siêu thị chuyên nghiệp
+            ReceiptDialog receiptDialog = new ReceiptDialog(
+                    SwingUtilities.getWindowAncestor(view),
+                    invoice
+            );
+            receiptDialog.setVisible(true);
 
             currentCart.clear();
             view.updateCartTable(currentCart);

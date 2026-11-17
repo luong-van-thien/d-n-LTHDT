@@ -62,7 +62,7 @@ public class InvoiceHistoryPanel extends JPanel {
 
         JButton btnSearch = UIUtils.createStyledButton("Tìm kiếm", UIUtils.VectorIcons.search(15, Color.WHITE), UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnReload = UIUtils.createStyledButton("Tải lại", UIUtils.VectorIcons.refresh(15, Color.WHITE), UIUtils.GRAY_COLOR, Color.WHITE);
-        btnOpenReceiptFile = UIUtils.createStyledButton("Mở tệp hóa đơn in", UIUtils.VectorIcons.receipt(15, Color.WHITE), UIUtils.SUCCESS_COLOR, Color.WHITE);
+        btnOpenReceiptFile = UIUtils.createStyledButton("Xem phiếu hóa đơn", UIUtils.VectorIcons.receipt(15, Color.WHITE), UIUtils.SUCCESS_COLOR, Color.WHITE);
         btnExportCsv = UIUtils.createStyledButton("Xuất file báo cáo", UIUtils.VectorIcons.box(15, Color.WHITE), new Color(13, 110, 253), Color.WHITE);
 
         topPanel.add(btnSearch);
@@ -253,7 +253,7 @@ public class InvoiceHistoryPanel extends JPanel {
     private void openReceiptTextFile() {
         int row = tblInvoices.getSelectedRow();
         if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 hóa đơn trong bảng để mở tệp in!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn 1 hóa đơn trong bảng để xem phiếu in!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -261,26 +261,11 @@ public class InvoiceHistoryPanel extends JPanel {
         Invoice invoice = invoiceRepo.findById(invoiceId);
         if (invoice == null) return;
 
-        File receiptDir = new File("receipts");
-        if (!receiptDir.exists()) receiptDir.mkdirs();
-        File receiptFile = new File(receiptDir, "hoadon_" + invoiceId + ".txt");
-
-        if (!receiptFile.exists()) {
-            try {
-                invoice.exportToFile(receiptFile.getAbsolutePath());
-            } catch (Exception ignored) {}
-        }
-
-        try {
-            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.OPEN) && receiptFile.exists()) {
-                Desktop.getDesktop().open(receiptFile);
-            } else {
-                JOptionPane.showMessageDialog(this, "Đường dẫn tệp hóa đơn:\n" + receiptFile.getAbsolutePath(),
-                        "Thông tin hóa đơn", JOptionPane.INFORMATION_MESSAGE);
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Không thể mở tệp hóa đơn: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
+        ReceiptDialog receiptDialog = new ReceiptDialog(
+                SwingUtilities.getWindowAncestor(this),
+                invoice
+        );
+        receiptDialog.setVisible(true);
     }
 
     private void exportInvoicesToCsv() {
