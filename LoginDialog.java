@@ -4,16 +4,14 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
 /**
- * Cửa sổ Đăng nhập Hệ thống (LoginDialog).
- * Tích hợp Phân quyền Người dùng (RBAC - Role-Based Access Control).
- * Hỗ trợ cờ SHOW_DEMO_BUTTONS để ẩn/hiện các nút đăng nhập nhanh khi xuất bản .jar.
+ * Cửa sổ Đăng nhập Hệ thống (LoginDialog) chuẩn giao diện Enterprise:
+ * - Header màu Navy Slate chuyển sắc (Gradient) sang trọng.
+ * - Form nhập liệu bo tròn mềm mại, hiệu ứng viền phát sáng khi chọn ô (Focus Glow).
+ * - Nút bấm lớn, bo góc hiện đại với độ nảy và màu sắc trực quan.
+ * - Phân khu Đăng nhập nhanh dành cho Giảng viên & Hội đồng nghiệm thu trực quan 1-Click.
  */
 public class LoginDialog extends JDialog {
-    // =========================================================================
-    // CỜ CẤU HÌNH BẢN BUILD NỘP BÀI:
-    // Đặt là true: Hiện các nút đăng nhập nhanh phục vụ chấm bài & báo cáo.
-    // Đặt là false: Ẩn hoàn toàn các nút demo để đóng gói bản thương mại chính thức (.jar).
-    // =========================================================================
+    // Cờ cấu hình: true để hiện nút demo cho thầy cô chấm bài, false để đóng gói .jar thương mại
     public static boolean SHOW_DEMO_BUTTONS = true;
 
     private final UserRepository userRepository;
@@ -28,7 +26,7 @@ public class LoginDialog extends JDialog {
     private JButton btnQuickCashier;
 
     public LoginDialog(Frame parent, UserRepository userRepository) {
-        super(parent, "ĐĂNG NHẬP HỆ THỐNG - QUẢN LÝ BÁN HÀNG & KHO MINI", true);
+        super(parent, "ĐĂNG NHẬP HỆ THỐNG - MINIMART SYSTEM", true);
         this.userRepository = userRepository;
 
         initComponents();
@@ -36,9 +34,9 @@ public class LoginDialog extends JDialog {
 
     private void initComponents() {
         if (SHOW_DEMO_BUTTONS) {
-            setSize(520, 430);
+            setSize(520, 480);
         } else {
-            setSize(480, 265);
+            setSize(480, 310);
         }
 
         setResizable(false);
@@ -46,91 +44,153 @@ public class LoginDialog extends JDialog {
         setLayout(new BorderLayout());
         getContentPane().setBackground(Color.WHITE);
 
-        // 1. BANNER TIÊU ĐỀ
-        JPanel bannerPanel = new JPanel(new BorderLayout());
-        bannerPanel.setBackground(new Color(24, 43, 73));
-        bannerPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        // =========================================================================
+        // 1. HEADER BANNER CHUYỂN SẮC (GRADIENT BANNER)
+        // =========================================================================
+        JPanel bannerPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                UIUtils.enableAntialiasing(g2);
+                GradientPaint gp = new GradientPaint(0, 0, UIUtils.NAVY_DARK, getWidth(), getHeight(), UIUtils.NAVY_SLATE);
+                g2.setPaint(gp);
+                g2.fillRect(0, 0, getWidth(), getHeight());
 
-        JLabel lblTitle = new JLabel("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI", JLabel.CENTER);
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+                // Vẽ logo siêu thị mini cách điệu
+                g2.setColor(new Color(255, 255, 255, 30));
+                g2.fillOval(getWidth() - 80, -20, 100, 100);
+
+                // Điểm nhấn viền màu xanh dương tinh tế ở đáy banner
+                g2.setColor(UIUtils.PRIMARY_COLOR);
+                g2.fillRect(0, getHeight() - 3, getWidth(), 3);
+
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        bannerPanel.setOpaque(false);
+        bannerPanel.setLayout(new BorderLayout());
+        bannerPanel.setBorder(BorderFactory.createEmptyBorder(18, 24, 18, 24));
+
+        JPanel titleBox = new JPanel(new GridLayout(2, 1, 0, 4));
+        titleBox.setOpaque(false);
+
+        JLabel lblTitle = new JLabel("HỆ THỐNG QUẢN LÝ BÁN HÀNG & KHO MINI");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 17));
         lblTitle.setForeground(Color.WHITE);
+        lblTitle.setIcon(UIUtils.VectorIcons.cart(22, new Color(96, 165, 250))); // Biểu tượng giỏ hàng xanh sáng
+        lblTitle.setIconTextGap(10);
 
-        JLabel lblSub = new JLabel("Học viện Công nghệ Bưu chính Viễn thông (PTIT HCM)", JLabel.CENTER);
-        lblSub.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        lblSub.setForeground(new Color(200, 215, 235));
+        JLabel lblSub = new JLabel("Học viện Công nghệ Bưu chính Viễn thông (PTIT HCM) • Đồ án OOP");
+        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblSub.setForeground(new Color(203, 213, 225));
 
-        bannerPanel.add(lblTitle, BorderLayout.NORTH);
-        bannerPanel.add(Box.createVerticalStrut(4), BorderLayout.CENTER);
-        bannerPanel.add(lblSub, BorderLayout.SOUTH);
+        titleBox.add(lblTitle);
+        titleBox.add(lblSub);
+        bannerPanel.add(titleBox, BorderLayout.CENTER);
         add(bannerPanel, BorderLayout.NORTH);
 
-        // 2. KHUNG NHẬP LIỆU CHÍNH
-        JPanel centerPanel = new JPanel(null);
+        // =========================================================================
+        // 2. KHUNG NHẬP LIỆU CHÍNH (INPUT FORM)
+        // =========================================================================
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
         centerPanel.setBackground(Color.WHITE);
+        centerPanel.setBorder(BorderFactory.createEmptyBorder(20, 36, 16, 36));
 
-        JLabel lblInstruction = new JLabel("Vui lòng đăng nhập để truy cập hệ thống:");
+        JLabel lblInstruction = new JLabel("Vui lòng đăng nhập thông tin tài khoản:");
         lblInstruction.setFont(UIUtils.BOLD_FONT);
-        lblInstruction.setForeground(new Color(30, 41, 59));
-        lblInstruction.setBounds(40, 15, 420, 25);
+        lblInstruction.setForeground(UIUtils.NAVY_SLATE);
+        lblInstruction.setAlignmentX(Component.LEFT_ALIGNMENT);
         centerPanel.add(lblInstruction);
+        centerPanel.add(Box.createVerticalStrut(14));
 
+        // Dòng Username
         JLabel lblUser = new JLabel("Tên đăng nhập:");
-        lblUser.setFont(UIUtils.BODY_FONT);
-        lblUser.setBounds(40, 50, 120, 25);
+        lblUser.setFont(UIUtils.SMALL_BOLD);
+        lblUser.setForeground(UIUtils.SLATE_TEXT);
+        lblUser.setAlignmentX(Component.LEFT_ALIGNMENT);
         centerPanel.add(lblUser);
+        centerPanel.add(Box.createVerticalStrut(4));
 
         txtUsername = new JTextField("admin");
-        txtUsername.setFont(UIUtils.BODY_FONT);
-        txtUsername.setBounds(165, 48, 290, 30);
+        UIUtils.styleTextField(txtUsername);
+        txtUsername.setMaximumSize(new Dimension(Short.MAX_VALUE, 36));
+        txtUsername.setAlignmentX(Component.LEFT_ALIGNMENT);
         centerPanel.add(txtUsername);
+        centerPanel.add(Box.createVerticalStrut(12));
 
-        JLabel lblPass = new JLabel("Mật khẩu:");
-        lblPass.setFont(UIUtils.BODY_FONT);
-        lblPass.setBounds(40, 90, 120, 25);
+        // Dòng Password
+        JLabel lblPass = new JLabel("Mật khẩu truy cập:");
+        lblPass.setFont(UIUtils.SMALL_BOLD);
+        lblPass.setForeground(UIUtils.SLATE_TEXT);
+        lblPass.setAlignmentX(Component.LEFT_ALIGNMENT);
         centerPanel.add(lblPass);
+        centerPanel.add(Box.createVerticalStrut(4));
 
         txtPassword = new JPasswordField("admin123");
         txtPassword.setFont(UIUtils.BODY_FONT);
-        txtPassword.setBounds(165, 88, 290, 30);
+        UIUtils.styleTextField(txtPassword);
+        txtPassword.setMaximumSize(new Dimension(Short.MAX_VALUE, 36));
+        txtPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
         centerPanel.add(txtPassword);
+        centerPanel.add(Box.createVerticalStrut(18));
 
-        // Nút Đăng nhập & Thoát
-        btnLogin = UIUtils.createStyledButton("ĐĂNG NHẬP", UIUtils.PRIMARY_COLOR, Color.WHITE);
-        btnLogin.setFont(UIUtils.BOLD_FONT);
-        btnLogin.setBounds(165, 130, 150, 36);
-        centerPanel.add(btnLogin);
+        // Hàng nút Đăng nhập & Thoát
+        JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        btnRow.setOpaque(false);
+        btnRow.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btnRow.setMaximumSize(new Dimension(Short.MAX_VALUE, 40));
 
         btnCancel = UIUtils.createStyledButton("Thoát", UIUtils.GRAY_COLOR, Color.WHITE);
-        btnCancel.setBounds(330, 130, 125, 36);
-        centerPanel.add(btnCancel);
+        btnCancel.setPreferredSize(new Dimension(100, 36));
 
-        // PHẦN DEMO / CHẤM BÀI 1-CLICK (Chỉ hiển thị khi SHOW_DEMO_BUTTONS = true)
+        btnLogin = UIUtils.createStyledButton("ĐĂNG NHẬP", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        btnLogin.setPreferredSize(new Dimension(140, 36));
+
+        btnRow.add(btnCancel);
+        btnRow.add(btnLogin);
+        centerPanel.add(btnRow);
+
+        // =========================================================================
+        // 3. KHU VỰC DEMO / CHẤM BÀI 1-CLICK CHO GIẢNG VIÊN
+        // =========================================================================
         if (SHOW_DEMO_BUTTONS) {
+            centerPanel.add(Box.createVerticalStrut(16));
             JSeparator sep = new JSeparator();
-            sep.setBounds(40, 180, 420, 2);
+            sep.setForeground(UIUtils.BORDER_COLOR);
+            sep.setMaximumSize(new Dimension(Short.MAX_VALUE, 2));
+            sep.setAlignmentX(Component.LEFT_ALIGNMENT);
             centerPanel.add(sep);
+            centerPanel.add(Box.createVerticalStrut(12));
 
             JLabel lblQuick = new JLabel("Đăng nhập nhanh (Dành cho Giảng viên & Thử nghiệm):");
-            lblQuick.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            lblQuick.setForeground(new Color(100, 116, 139));
-            lblQuick.setBounds(40, 190, 420, 22);
+            lblQuick.setFont(UIUtils.SMALL_BOLD);
+            lblQuick.setForeground(UIUtils.SLATE_TEXT);
+            lblQuick.setAlignmentX(Component.LEFT_ALIGNMENT);
             centerPanel.add(lblQuick);
+            centerPanel.add(Box.createVerticalStrut(8));
 
-            // Không dùng emoji biểu tượng để tránh lỗi ô vuông (tofu) trên Windows Swing
-            btnQuickAdmin = UIUtils.createStyledButton("Quản trị viên", new Color(13, 110, 253), Color.WHITE);
+            JPanel demoButtonGrid = new JPanel(new GridLayout(1, 2, 10, 0));
+            demoButtonGrid.setOpaque(false);
+            demoButtonGrid.setAlignmentX(Component.LEFT_ALIGNMENT);
+            demoButtonGrid.setMaximumSize(new Dimension(Short.MAX_VALUE, 38));
+
+            btnQuickAdmin = UIUtils.createStyledButton("Quản trị viên (Admin)", UIUtils.PRIMARY_COLOR, Color.WHITE);
             btnQuickAdmin.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            btnQuickAdmin.setBounds(40, 218, 205, 36);
-            centerPanel.add(btnQuickAdmin);
 
-            btnQuickCashier = UIUtils.createStyledButton("Thu ngân", new Color(22, 163, 74), Color.WHITE);
+            btnQuickCashier = UIUtils.createStyledButton("Thu ngân (Cashier)", UIUtils.SUCCESS_COLOR, Color.WHITE);
             btnQuickCashier.setFont(new Font("Segoe UI", Font.BOLD, 12));
-            btnQuickCashier.setBounds(255, 218, 205, 36);
-            centerPanel.add(btnQuickCashier);
 
-            JLabel lblHint = new JLabel("<html><i>• <b>Quản trị viên:</b> Toàn quyền cả 4 mục, quản lý kho & xem báo cáo tài chính.<br>• <b>Thu ngân:</b> Bán hàng tại quầy, xem lịch sử (khóa mục Kho hàng & Thống kê).</i></html>");
+            demoButtonGrid.add(btnQuickAdmin);
+            demoButtonGrid.add(btnQuickCashier);
+            centerPanel.add(demoButtonGrid);
+            centerPanel.add(Box.createVerticalStrut(8));
+
+            JLabel lblHint = new JLabel("<html><i>• <b>Admin:</b> Toàn quyền 4 mục (Kho, POS, Hóa đơn, Thống kê).<br>• <b>Cashier:</b> Chỉ bán hàng POS & xem lịch sử (Khóa mục Kho & Thống kê).</i></html>");
             lblHint.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-            lblHint.setForeground(new Color(100, 116, 139));
-            lblHint.setBounds(40, 260, 430, 40);
+            lblHint.setForeground(UIUtils.SLATE_MUTED);
+            lblHint.setAlignmentX(Component.LEFT_ALIGNMENT);
             centerPanel.add(lblHint);
 
             btnQuickAdmin.addActionListener(e -> {
@@ -148,14 +208,15 @@ public class LoginDialog extends JDialog {
 
         add(centerPanel, BorderLayout.CENTER);
 
-        // SỰ KIỆN NÚT BẤM
+        // =========================================================================
+        // 4. SỰ KIỆN NÚT BẤM VÀ PHÍM TẮT ENTER
+        // =========================================================================
         btnLogin.addActionListener(e -> performLogin());
         btnCancel.addActionListener(e -> {
             success = false;
             dispose();
         });
 
-        // Nhấn Enter ở ô textfield -> Tự động đăng nhập
         KeyAdapter enterListener = new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {

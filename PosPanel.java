@@ -1,13 +1,14 @@
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 
 /**
- * Giao diện Quầy Thu Ngân & Bán hàng (PosPanel).
- * Thiết kế giao diện hiện đại, chuyên nghiệp chuẩn hệ thống POS bán lẻ.
+ * Giao diện Quầy Thu Ngân & Bán hàng (PosPanel) chuẩn phong cách Enterprise POS:
+ * - Chia 3 cột trực quan (Danh mục SP -> Giỏ hàng -> Thanh toán).
+ * - Bảng hiển thị chuẩn SaaS, chiều cao dòng 32px, xen kẽ màu nền.
+ * - Thẻ thanh toán tài chính nổi bật: Số tiền cần thanh toán hiển thị siêu to, màu xanh Emerald uy tín.
+ * - Nút chọn nhanh tiền mặt (Quick Cash) và phím tắt thao tác nhanh cho thu ngân.
  */
 public class PosPanel extends JPanel {
     // 1. Left: Product Selection
@@ -50,46 +51,56 @@ public class PosPanel extends JPanel {
     private JButton btnCash500k;
 
     public PosPanel() {
-        setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(0, 10));
         setBackground(UIUtils.BG_LIGHT);
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
 
         initComponents();
     }
 
     private void initComponents() {
         // =========================================================================
-        // --- 1. LEFT PANEL: Danh sách sản phẩm có thể bán ---
+        // --- 1. LEFT PANEL: Danh sách sản phẩm có thể bán (Card Panel) ---
         // =========================================================================
-        JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
-        leftPanel.setPreferredSize(new Dimension(465, 0));
-        leftPanel.setBackground(Color.WHITE);
-        leftPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 205, 215), 1),
-                "1. CHỌN SẢN PHẨM BÁN", TitledBorder.LEFT, TitledBorder.TOP, UIUtils.HEADER_FONT, UIUtils.PRIMARY_COLOR
-        ));
+        JPanel leftPanel = UIUtils.createCardPanel(new BorderLayout(0, 8));
+        leftPanel.setPreferredSize(new Dimension(450, 0));
+
+        // Tiêu đề khối
+        leftPanel.add(UIUtils.createSectionHeader("1. CHỌN SẢN PHẨM BÁN", "Nhấp đúp vào sản phẩm để thêm nhanh vào giỏ", UIUtils.VectorIcons.box(18, UIUtils.PRIMARY_COLOR)), BorderLayout.NORTH);
 
         // Thanh tìm kiếm và lọc danh mục
-        JPanel leftTop = new JPanel(new GridLayout(2, 1, 4, 4));
-        leftTop.setBackground(Color.WHITE);
-        leftTop.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
+        JPanel leftTop = new JPanel(new GridLayout(2, 1, 4, 6));
+        leftTop.setOpaque(false);
+        leftTop.setBorder(BorderFactory.createEmptyBorder(0, 0, 6, 0));
 
-        JPanel searchRow = new JPanel(new BorderLayout(6, 0));
-        searchRow.setBackground(Color.WHITE);
-        searchRow.add(new JLabel("Tìm SP:"), BorderLayout.WEST);
+        JPanel searchRow = new JPanel(new BorderLayout(8, 0));
+        searchRow.setOpaque(false);
+        JLabel lblSearch = new JLabel("Tìm SP:");
+        lblSearch.setFont(UIUtils.SMALL_BOLD);
+        lblSearch.setForeground(UIUtils.NAVY_SLATE);
+        searchRow.add(lblSearch, BorderLayout.WEST);
+
         txtSearchProduct = new JTextField();
+        UIUtils.styleTextField(txtSearchProduct);
         txtSearchProduct.setToolTipText("Gõ mã hoặc tên sản phẩm...");
         searchRow.add(txtSearchProduct, BorderLayout.CENTER);
         leftTop.add(searchRow);
 
-        JPanel filterRow = new JPanel(new BorderLayout(6, 0));
-        filterRow.setBackground(Color.WHITE);
-        filterRow.add(new JLabel("Nhóm:  "), BorderLayout.WEST);
+        JPanel filterRow = new JPanel(new BorderLayout(8, 0));
+        filterRow.setOpaque(false);
+        JLabel lblCat = new JLabel("Nhóm:  ");
+        lblCat.setFont(UIUtils.SMALL_BOLD);
+        lblCat.setForeground(UIUtils.NAVY_SLATE);
+        filterRow.add(lblCat, BorderLayout.WEST);
+
         cboCategoryFilter = new JComboBox<>(new String[]{"-- Tất cả --", "Thực phẩm", "Đồ uống", "Đồ điện gia dụng"});
+        UIUtils.styleComboBox(cboCategoryFilter);
         filterRow.add(cboCategoryFilter, BorderLayout.CENTER);
         leftTop.add(filterRow);
 
-        leftPanel.add(leftTop, BorderLayout.NORTH);
+        JPanel leftCenter = new JPanel(new BorderLayout(0, 6));
+        leftCenter.setOpaque(false);
+        leftCenter.add(leftTop, BorderLayout.NORTH);
 
         // Bảng sản phẩm
         String[] pCols = {"Mã SP", "Tên sản phẩm", "Giá bán", "Tồn kho"};
@@ -98,58 +109,49 @@ public class PosPanel extends JPanel {
             public boolean isCellEditable(int row, int col) { return false; }
         };
         tblAvailableProducts = UIUtils.createCustomTable(modelAvailableProducts);
-        tblAvailableProducts.setFont(UIUtils.BODY_FONT);
-        tblAvailableProducts.setRowHeight(26);
-        tblAvailableProducts.getTableHeader().setFont(UIUtils.BOLD_FONT);
-        tblAvailableProducts.getTableHeader().setReorderingAllowed(false);
-        tblAvailableProducts.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
         tblAvailableProducts.getColumnModel().getColumn(0).setPreferredWidth(65);
-        tblAvailableProducts.getColumnModel().getColumn(1).setPreferredWidth(215); // Nới rộng cho tên món dài
+        tblAvailableProducts.getColumnModel().getColumn(1).setPreferredWidth(200);
         tblAvailableProducts.getColumnModel().getColumn(2).setPreferredWidth(90);
-        tblAvailableProducts.getColumnModel().getColumn(3).setPreferredWidth(60);
-        tblAvailableProducts.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+        tblAvailableProducts.getColumnModel().getColumn(3).setPreferredWidth(65);
+
+        tblAvailableProducts.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.CENTER));
         tblAvailableProducts.getColumnModel().getColumn(1).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
         tblAvailableProducts.getColumnModel().getColumn(2).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
         tblAvailableProducts.getColumnModel().getColumn(3).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
 
         JScrollPane scrollProd = new JScrollPane(tblAvailableProducts);
-        scrollProd.setBorder(BorderFactory.createLineBorder(new Color(230, 235, 240), 1));
+        scrollProd.setBorder(BorderFactory.createLineBorder(UIUtils.BORDER_COLOR, 1));
         UIUtils.installSmartDeselection(tblAvailableProducts, scrollProd);
-        leftPanel.add(scrollProd, BorderLayout.CENTER);
+        leftCenter.add(scrollProd, BorderLayout.CENTER);
 
-        // Thanh thao tác dưới bên trái
-        JPanel leftBottom = new JPanel(new BorderLayout(5, 5));
-        leftBottom.setBackground(Color.WHITE);
-        leftBottom.setBorder(BorderFactory.createEmptyBorder(6, 8, 8, 8));
+        leftPanel.add(leftCenter, BorderLayout.CENTER);
 
-        JLabel lblHint = new JLabel("Mẹo: Nhấp đúp chuột vào SP để thêm nhanh vào giỏ", JLabel.CENTER);
-        lblHint.setFont(new Font("Segoe UI", Font.ITALIC, 11));
-        lblHint.setForeground(new Color(110, 120, 130));
-        leftBottom.add(lblHint, BorderLayout.NORTH);
+        // Thanh thao tác dưới bên trái (Số lượng & Nút thêm)
+        JPanel leftBottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
+        leftBottom.setOpaque(false);
 
-        JPanel spinAndBtn = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
-        spinAndBtn.setBackground(Color.WHITE);
-        spinAndBtn.add(new JLabel("SL mua:"));
+        JLabel lblQty = new JLabel("Số lượng mua:");
+        lblQty.setFont(UIUtils.SMALL_BOLD);
+        lblQty.setForeground(UIUtils.NAVY_SLATE);
+        leftBottom.add(lblQty);
+
         spinQuantity = new JSpinner(new SpinnerNumberModel(1, 1, 9999, 1));
-        spinQuantity.setPreferredSize(new Dimension(65, 30));
-        spinAndBtn.add(spinQuantity);
+        spinQuantity.setFont(UIUtils.BOLD_FONT);
+        spinQuantity.setPreferredSize(new Dimension(70, 32));
+        leftBottom.add(spinQuantity);
 
-        btnAddToCart = UIUtils.createStyledButton("Thêm vào giỏ", UIUtils.PRIMARY_COLOR, Color.WHITE);
-        spinAndBtn.add(btnAddToCart);
-        leftBottom.add(spinAndBtn, BorderLayout.SOUTH);
+        btnAddToCart = UIUtils.createStyledButton("Thêm vào giỏ", UIUtils.VectorIcons.cart(15, Color.WHITE), UIUtils.PRIMARY_COLOR, Color.WHITE);
+        leftBottom.add(btnAddToCart);
 
         leftPanel.add(leftBottom, BorderLayout.SOUTH);
 
         // =========================================================================
-        // --- 2. CENTER PANEL: Giỏ hàng quầy thu ngân ---
+        // --- 2. CENTER PANEL: Giỏ hàng quầy thu ngân (Card Panel) ---
         // =========================================================================
-        JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
-        centerPanel.setBackground(Color.WHITE);
-        centerPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 205, 215), 1),
-                "2. GIỎ HÀNG THU NGÂN", TitledBorder.LEFT, TitledBorder.TOP, UIUtils.HEADER_FONT, UIUtils.PRIMARY_COLOR
-        ));
+        JPanel centerPanel = UIUtils.createCardPanel(new BorderLayout(0, 8));
+
+        // Tiêu đề khối
+        centerPanel.add(UIUtils.createSectionHeader("2. GIỎ HÀNG THU NGÂN", "Quản lý danh sách các món khách đã chọn mua", UIUtils.VectorIcons.cart(18, UIUtils.SUCCESS_COLOR)), BorderLayout.NORTH);
 
         String[] cartCols = {"Mã SP", "Tên sản phẩm", "Đơn giá", "Số lượng", "Thành tiền"};
         modelCart = new DefaultTableModel(cartCols, 0) {
@@ -157,55 +159,50 @@ public class PosPanel extends JPanel {
             public boolean isCellEditable(int row, int col) { return false; }
         };
         tblCart = UIUtils.createCustomTable(modelCart);
-        tblCart.setFont(UIUtils.BODY_FONT);
-        tblCart.setRowHeight(28);
-        tblCart.getTableHeader().setFont(UIUtils.BOLD_FONT);
-        tblCart.getTableHeader().setReorderingAllowed(false);
-        tblCart.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblCart.getColumnModel().getColumn(0).setPreferredWidth(70);
-        tblCart.getColumnModel().getColumn(1).setPreferredWidth(170);
+        tblCart.getColumnModel().getColumn(0).setPreferredWidth(65);
+        tblCart.getColumnModel().getColumn(1).setPreferredWidth(180);
         tblCart.getColumnModel().getColumn(2).setPreferredWidth(90);
         tblCart.getColumnModel().getColumn(3).setPreferredWidth(65);
         tblCart.getColumnModel().getColumn(4).setPreferredWidth(100);
-        tblCart.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
+
+        tblCart.getColumnModel().getColumn(0).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.CENTER));
         tblCart.getColumnModel().getColumn(1).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.LEFT));
         tblCart.getColumnModel().getColumn(2).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
         tblCart.getColumnModel().getColumn(3).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
         tblCart.getColumnModel().getColumn(4).setCellRenderer(UIUtils.createToolTipRenderer(JLabel.RIGHT));
 
         JScrollPane scrollCart = new JScrollPane(tblCart);
-        scrollCart.setBorder(BorderFactory.createLineBorder(new Color(230, 235, 240), 1));
+        scrollCart.setBorder(BorderFactory.createLineBorder(UIUtils.BORDER_COLOR, 1));
         UIUtils.installSmartDeselection(tblCart, scrollCart);
         centerPanel.add(scrollCart, BorderLayout.CENTER);
 
-        // Thanh công cụ giỏ hàng: Tách 2 hàng rõ ràng, triệt tiêu 100% lỗi lẹm chữ "it hàng"
-        JPanel centerBottom = new JPanel(new BorderLayout(0, 6));
-        centerBottom.setBackground(Color.WHITE);
-        centerBottom.setBorder(BorderFactory.createEmptyBorder(6, 8, 8, 8));
+        // Thanh công cụ giỏ hàng phía dưới
+        JPanel centerBottom = new JPanel(new BorderLayout(0, 8));
+        centerBottom.setOpaque(false);
 
-        // Hàng trên: Thanh trạng thái tổng số lượng giỏ hàng (Rộng rãi 100% chiều ngang)
-        JPanel summaryBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 4));
-        summaryBar.setBackground(new Color(245, 247, 250));
+        // Thanh trạng thái tổng số lượng giỏ hàng
+        JPanel summaryBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6));
+        summaryBar.setBackground(new Color(248, 250, 252));
         summaryBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(225, 230, 238), 1),
+                BorderFactory.createLineBorder(UIUtils.BORDER_COLOR, 1),
                 BorderFactory.createEmptyBorder(2, 8, 2, 8)
         ));
 
         lblCartSummary = new JLabel("Tổng giỏ hàng: 0 mặt hàng (0 sản phẩm)", JLabel.RIGHT);
         lblCartSummary.setFont(UIUtils.BOLD_FONT);
-        lblCartSummary.setForeground(new Color(30, 41, 59));
+        lblCartSummary.setForeground(UIUtils.NAVY_SLATE);
         summaryBar.add(lblCartSummary);
         centerBottom.add(summaryBar, BorderLayout.NORTH);
 
-        // Hàng dưới: 6 nút thao tác giỏ hàng
+        // Hàng nút thao tác giỏ hàng
         JPanel cartActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
-        cartActions.setBackground(Color.WHITE);
+        cartActions.setOpaque(false);
 
         btnIncreaseQty = UIUtils.createStyledButton("+1 SL", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnDecreaseQty = UIUtils.createStyledButton("-1 SL", UIUtils.GRAY_COLOR, Color.WHITE);
         btnRemoveFromCart = UIUtils.createStyledButton("Xóa món", UIUtils.DANGER_COLOR, Color.WHITE);
         btnClearCart = UIUtils.createStyledButton("Làm trống", new Color(108, 117, 125), Color.WHITE);
-        btnHoldBill = UIUtils.createStyledButton("Treo đơn", new Color(217, 119, 6), Color.WHITE);
+        btnHoldBill = UIUtils.createStyledButton("Treo đơn", UIUtils.WARNING_COLOR, Color.WHITE);
         btnResumeBill = UIUtils.createStyledButton("Mở đơn treo (0)", new Color(13, 110, 253), Color.WHITE);
 
         cartActions.add(btnIncreaseQty);
@@ -219,148 +216,140 @@ public class PosPanel extends JPanel {
         centerPanel.add(centerBottom, BorderLayout.SOUTH);
 
         // =========================================================================
-        // --- 3. RIGHT PANEL: Thông tin khách hàng & Thanh toán (Cards layout) ---
+        // --- 3. RIGHT PANEL: Thông tin khách hàng & Thanh toán (Card Panel) ---
         // =========================================================================
-        JPanel rightPanel = new JPanel(new BorderLayout(0, 8));
+        JPanel rightPanel = UIUtils.createCardPanel(new BorderLayout(0, 10));
         rightPanel.setPreferredSize(new Dimension(410, 0));
-        rightPanel.setBackground(Color.WHITE);
-        rightPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(new Color(200, 205, 215), 1),
-                "3. THANH TOÁN & HÓA ĐƠN", TitledBorder.LEFT, TitledBorder.TOP, UIUtils.HEADER_FONT, UIUtils.PRIMARY_COLOR
-        ));
 
-        // Container xếp dọc các Card
+        // Tiêu đề khối
+        rightPanel.add(UIUtils.createSectionHeader("3. THANH TOÁN & HÓA ĐƠN", "Tính tiền, áp dụng chiết khấu và in hóa đơn", UIUtils.VectorIcons.receipt(18, UIUtils.WARNING_COLOR)), BorderLayout.NORTH);
+
         JPanel cardsContainer = new JPanel();
         cardsContainer.setLayout(new BoxLayout(cardsContainer, BoxLayout.Y_AXIS));
-        cardsContainer.setBackground(Color.WHITE);
-        cardsContainer.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        cardsContainer.setOpaque(false);
 
-        // -------------------------------------------------------------
-        // CARD 1: KHÁCH HÀNG & THÀNH VIÊN
-        // -------------------------------------------------------------
+        // --- KHỐI KHÁCH HÀNG & THÀNH VIÊN ---
         JPanel cardCustomer = new JPanel();
         cardCustomer.setLayout(new BoxLayout(cardCustomer, BoxLayout.Y_AXIS));
-        cardCustomer.setBackground(Color.WHITE);
+        cardCustomer.setBackground(new Color(248, 250, 252));
         cardCustomer.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(220, 225, 235), 1),
-                        "Khách Hàng & Thành Viên", TitledBorder.LEFT, TitledBorder.TOP,
-                        new Font("Segoe UI", Font.BOLD, 12), UIUtils.PRIMARY_COLOR),
-                BorderFactory.createEmptyBorder(6, 10, 8, 10)
+                BorderFactory.createLineBorder(UIUtils.BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)
         ));
 
         JPanel custRow1 = new JPanel(new BorderLayout(8, 0));
-        custRow1.setBackground(Color.WHITE);
+        custRow1.setOpaque(false);
         custRow1.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
-        custRow1.add(new JLabel("Chọn KH:"), BorderLayout.WEST);
+        JLabel lblCust = new JLabel("Khách hàng:");
+        lblCust.setFont(UIUtils.SMALL_BOLD);
+        lblCust.setForeground(UIUtils.NAVY_SLATE);
+        custRow1.add(lblCust, BorderLayout.WEST);
 
         cboCustomer = new JComboBox<>();
+        UIUtils.styleComboBox(cboCustomer);
         cboCustomer.setPreferredSize(new Dimension(170, 30));
         custRow1.add(cboCustomer, BorderLayout.CENTER);
 
         btnNewCustomer = UIUtils.createStyledButton("+ Thêm", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnNewCustomer.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnNewCustomer.setPreferredSize(new Dimension(80, 30));
+        btnNewCustomer.setPreferredSize(new Dimension(75, 30));
         custRow1.add(btnNewCustomer, BorderLayout.EAST);
         cardCustomer.add(custRow1);
-
         cardCustomer.add(Box.createVerticalStrut(6));
 
         // Badge trạng thái khách hàng
         JPanel badgePanel = new JPanel(new BorderLayout(5, 0));
-        badgePanel.setBackground(new Color(240, 246, 255));
+        badgePanel.setBackground(new Color(239, 246, 255));
         badgePanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(205, 225, 255), 1),
-                BorderFactory.createEmptyBorder(5, 8, 5, 8)
+                BorderFactory.createLineBorder(new Color(191, 219, 254), 1),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)
         ));
-        badgePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        badgePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
 
-        lblCustomerType = new JLabel("Khách lẻ (Giảm 0%)");
+        lblCustomerType = new JLabel("Khách lẻ (Chiết khấu 0%)");
         lblCustomerType.setFont(UIUtils.BOLD_FONT);
-        lblCustomerType.setForeground(new Color(13, 110, 253));
+        lblCustomerType.setForeground(UIUtils.PRIMARY_COLOR);
 
         lblCustomerPoints = new JLabel("Điểm: 0", JLabel.RIGHT);
         lblCustomerPoints.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblCustomerPoints.setForeground(new Color(80, 90, 100));
+        lblCustomerPoints.setForeground(UIUtils.SLATE_TEXT);
 
         badgePanel.add(lblCustomerType, BorderLayout.WEST);
         badgePanel.add(lblCustomerPoints, BorderLayout.EAST);
         cardCustomer.add(badgePanel);
 
         cardsContainer.add(cardCustomer);
-        cardsContainer.add(Box.createVerticalStrut(8));
+        cardsContainer.add(Box.createVerticalStrut(10));
 
-        // -------------------------------------------------------------
-        // CARD 2: CHI TIẾT TIỀN HÀNG & CHIẾT KHẤU
-        // -------------------------------------------------------------
+        // --- KHỐI CHI TIẾT THANH TOÁN (BILLING) ---
         JPanel cardBilling = new JPanel();
         cardBilling.setLayout(new BoxLayout(cardBilling, BoxLayout.Y_AXIS));
-        cardBilling.setBackground(Color.WHITE);
+        cardBilling.setBackground(new Color(248, 250, 252));
         cardBilling.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(220, 225, 235), 1),
-                        "Chi Tiết Thanh Toán", TitledBorder.LEFT, TitledBorder.TOP,
-                        new Font("Segoe UI", Font.BOLD, 12), UIUtils.PRIMARY_COLOR),
-                BorderFactory.createEmptyBorder(6, 10, 8, 10)
+                BorderFactory.createLineBorder(UIUtils.BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)
         ));
 
         lblTotalAmount = new JLabel("0 đ", JLabel.RIGHT);
         lblTotalAmount.setFont(UIUtils.BOLD_FONT);
-        cardBilling.add(createRowPanel("Tổng tiền hàng:", lblTotalAmount, UIUtils.BODY_FONT, Color.BLACK));
+        lblTotalAmount.setForeground(UIUtils.NAVY_SLATE);
+        cardBilling.add(createRowPanel("Tổng tiền hàng:", lblTotalAmount, UIUtils.BODY_FONT, UIUtils.SLATE_TEXT));
         cardBilling.add(Box.createVerticalStrut(4));
 
         lblDiscountAmount = new JLabel("- 0 đ", JLabel.RIGHT);
         lblDiscountAmount.setFont(UIUtils.BOLD_FONT);
         lblDiscountAmount.setForeground(UIUtils.DANGER_COLOR);
         cardBilling.add(createRowPanel("Chiết khấu thành viên:", lblDiscountAmount, UIUtils.BODY_FONT, UIUtils.DANGER_COLOR));
-        cardBilling.add(Box.createVerticalStrut(6));
+        cardBilling.add(Box.createVerticalStrut(8));
 
         JSeparator sep = new JSeparator();
+        sep.setForeground(UIUtils.BORDER_COLOR);
         sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 2));
         cardBilling.add(sep);
-        cardBilling.add(Box.createVerticalStrut(6));
+        cardBilling.add(Box.createVerticalStrut(8));
 
         lblFinalAmount = new JLabel("0 đ", JLabel.RIGHT);
-        lblFinalAmount.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        lblFinalAmount.setFont(UIUtils.HUGE_PRICE_FONT);
         lblFinalAmount.setForeground(UIUtils.SUCCESS_COLOR);
+
         JLabel lblPayTitle = new JLabel("CẦN THANH TOÁN:");
         lblPayTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblPayTitle.setForeground(UIUtils.NAVY_DARK);
         cardBilling.add(createRowPanel(lblPayTitle, lblFinalAmount));
 
         cardsContainer.add(cardBilling);
-        cardsContainer.add(Box.createVerticalStrut(8));
+        cardsContainer.add(Box.createVerticalStrut(10));
 
-        // -------------------------------------------------------------
-        // CARD 3: TIỀN KHÁCH ĐƯA & THỐI LẠI (KÈM NÚT NHANH)
-        // -------------------------------------------------------------
+        // --- KHỐI TIỀN KHÁCH ĐƯA & TIỀN THỐI LẠI ---
         JPanel cardCash = new JPanel();
         cardCash.setLayout(new BoxLayout(cardCash, BoxLayout.Y_AXIS));
-        cardCash.setBackground(Color.WHITE);
+        cardCash.setBackground(new Color(248, 250, 252));
         cardCash.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(220, 225, 235), 1),
-                        "Thu Tiền & Tiền Thừa", TitledBorder.LEFT, TitledBorder.TOP,
-                        new Font("Segoe UI", Font.BOLD, 12), UIUtils.PRIMARY_COLOR),
-                BorderFactory.createEmptyBorder(6, 10, 8, 10)
+                BorderFactory.createLineBorder(UIUtils.BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
 
         // Dòng nhập tiền khách đưa
         JPanel cashRow = new JPanel(new BorderLayout(8, 0));
-        cashRow.setBackground(Color.WHITE);
+        cashRow.setOpaque(false);
         cashRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 34));
         JLabel lblGivenTitle = new JLabel("Tiền khách đưa:");
         lblGivenTitle.setFont(UIUtils.BOLD_FONT);
+        lblGivenTitle.setForeground(UIUtils.NAVY_SLATE);
         cashRow.add(lblGivenTitle, BorderLayout.WEST);
 
         txtCashGiven = new JTextField("0");
         txtCashGiven.setFont(new Font("Segoe UI", Font.BOLD, 16));
         txtCashGiven.setHorizontalAlignment(JTextField.RIGHT);
+        UIUtils.styleTextField(txtCashGiven);
         txtCashGiven.setPreferredSize(new Dimension(170, 32));
         cashRow.add(txtCashGiven, BorderLayout.CENTER);
         cardCash.add(cashRow);
-
         cardCash.add(Box.createVerticalStrut(6));
 
         // Hàng nút chọn nhanh tiền mặt (Quick Cash Buttons)
         JPanel quickCashPanel = new JPanel(new GridLayout(1, 5, 4, 0));
-        quickCashPanel.setBackground(Color.WHITE);
+        quickCashPanel.setOpaque(false);
         quickCashPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
 
         btnExactCash = createQuickCashBtn("Đủ tiền");
@@ -375,15 +364,15 @@ public class PosPanel extends JPanel {
         quickCashPanel.add(btnCash200k);
         quickCashPanel.add(btnCash500k);
         cardCash.add(quickCashPanel);
-
         cardCash.add(Box.createVerticalStrut(8));
 
         // Dòng tiền thối lại
         lblReturnCash = new JLabel("0 đ", JLabel.RIGHT);
         lblReturnCash.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        lblReturnCash.setForeground(new Color(13, 110, 253));
+        lblReturnCash.setForeground(UIUtils.PRIMARY_COLOR);
         JLabel lblReturnTitle = new JLabel("Tiền thừa trả khách:");
-        lblReturnTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblReturnTitle.setFont(UIUtils.BOLD_FONT);
+        lblReturnTitle.setForeground(UIUtils.NAVY_SLATE);
         cardCash.add(createRowPanel(lblReturnTitle, lblReturnCash));
 
         cardsContainer.add(cardCash);
@@ -392,15 +381,15 @@ public class PosPanel extends JPanel {
         rightPanel.add(cardsContainer, BorderLayout.CENTER);
 
         // Nút hành động phía dưới
-        JPanel bottomActions = new JPanel(new GridLayout(2, 1, 0, 6));
-        bottomActions.setBackground(Color.WHITE);
-        bottomActions.setBorder(BorderFactory.createEmptyBorder(4, 10, 10, 10));
+        JPanel bottomActions = new JPanel(new GridLayout(2, 1, 0, 8));
+        bottomActions.setOpaque(false);
+        bottomActions.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 0));
 
-        btnCheckout = UIUtils.createStyledButton("THANH TOÁN & IN HÓA ĐƠN", UIUtils.SUCCESS_COLOR, Color.WHITE);
+        btnCheckout = UIUtils.createStyledButton("THANH TOÁN & IN HÓA ĐƠN", UIUtils.VectorIcons.receipt(18, Color.WHITE), UIUtils.SUCCESS_COLOR, Color.WHITE);
         btnCheckout.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        btnCheckout.setPreferredSize(new Dimension(0, 48));
+        btnCheckout.setPreferredSize(new Dimension(0, 46));
 
-        btnCancelOrder = UIUtils.createStyledButton("Làm mới quầy / Hủy đơn", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnCancelOrder = UIUtils.createStyledButton("Làm mới quầy / Hủy đơn", UIUtils.VectorIcons.refresh(14, Color.WHITE), UIUtils.GRAY_COLOR, Color.WHITE);
         btnCancelOrder.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCancelOrder.setPreferredSize(new Dimension(0, 32));
 
@@ -408,9 +397,9 @@ public class PosPanel extends JPanel {
         bottomActions.add(btnCancelOrder);
         rightPanel.add(bottomActions, BorderLayout.SOUTH);
 
-        // Bố cục tổng 3 phần thích ứng hoàn hảo
-        JPanel contentContainer = new JPanel(new BorderLayout(10, 0));
-        contentContainer.setBackground(UIUtils.BG_LIGHT);
+        // Bố cục tổng 3 phần
+        JPanel contentContainer = new JPanel(new BorderLayout(12, 0));
+        contentContainer.setOpaque(false);
         contentContainer.add(leftPanel, BorderLayout.WEST);
         contentContainer.add(centerPanel, BorderLayout.CENTER);
         contentContainer.add(rightPanel, BorderLayout.EAST);
@@ -427,8 +416,8 @@ public class PosPanel extends JPanel {
 
     private JPanel createRowPanel(JComponent leftComp, JComponent rightComp) {
         JPanel row = new JPanel(new BorderLayout(8, 0));
-        row.setBackground(Color.WHITE);
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        row.setOpaque(false);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 28));
         row.add(leftComp, BorderLayout.WEST);
         row.add(rightComp, BorderLayout.EAST);
         return row;
@@ -437,11 +426,11 @@ public class PosPanel extends JPanel {
     private JButton createQuickCashBtn(String text) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btn.setBackground(new Color(240, 243, 248));
-        btn.setForeground(new Color(30, 41, 59));
+        btn.setBackground(Color.WHITE);
+        btn.setForeground(UIUtils.NAVY_SLATE);
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createLineBorder(new Color(205, 215, 225), 1));
+        btn.setBorder(BorderFactory.createLineBorder(UIUtils.BORDER_DARK, 1));
         btn.setMargin(new Insets(2, 2, 2, 2));
         return btn;
     }
