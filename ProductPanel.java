@@ -71,33 +71,37 @@ public class ProductPanel extends JPanel {
 
     private void initComponents() {
         // =========================================================================
-        // 1. TOP PANEL: THANH TÌM KIẾM, LỌC & THAO TÁC (MODERN CARD)
+        // 1. TOP PANEL: THANH TÌM KIẾM, LỌC & THAO TÁC (2 HÀNG RÕ RÀNG)
         // =========================================================================
-        JPanel topPanel = UIUtils.createCardPanel(new FlowLayout(FlowLayout.LEFT, 10, 6));
+        JPanel topPanel = UIUtils.createCardPanel(new BorderLayout(0, 8));
+
+        // Hàng 1: Tìm kiếm, Bộ lọc phân loại & Sắp xếp
+        JPanel filterRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
+        filterRow.setOpaque(false);
 
         JLabel lblSearch = new JLabel("Tìm kiếm:");
         lblSearch.setFont(UIUtils.BOLD_FONT);
         lblSearch.setForeground(UIUtils.NAVY_SLATE);
-        topPanel.add(lblSearch);
+        filterRow.add(lblSearch);
 
         txtSearch = new JTextField(14);
         UIUtils.styleTextField(txtSearch);
         txtSearch.setToolTipText("Nhập mã hoặc tên sản phẩm để tìm nhanh...");
-        topPanel.add(txtSearch);
+        filterRow.add(txtSearch);
 
         JLabel lblCat = new JLabel("Loại SP:");
         lblCat.setFont(UIUtils.BOLD_FONT);
         lblCat.setForeground(UIUtils.NAVY_SLATE);
-        topPanel.add(lblCat);
+        filterRow.add(lblCat);
 
         cboFilterCategory = new JComboBox<>(new String[]{"-- Tất cả --", "Thực phẩm", "Đồ uống", "Đồ điện gia dụng"});
         UIUtils.styleComboBox(cboFilterCategory);
-        topPanel.add(cboFilterCategory);
+        filterRow.add(cboFilterCategory);
 
         JLabel lblSort = new JLabel("Sắp xếp:");
         lblSort.setFont(UIUtils.BOLD_FONT);
         lblSort.setForeground(UIUtils.NAVY_SLATE);
-        topPanel.add(lblSort);
+        filterRow.add(lblSort);
 
         cboSort = new JComboBox<>(new String[]{
                 "Mặc định (Tên A-Z)",
@@ -108,12 +112,22 @@ public class ProductPanel extends JPanel {
                 "Lợi nhuận cao nhất"
         });
         UIUtils.styleComboBox(cboSort);
-        topPanel.add(cboSort);
+        filterRow.add(cboSort);
 
-        // Nút bấm có Icon vector
         btnSearch = UIUtils.createStyledButton("Lọc / Tìm", UIUtils.VectorIcons.search(15, Color.WHITE), UIUtils.PRIMARY_COLOR, Color.WHITE);
-        btnResetFilter = UIUtils.createStyledButton("Quay lại tất cả SP", UIUtils.VectorIcons.refresh(15, Color.WHITE), new Color(59, 130, 246), Color.WHITE);
+        btnResetFilter = UIUtils.createStyledButton("Tất cả sản phẩm", UIUtils.VectorIcons.refresh(15, Color.WHITE), new Color(59, 130, 246), Color.WHITE);
         btnResetFilter.setToolTipText("Bấm để hiển thị đầy đủ toàn bộ kho hàng");
+        filterRow.add(btnSearch);
+        filterRow.add(btnResetFilter);
+
+        // Hàng 2: Các nút hành động nghiệp vụ kho & xuất báo cáo
+        JPanel actionRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
+        actionRow.setOpaque(false);
+
+        JLabel lblAction = new JLabel("Nghiệp vụ kho:");
+        lblAction.setFont(UIUtils.BOLD_FONT);
+        lblAction.setForeground(UIUtils.NAVY_SLATE);
+        actionRow.add(lblAction);
 
         btnAlertFilter = UIUtils.createStyledButton("Cảnh báo tồn/hạn", UIUtils.VectorIcons.alert(15, Color.WHITE), UIUtils.WARNING_COLOR, Color.WHITE);
         btnAlertFilter.setToolTipText("Bật/Tắt chế độ xem các sản phẩm tồn kho ít (<= 5) hoặc sắp hết hạn");
@@ -121,11 +135,12 @@ public class ProductPanel extends JPanel {
         btnCreateRestockOrder = UIUtils.createStyledButton("Tạo Phiếu Nhập Hàng", UIUtils.VectorIcons.box(15, Color.WHITE), new Color(194, 65, 12), Color.WHITE);
         btnExportCsv = UIUtils.createStyledButton("Xuất file báo cáo", UIUtils.VectorIcons.receipt(15, Color.WHITE), UIUtils.SUCCESS_COLOR, Color.WHITE);
 
-        topPanel.add(btnSearch);
-        topPanel.add(btnResetFilter);
-        topPanel.add(btnAlertFilter);
-        topPanel.add(btnCreateRestockOrder);
-        topPanel.add(btnExportCsv);
+        actionRow.add(btnAlertFilter);
+        actionRow.add(btnCreateRestockOrder);
+        actionRow.add(btnExportCsv);
+
+        topPanel.add(filterRow, BorderLayout.NORTH);
+        topPanel.add(actionRow, BorderLayout.SOUTH);
 
         add(topPanel, BorderLayout.NORTH);
 

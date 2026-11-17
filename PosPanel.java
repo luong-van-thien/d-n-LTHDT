@@ -252,7 +252,8 @@ public class PosPanel extends JPanel {
 
         btnNewCustomer = UIUtils.createStyledButton("+ Thêm", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnNewCustomer.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnNewCustomer.setPreferredSize(new Dimension(75, 30));
+        btnNewCustomer.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
+        btnNewCustomer.setPreferredSize(new Dimension(92, 32));
         custRow1.add(btnNewCustomer, BorderLayout.EAST);
         cardCustomer.add(custRow1);
         cardCustomer.add(Box.createVerticalStrut(6));
