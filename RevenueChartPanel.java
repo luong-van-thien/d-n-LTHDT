@@ -193,75 +193,78 @@ public class RevenueChartPanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g.create();
         UIUtils.enableAntialiasing(g2);
 
-        int panelW = getWidth();
-        int panelH = getHeight();
-        int topOffset = 38; // Dưới header
-        int chartH = panelH - topOffset - 35; // Chừa chỗ cho nhãn trục X
-        int chartW = panelW - 90; // Chừa chỗ cho trục Y và lề phải
-        int chartX = 75;
-        int chartY = topOffset + 10;
+        try {
+            int panelW = getWidth();
+            int panelH = getHeight();
+            int topOffset = 38; // Dưới header
+            int chartH = panelH - topOffset - 35; // Chừa chỗ cho nhãn trục X
+            int chartW = panelW - 90; // Chừa chỗ cho trục Y và lề phải
+            int chartX = 75;
+            int chartY = topOffset + 10;
 
-        barBounds.clear();
-        barTooltips.clear();
+            barBounds.clear();
+            barTooltips.clear();
 
-        if (chartW <= 50 || chartH <= 50) {
+            if (chartW <= 50 || chartH <= 50) {
+                return;
+            }
+
+            // 1. Vẽ nền biểu đồ
+            g2.setColor(new Color(248, 250, 252));
+            g2.fillRoundRect(chartX - 10, chartY - 5, chartW + 20, chartH + 10, 10, 10);
+            g2.setColor(new Color(226, 232, 240));
+            g2.drawRoundRect(chartX - 10, chartY - 5, chartW + 20, chartH + 10, 10, 10);
+
+            // 2. Xác định giá trị cực đại để chia tỷ lệ trục Y
+            double maxVal = 100_000.0;
+            if (currentMode == ChartMode.BY_CATEGORY) {
+                for (double v : categoryRevenue.values()) {
+                    if (v > maxVal) maxVal = v;
+                }
+            } else {
+                for (double v : dailyRevenue.values()) {
+                    if (v > maxVal) maxVal = v;
+                }
+            }
+
+            // Làm tròn mốc maxVal lên mức dễ nhìn (bội số đẹp)
+            maxVal = roundNiceMax(maxVal);
+
+            // 3. Vẽ các đường lưới ngang (Grid lines) & Nhãn trục Y
+            int gridSteps = 4;
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            for (int i = 0; i <= gridSteps; i++) {
+                double levelVal = maxVal * i / gridSteps;
+                int yPos = chartY + chartH - (int) (chartH * (i / (double) gridSteps));
+
+                // Đường lưới nét đứt mờ
+                g2.setColor(new Color(230, 235, 243));
+                g2.drawLine(chartX, yPos, chartX + chartW, yPos);
+
+                // Nhãn số tiền trục Y
+                g2.setColor(UIUtils.SLATE_TEXT);
+                String yLabel = formatCompact(levelVal);
+                FontMetrics fm = g2.getFontMetrics();
+                int strW = fm.stringWidth(yLabel);
+                g2.drawString(yLabel, chartX - strW - 10, yPos + 4);
+            }
+
+            // 4. Vẽ các cột dữ liệu (Bars)
+            if (currentMode == ChartMode.BY_CATEGORY) {
+                drawCategoryBars(g2, chartX, chartY, chartW, chartH, maxVal);
+            } else {
+                drawDailyBars(g2, chartX, chartY, chartW, chartH, maxVal);
+            }
+
+            // 5. Vẽ Tooltip Card khi hover
+            if (hoveredBarIndex >= 0 && hoveredBarIndex < barTooltips.size() && mousePoint != null) {
+                drawTooltipCard(g2, barTooltips.get(hoveredBarIndex), mousePoint.x, mousePoint.y, panelW, panelH);
+            }
+        } catch (Exception ex) {
+            System.err.println("Lỗi vẽ biểu đồ: " + ex.getMessage());
+        } finally {
             g2.dispose();
-            return;
         }
-
-        // 1. Vẽ nền biểu đồ
-        g2.setColor(new Color(248, 250, 252));
-        g2.fillRoundRect(chartX - 10, chartY - 5, chartW + 20, chartH + 10, 10, 10);
-        g2.setColor(new Color(226, 232, 240));
-        g2.drawRoundRect(chartX - 10, chartY - 5, chartW + 20, chartH + 10, 10, 10);
-
-        // 2. Xác định giá trị cực đại để chia tỷ lệ trục Y
-        double maxVal = 100_000.0;
-        if (currentMode == ChartMode.BY_CATEGORY) {
-            for (double v : categoryRevenue.values()) {
-                if (v > maxVal) maxVal = v;
-            }
-        } else {
-            for (double v : dailyRevenue.values()) {
-                if (v > maxVal) maxVal = v;
-            }
-        }
-
-        // Làm tròn mốc maxVal lên mức dễ nhìn (bội số đẹp)
-        maxVal = roundNiceMax(maxVal);
-
-        // 3. Vẽ các đường lưới ngang (Grid lines) & Nhãn trục Y
-        int gridSteps = 4;
-        g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        for (int i = 0; i <= gridSteps; i++) {
-            double levelVal = maxVal * i / gridSteps;
-            int yPos = chartY + chartH - (int) (chartH * (i / (double) gridSteps));
-
-            // Đường lưới nét đứt mờ
-            g2.setColor(new Color(230, 235, 243));
-            g2.drawLine(chartX, yPos, chartX + chartW, yPos);
-
-            // Nhãn số tiền trục Y
-            g2.setColor(UIUtils.SLATE_TEXT);
-            String yLabel = formatCompact(levelVal);
-            FontMetrics fm = g2.getFontMetrics();
-            int strW = fm.stringWidth(yLabel);
-            g2.drawString(yLabel, chartX - strW - 10, yPos + 4);
-        }
-
-        // 4. Vẽ các cột dữ liệu (Bars)
-        if (currentMode == ChartMode.BY_CATEGORY) {
-            drawCategoryBars(g2, chartX, chartY, chartW, chartH, maxVal);
-        } else {
-            drawDailyBars(g2, chartX, chartY, chartW, chartH, maxVal);
-        }
-
-        // 5. Vẽ Tooltip Card khi hover
-        if (hoveredBarIndex >= 0 && hoveredBarIndex < barTooltips.size() && mousePoint != null) {
-            drawTooltipCard(g2, barTooltips.get(hoveredBarIndex), mousePoint.x, mousePoint.y, panelW, panelH);
-        }
-
-        g2.dispose();
     }
 
     private void drawCategoryBars(Graphics2D g2, int chartX, int chartY, int chartW, int chartH, double maxVal) {
@@ -276,12 +279,18 @@ public class RevenueChartPanel extends JPanel {
         Color[] gradTop = {
                 new Color(59, 130, 246),  // Xanh dương Thực phẩm
                 new Color(16, 185, 129),  // Xanh lục Đồ uống
-                new Color(168, 85, 247)   // Tím Điện tử
+                new Color(168, 85, 247),  // Tím Điện tử
+                new Color(245, 158, 11),  // Vàng cam Hàng tiêu dùng (Amber)
+                new Color(236, 72, 153),  // Hồng (Pink)
+                new Color(14, 165, 233)   // Xanh biển (Sky)
         };
         Color[] gradBot = {
                 new Color(29, 78, 216),
                 new Color(5, 150, 105),
-                new Color(126, 34, 206)
+                new Color(126, 34, 206),
+                new Color(180, 83, 9),
+                new Color(190, 24, 93),
+                new Color(3, 105, 161)
         };
 
         for (int i = 0; i < n; i++) {
@@ -306,8 +315,10 @@ public class RevenueChartPanel extends JPanel {
             boolean isHover = (hoveredBarIndex == i);
 
             // Vẽ thanh cột Gradient
-            GradientPaint gp = new GradientPaint(bX, bY, isHover ? gradTop[i].brighter() : gradTop[i],
-                    bX, bY + bH, isHover ? gradBot[i].brighter() : gradBot[i]);
+            Color topC = gradTop[i % gradTop.length];
+            Color botC = gradBot[i % gradBot.length];
+            GradientPaint gp = new GradientPaint(bX, bY, isHover ? topC.brighter() : topC,
+                    bX, bY + bH, isHover ? botC.brighter() : botC);
             g2.setPaint(gp);
             g2.fillRoundRect(bX, bY, barW, bH, 8, 8);
 
