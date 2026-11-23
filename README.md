@@ -97,24 +97,31 @@ Hệ thống được bảo mật và phân chia vai trò rõ ràng ngay từ M�
 
 ---
 
-## 🎓 CẨM NANG BẢO VỆ ĐỒ ÁN TRƯỚC HỘI ĐỒNG (FAQ & LUẬN ĐIỂM)
+## 🏛️ GIẢI TRÌNH CÁC QUYẾT ĐỊNH THIẾT KẾ KIẾN TRÚC OOP (DESIGN RATIONALE)
 
-### ❓ Câu 1: "Tại sao lại áp dụng Đa hình (Polymorphism) cho `calculateProfit()`? Bình thường Lợi nhuận = Giá bán - Giá nhập là xong rồi mà?"
-> **Trả lời thuyết phục:**
-> *"Thưa Thầy/Cô, trong thực tế quản trị siêu thị mini, mỗi ngành hàng chịu các chi phí rủi ro và đặc thù vận hành hoàn toàn khác nhau. Nếu chỉ tính thô Giá bán - Giá nhập thì báo cáo tài chính sẽ bị ảo và không chính xác:*
-> 1. *Với **Thực phẩm (FoodProduct):** Chịu chi phí hao hụt tự nhiên và bảo quản mát (trừ 5%). Đặc biệt khi hàng cận date ($\le$ 7 ngày), siêu thị bắt buộc giảm giá 20% để kích cầu xả hàng, tránh việc hết hạn phải tiêu hủy toàn bộ.*
-> 2. *Với **Đồ uống (BeverageProduct):** Chịu chi phí lưu kho cồng kềnh và vận chuyển két/thùng nặng (trừ 3%). Nếu là bia/rượu có cồn, siêu thị phải trích nộp 10% Thuế tiêu thụ đặc biệt.*
-> 3. *Với **Đồ điện gia dụng (ElectronicProduct):** Siêu thị chịu trách nhiệm bảo hành đổi trả, nên bắt buộc trích lập 10% Quỹ dự phòng bảo hành và dịch vụ hậu mãi.*
-> *Do đó, việc dùng phương thức trừu tượng và ghi đè đa hình `calculateProfit()` ở từng lớp con phản ánh trung thực bài toán kinh doanh thực tế."*
+### 1. Áp dụng Đa hình (Polymorphism) cho phương thức `calculateProfit()`
+* **Vấn đề đặt ra:** Thay vì áp dụng công thức thô `Lợi nhuận = Giá bán - Giá nhập` trên lớp cơ sở `Product`, tại sao hệ thống lại định nghĩa `calculateProfit()` là phương thức trừu tượng (`abstract`) và yêu cầu từng lớp con ghi đè (`override`)?
+* **Cơ sở thiết kế & Nghiệp vụ thực tế:**
+  Trong thực tế vận hành siêu thị mini, mỗi ngành hàng chịu chi phí rủi ro và đặc thù kế toán hoàn toàn khác nhau. Việc tính lợi nhuận thô sẽ làm sai lệch nghiêm trọng báo cáo tài chính và hiệu quả kinh doanh:
+  1. **Thực phẩm (`FoodProduct`):** Phải gánh chịu chi phí hao hụt tự nhiên và chi phí điện năng bảo quản mát (trừ 5% doanh thu). Đặc biệt, khi thực phẩm cận hạn sử dụng (dưới 7 ngày), hệ thống tự động áp dụng chính sách chiết khấu 20% để kích cầu xả hàng, giảm thiểu tổn thất phải tiêu hủy toàn bộ.
+  2. **Đồ uống (`BeverageProduct`):** Chịu chi phí lưu kho cồng kềnh và chi phí bốc dỡ/vận chuyển két, thùng nặng (trừ 3% doanh thu). Đối với các sản phẩm đồ uống có cồn (bia, rượu), hệ thống trích nộp 10% thuế tiêu thụ đặc biệt theo luật định.
+  3. **Đồ điện gia dụng (`ElectronicProduct`):** Doanh nghiệp phải chịu trách nhiệm bảo hành kỹ thuật 12–24 tháng, do đó hệ thống tự động trích lập 10% doanh thu vào Quỹ dự phòng bảo hành và dịch vụ sau bán hàng.
+* **Kết luận OOP:** Phương thức đa hình `calculateProfit()` giúp mã nguồn tuân thủ nguyên lý **Open/Closed Principle (OCP)**: Khi mở rộng thêm ngành hàng mới (ví dụ: `StationeryProduct`), hệ thống chỉ cần thêm lớp mới mà không cần chỉnh sửa logic tính toán lợi nhuận tại các Service hay Controller.
 
-### ❓ Câu 2: "Tại sao dùng Kế thừa Customer $\rightarrow$ Regular / VIP? Ngoài đời khách đủ điểm lên VIP thì Java làm sao đổi object từ Regular sang VIP?"
-> **Trả lời thuyết phục (Rất được hội đồng đánh giá cao):**
-> *"Thưa Thầy/Cô, trong phạm vi đồ án môn học OOP, nhóm em sử dụng Kế thừa để minh họa trực quan mối quan hệ 'is-a' giữa Customer và hai nhóm đối tượng có hành vi chiết khấu khác nhau (`RegularCustomer` 0%, `VIPCustomer` 5%). Khi khách đạt mốc 5.000.000 đ, hệ thống khởi tạo đối tượng `VIPCustomer` mới mang toàn bộ thông tin lịch sử và thay thế vào Repository.*
-> 
-> *Tuy nhiên, nhóm nhận thức rõ **hạn chế của việc dùng Kế thừa ở đây**: Trong Java, một object không thể tự đột biến kiểu (dynamic class mutation) trong runtime.*
-> *Nếu nâng cấp lên quy mô dự án thực tế lớn (Enterprise), hướng giải quyết chuẩn là áp dụng **Strategy Pattern** hoặc **State Pattern** (Composition over Inheritance):*
-> *Lớp `Customer` sẽ chứa một thuộc tính `MembershipStrategy`. Khi đủ điều kiện, ta chỉ cần gọi `customer.setMembershipStrategy(new VIPStrategy())`. Đối tượng khách hàng giữ nguyên tham chiếu duy nhất mà hành vi tính chiết khấu vẫn hoàn toàn đa hình và linh hoạt."*
+---
 
-### ❓ Câu 3: "Khi lưu hóa đơn xuống `invoices.csv`, bạn lưu giá bán lúc đó hay chỉ lưu mã sản phẩm?"
-> **Trả lời:**
-> *"Hệ thống của nhóm **chốt cứng đơn giá bán tại thời điểm giao dịch (Snapshot Price)** vào file `invoices.csv` theo định dạng `MãSP#TênSP#SốLượng#ĐơnGiáLúcBán`. Tuyệt đối không chỉ lưu mã SP rồi móc nối động với bảng giá hiện tại, vì giá bán trên kệ sẽ biến động trong tương lai, nếu móc nối động thì tổng tiền hóa đơn cũ trong quá khứ sẽ bị sai lệch hoàn toàn."*
+### 2. Mô hình hóa Khách hàng: Kế thừa (Inheritance) & Định hướng mở rộng với Strategy Pattern
+* **Vấn đề đặt ra:** Mối quan hệ giữa `Customer`, `RegularCustomer` và `VIPCustomer` được hiện thực hóa như thế nào khi phát sinh nghiệp vụ nâng hạng thành viên trong runtime?
+* **Phân tích thiết kế:**
+  * **Trong phạm vi đồ án học phần:** Sử dụng **Kế thừa (Inheritance)** nhằm mô hình hóa trực quan mối quan hệ *"is-a"* giữa khách hàng thông thường và các chính sách ưu đãi khác nhau (`RegularCustomer` hưởng 0% chiết khấu, `VIPCustomer` hưởng 5% chiết khấu tự động trên hóa đơn). Khi tích lũy doanh số đạt ngưỡng 5.000.000 đ, hệ thống chuyển giao trạng thái bằng cách khởi tạo phiên bản `VIPCustomer` kế thừa toàn bộ lịch sử chi tiêu và cập nhật vào `CustomerRepository`.
+  * **Định hướng kiến trúc nâng cao (Enterprise Architecture):** Trong môi trường sản xuất quy mô lớn, việc ép kiểu hoặc khởi tạo lại đối tượng có thể gây đứt gãy tham chiếu (Broken References). Nhóm đã nghiên cứu giải pháp tối ưu theo nguyên lý **Composition over Inheritance**:
+    * Sử dụng **Strategy Pattern**: Lớp `Customer` sẽ đóng vai trò ngữ cảnh (Context) chứa một thuộc tính `MembershipDiscountStrategy`.
+    * Khi khách hàng đủ điều kiện nâng hạng, hệ thống chỉ cần cập nhật chiến lược chiết khấu: `customer.setDiscountStrategy(new VIPDiscountStrategy())`. Nhờ đó, đối tượng `Customer` giữ nguyên danh tính duy nhất (Identity) mà hành vi tính toán chiết khấu vẫn biến đổi linh hoạt và mở rộng không giới hạn (như thêm hạng Vàng, Kim Cương).
+
+---
+
+### 3. Chiến lược lưu vết đơn giá (Snapshot Pricing Pattern) trong Hóa đơn
+* **Vấn đề đặt ra:** Khi lưu trữ chi tiết dòng hàng trong hóa đơn (`invoices.csv`), hệ thống lưu trữ mã sản phẩm hay chốt đơn giá bán tại thời điểm lập hóa đơn?
+* **Cơ sở thiết kế:**
+  * Hệ thống áp dụng **Snapshot Pricing Pattern**: Mỗi dòng sản phẩm trong hóa đơn được lưu trữ độc lập theo cấu trúc: `MãSP#TênSP#SốLượng#ĐơnGiáLúcBán`.
+  * **Lý do bảo đảm toàn vẹn dữ liệu:** Giá niêm yết của sản phẩm trên kệ luôn biến động theo thời gian (do trượt giá lạm phát, điều chỉnh giá nhà cung cấp hoặc chương trình khuyến mãi). Nếu hóa đơn chỉ lưu mã sản phẩm rồi truy vấn động giá từ bảng `products.csv`, tổng giá trị và doanh thu của các hóa đơn cũ trong quá khứ sẽ bị sai lệch hoàn toàn. Việc lưu Snapshot Price bảo đảm tính bất biến (**Immutability**) và tính toàn vẹn của chứng từ tài chính kế toán.
