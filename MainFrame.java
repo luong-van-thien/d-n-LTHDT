@@ -425,4 +425,8 @@ public class MainFrame extends JFrame {
         menuBar.add(menuHelp);
         return menuBar;
     }
+
+    public static void main(String[] args) {
+        MainApp.main(args);
+    }
 }
