@@ -8,4 +8,4 @@ if %errorlevel% neq 0 (
     exit /b %errorlevel%
 )
 echo Đang khởi chạy Hệ Thống Quản Lý MiniMart...
-java MainApp
+java -Dfile.encoding=UTF-8 MainApp
