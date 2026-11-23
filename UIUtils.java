@@ -529,6 +529,10 @@ public class UIUtils {
      * - Hỗ trợ hủy chọn dòng khi bấm lại lần 2 (Toggle Selection).
      */
     public static JTable createCustomTable(TableModel model) {
+        return createCustomTable(model, null, null);
+    }
+
+    public static JTable createCustomTable(TableModel model, String emptyTitle, String emptySubtitle) {
         JTable table = new JTable(model) {
             private int lastSelectedRow = -1;
             private long lastClickTime = 0;
@@ -550,6 +554,26 @@ public class UIUtils {
                 }
                 lastSelectedRow = rowIndex;
                 lastClickTime = now;
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                if (getRowCount() == 0 && emptyTitle != null) {
+                    Graphics2D g2 = (Graphics2D) g.create();
+                    enableAntialiasing(g2);
+                    g2.setColor(new Color(148, 163, 184));
+                    g2.setFont(new Font("Segoe UI", Font.BOLD, 13));
+                    int w1 = g2.getFontMetrics().stringWidth(emptyTitle);
+                    g2.drawString(emptyTitle, (getWidth() - w1) / 2, getHeight() / 2 - 10);
+
+                    if (emptySubtitle != null) {
+                        g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+                        int w2 = g2.getFontMetrics().stringWidth(emptySubtitle);
+                        g2.drawString(emptySubtitle, (getWidth() - w2) / 2, getHeight() / 2 + 12);
+                    }
+                    g2.dispose();
+                }
             }
         };
 

@@ -16,6 +16,7 @@ public class PosPanel extends JPanel {
     private DefaultTableModel modelAvailableProducts;
     private JTextField txtSearchProduct;
     private JComboBox<String> cboCategoryFilter;
+    private JButton[] categoryChips;
     private JSpinner spinQuantity;
     private JButton btnAddToCart;
 
@@ -68,34 +69,39 @@ public class PosPanel extends JPanel {
         // Tiêu đề khối
         leftPanel.add(UIUtils.createSectionHeader("1. CHỌN SẢN PHẨM BÁN", "Nhấp đúp vào sản phẩm để thêm nhanh vào giỏ", UIUtils.VectorIcons.box(18, UIUtils.PRIMARY_COLOR)), BorderLayout.NORTH);
 
-        // Thanh tìm kiếm và lọc danh mục
+        // Thanh tìm kiếm và chip lọc danh mục
         JPanel leftTop = new JPanel(new GridLayout(2, 1, 4, 6));
         leftTop.setOpaque(false);
         leftTop.setBorder(BorderFactory.createEmptyBorder(0, 0, 6, 0));
 
         JPanel searchRow = new JPanel(new BorderLayout(8, 0));
         searchRow.setOpaque(false);
-        JLabel lblSearch = new JLabel("Tìm SP:");
+        JLabel lblSearch = new JLabel("Tìm [F1]:");
         lblSearch.setFont(UIUtils.SMALL_BOLD);
         lblSearch.setForeground(UIUtils.NAVY_SLATE);
         searchRow.add(lblSearch, BorderLayout.WEST);
 
         txtSearchProduct = new JTextField();
         UIUtils.styleTextField(txtSearchProduct);
-        txtSearchProduct.setToolTipText("Gõ mã hoặc tên sản phẩm...");
+        txtSearchProduct.setToolTipText("Gõ tên sản phẩm hoặc quét mã vạch (Barcode Scanner)... [F1] / [F2]");
         searchRow.add(txtSearchProduct, BorderLayout.CENTER);
         leftTop.add(searchRow);
 
-        JPanel filterRow = new JPanel(new BorderLayout(8, 0));
+        // Hàng chip lọc nhanh danh mục
+        JPanel filterRow = new JPanel(new GridLayout(1, 4, 4, 0));
         filterRow.setOpaque(false);
-        JLabel lblCat = new JLabel("Nhóm:  ");
-        lblCat.setFont(UIUtils.SMALL_BOLD);
-        lblCat.setForeground(UIUtils.NAVY_SLATE);
-        filterRow.add(lblCat, BorderLayout.WEST);
 
         cboCategoryFilter = new JComboBox<>(new String[]{"-- Tất cả --", "Thực phẩm", "Đồ uống", "Đồ điện gia dụng"});
-        UIUtils.styleComboBox(cboCategoryFilter);
-        filterRow.add(cboCategoryFilter, BorderLayout.CENTER);
+
+        categoryChips = new JButton[4];
+        categoryChips[0] = createCategoryChip("Tất cả", 0);
+        categoryChips[1] = createCategoryChip("🍜 Thực phẩm", 1);
+        categoryChips[2] = createCategoryChip("🧃 Đồ uống", 2);
+        categoryChips[3] = createCategoryChip("⚡ Gia dụng", 3);
+
+        for (JButton chip : categoryChips) {
+            filterRow.add(chip);
+        }
         leftTop.add(filterRow);
 
         JPanel leftCenter = new JPanel(new BorderLayout(0, 6));
@@ -108,7 +114,7 @@ public class PosPanel extends JPanel {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
         };
-        tblAvailableProducts = UIUtils.createCustomTable(modelAvailableProducts);
+        tblAvailableProducts = UIUtils.createCustomTable(modelAvailableProducts, "📦 Không tìm thấy sản phẩm", "Thử gõ từ khóa khác hoặc bấm Tất cả để xem lại kho");
         tblAvailableProducts.getColumnModel().getColumn(0).setPreferredWidth(65);
         tblAvailableProducts.getColumnModel().getColumn(1).setPreferredWidth(200);
         tblAvailableProducts.getColumnModel().getColumn(2).setPreferredWidth(90);
@@ -158,7 +164,7 @@ public class PosPanel extends JPanel {
             @Override
             public boolean isCellEditable(int row, int col) { return false; }
         };
-        tblCart = UIUtils.createCustomTable(modelCart);
+        tblCart = UIUtils.createCustomTable(modelCart, "🛒 Giỏ hàng đang trống", "Nhấp đúp chuột vào SP bên trái hoặc quét mã vạch (F2) để thêm món");
         tblCart.getColumnModel().getColumn(0).setPreferredWidth(65);
         tblCart.getColumnModel().getColumn(1).setPreferredWidth(180);
         tblCart.getColumnModel().getColumn(2).setPreferredWidth(90);
@@ -194,15 +200,15 @@ public class PosPanel extends JPanel {
         summaryBar.add(lblCartSummary);
         centerBottom.add(summaryBar, BorderLayout.NORTH);
 
-        // Hàng nút thao tác giỏ hàng
+        // Hàng nút thao tác giỏ hàng kèm phím tắt
         JPanel cartActions = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         cartActions.setOpaque(false);
 
-        btnIncreaseQty = UIUtils.createStyledButton("+1 SL", UIUtils.PRIMARY_COLOR, Color.WHITE);
-        btnDecreaseQty = UIUtils.createStyledButton("-1 SL", UIUtils.GRAY_COLOR, Color.WHITE);
-        btnRemoveFromCart = UIUtils.createStyledButton("Xóa món", UIUtils.DANGER_COLOR, Color.WHITE);
+        btnIncreaseQty = UIUtils.createStyledButton("[+] Tăng", UIUtils.PRIMARY_COLOR, Color.WHITE);
+        btnDecreaseQty = UIUtils.createStyledButton("[-] Giảm", UIUtils.GRAY_COLOR, Color.WHITE);
+        btnRemoveFromCart = UIUtils.createStyledButton("[Del] Xóa", UIUtils.DANGER_COLOR, Color.WHITE);
         btnClearCart = UIUtils.createStyledButton("Làm trống", new Color(108, 117, 125), Color.WHITE);
-        btnHoldBill = UIUtils.createStyledButton("Treo đơn", UIUtils.WARNING_COLOR, Color.WHITE);
+        btnHoldBill = UIUtils.createStyledButton("[F9] Treo đơn", UIUtils.WARNING_COLOR, Color.WHITE);
         btnResumeBill = UIUtils.createStyledButton("Mở đơn treo (0)", new Color(13, 110, 253), Color.WHITE);
 
         cartActions.add(btnIncreaseQty);
@@ -252,8 +258,8 @@ public class PosPanel extends JPanel {
 
         btnNewCustomer = UIUtils.createStyledButton("+ Thêm", UIUtils.PRIMARY_COLOR, Color.WHITE);
         btnNewCustomer.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnNewCustomer.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
-        btnNewCustomer.setPreferredSize(new Dimension(92, 32));
+        btnNewCustomer.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+        btnNewCustomer.setPreferredSize(new Dimension(96, 32));
         custRow1.add(btnNewCustomer, BorderLayout.EAST);
         cardCustomer.add(custRow1);
         cardCustomer.add(Box.createVerticalStrut(6));
@@ -386,11 +392,11 @@ public class PosPanel extends JPanel {
         bottomActions.setOpaque(false);
         bottomActions.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 0));
 
-        btnCheckout = UIUtils.createStyledButton("THANH TOÁN & IN HÓA ĐƠN", UIUtils.VectorIcons.receipt(18, Color.WHITE), UIUtils.SUCCESS_COLOR, Color.WHITE);
+        btnCheckout = UIUtils.createStyledButton("[F4] THANH TOÁN & IN HÓA ĐƠN", UIUtils.VectorIcons.receipt(18, Color.WHITE), UIUtils.SUCCESS_COLOR, Color.WHITE);
         btnCheckout.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btnCheckout.setPreferredSize(new Dimension(0, 46));
 
-        btnCancelOrder = UIUtils.createStyledButton("Làm mới quầy / Hủy đơn", UIUtils.VectorIcons.refresh(14, Color.WHITE), UIUtils.GRAY_COLOR, Color.WHITE);
+        btnCancelOrder = UIUtils.createStyledButton("[F10] Làm mới quầy / Hủy đơn", UIUtils.VectorIcons.refresh(14, Color.WHITE), UIUtils.GRAY_COLOR, Color.WHITE);
         btnCancelOrder.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCancelOrder.setPreferredSize(new Dimension(0, 32));
 
@@ -422,6 +428,54 @@ public class PosPanel extends JPanel {
         row.add(leftComp, BorderLayout.WEST);
         row.add(rightComp, BorderLayout.EAST);
         return row;
+    }
+
+    private JButton createCategoryChip(String text, int index) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(index == 0 ? UIUtils.PRIMARY_COLOR : UIUtils.BORDER_DARK, 1),
+                BorderFactory.createEmptyBorder(4, 4, 4, 4)
+        ));
+        if (index == 0) {
+            btn.setBackground(UIUtils.PRIMARY_COLOR);
+            btn.setForeground(Color.WHITE);
+        } else {
+            btn.setBackground(Color.WHITE);
+            btn.setForeground(UIUtils.NAVY_SLATE);
+        }
+
+        btn.addActionListener(e -> selectCategoryChip(index));
+        return btn;
+    }
+
+    public void selectCategoryChip(int index) {
+        if (categoryChips != null) {
+            for (int i = 0; i < categoryChips.length; i++) {
+                if (categoryChips[i] != null) {
+                    if (i == index) {
+                        categoryChips[i].setBackground(UIUtils.PRIMARY_COLOR);
+                        categoryChips[i].setForeground(Color.WHITE);
+                        categoryChips[i].setBorder(BorderFactory.createCompoundBorder(
+                                BorderFactory.createLineBorder(UIUtils.PRIMARY_COLOR, 1),
+                                BorderFactory.createEmptyBorder(4, 4, 4, 4)
+                        ));
+                    } else {
+                        categoryChips[i].setBackground(Color.WHITE);
+                        categoryChips[i].setForeground(UIUtils.NAVY_SLATE);
+                        categoryChips[i].setBorder(BorderFactory.createCompoundBorder(
+                                BorderFactory.createLineBorder(UIUtils.BORDER_DARK, 1),
+                                BorderFactory.createEmptyBorder(4, 4, 4, 4)
+                        ));
+                    }
+                }
+            }
+        }
+        if (cboCategoryFilter != null && cboCategoryFilter.getSelectedIndex() != index) {
+            cboCategoryFilter.setSelectedIndex(index);
+        }
     }
 
     private JButton createQuickCashBtn(String text) {

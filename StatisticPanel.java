@@ -28,7 +28,13 @@ public class StatisticPanel extends JPanel {
     private JLabel lblTotalInvoices;
     private JLabel lblTotalInventory;
 
-    // Center Tables
+    // Center Tables & Charts
+    private RevenueChartPanel revenueChartPanel;
+    private JPanel pnlCategoryContent;
+    private CardLayout categoryCardLayout;
+    private JButton btnViewChart;
+    private JButton btnViewTable;
+
     private JTable tblCategorySummary;
     private DefaultTableModel modelCategorySummary;
     private JTable tblAlerts;
@@ -115,12 +121,65 @@ public class StatisticPanel extends JPanel {
         // =========================================================================
         JPanel centerGrid = new JPanel(new GridLayout(1, 2, 12, 0));
         centerGrid.setOpaque(false);
-        centerGrid.setPreferredSize(new Dimension(0, 230));
+        centerGrid.setPreferredSize(new Dimension(0, 260));
 
-        // 2A. BẢNG CƠ CẤU DANH MỤC HÀNG HÓA
+        // 2A. KHỐI TRỰC QUAN DOANH THU & CƠ CẤU DANH MỤC HÀNG HÓA (CARD SWITCHER)
         JPanel pnlCategory = UIUtils.createCardPanel(new BorderLayout(0, 8));
-        pnlCategory.add(UIUtils.createSectionHeader("CƠ CẤU HÀNG HÓA THEO DANH MỤC", "Tổng hợp số loại, lượng hàng và định giá vốn", UIUtils.VectorIcons.box(18, UIUtils.PRIMARY_COLOR)), BorderLayout.NORTH);
 
+        // Thanh Header của khối có nút chuyển Biểu đồ / Bảng số liệu
+        JPanel pnlCatHeader = new JPanel(new BorderLayout(8, 0));
+        pnlCatHeader.setOpaque(false);
+
+        JPanel pnlCatTitle = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+        pnlCatTitle.setOpaque(false);
+        JLabel lblCatIcon = new JLabel(UIUtils.VectorIcons.chart(18, UIUtils.PRIMARY_COLOR));
+        JLabel lblCatHeader = new JLabel("DOANH THU & CƠ CẤU HÀNG HÓA");
+        lblCatHeader.setFont(UIUtils.HEADER_FONT);
+        lblCatHeader.setForeground(UIUtils.NAVY_SLATE);
+        pnlCatTitle.add(lblCatIcon);
+        pnlCatTitle.add(lblCatHeader);
+        pnlCatHeader.add(pnlCatTitle, BorderLayout.WEST);
+
+        JPanel pnlCatSwitch = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
+        pnlCatSwitch.setOpaque(false);
+
+        btnViewChart = new JButton("Biểu đồ");
+        btnViewChart.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btnViewChart.setFocusPainted(false);
+        btnViewChart.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnViewChart.setBackground(UIUtils.PRIMARY_COLOR);
+        btnViewChart.setForeground(Color.WHITE);
+        btnViewChart.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIUtils.PRIMARY_COLOR, 1),
+                BorderFactory.createEmptyBorder(4, 10, 4, 10)
+        ));
+
+        btnViewTable = new JButton("Bảng số liệu");
+        btnViewTable.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btnViewTable.setFocusPainted(false);
+        btnViewTable.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnViewTable.setBackground(Color.WHITE);
+        btnViewTable.setForeground(UIUtils.NAVY_SLATE);
+        btnViewTable.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIUtils.BORDER_DARK, 1),
+                BorderFactory.createEmptyBorder(4, 10, 4, 10)
+        ));
+
+        pnlCatSwitch.add(btnViewChart);
+        pnlCatSwitch.add(btnViewTable);
+        pnlCatHeader.add(pnlCatSwitch, BorderLayout.EAST);
+        pnlCategory.add(pnlCatHeader, BorderLayout.NORTH);
+
+        // Nội dung CardLayout: Card 1 là Biểu đồ đồ họa Graphics2D, Card 2 là Bảng số liệu
+        categoryCardLayout = new CardLayout();
+        pnlCategoryContent = new JPanel(categoryCardLayout);
+        pnlCategoryContent.setOpaque(false);
+
+        // Card 1: RevenueChartPanel
+        revenueChartPanel = new RevenueChartPanel();
+        pnlCategoryContent.add(revenueChartPanel, "CHART");
+
+        // Card 2: Table
         String[] catCols = {"Nhóm hàng", "Số mặt hàng", "Tổng tồn kho", "Tổng vốn tồn kho"};
         modelCategorySummary = new DefaultTableModel(catCols, 0) {
             @Override
@@ -139,8 +198,44 @@ public class StatisticPanel extends JPanel {
 
         JScrollPane scrollCat = new JScrollPane(tblCategorySummary);
         scrollCat.setBorder(BorderFactory.createLineBorder(UIUtils.BORDER_COLOR, 1));
-        pnlCategory.add(scrollCat, BorderLayout.CENTER);
         UIUtils.installSmartDeselection(tblCategorySummary, scrollCat);
+        pnlCategoryContent.add(scrollCat, "TABLE");
+
+        pnlCategory.add(pnlCategoryContent, BorderLayout.CENTER);
+
+        // Sự kiện chuyển đổi giữa Biểu đồ và Bảng
+        btnViewChart.addActionListener(e -> {
+            categoryCardLayout.show(pnlCategoryContent, "CHART");
+            btnViewChart.setBackground(UIUtils.PRIMARY_COLOR);
+            btnViewChart.setForeground(Color.WHITE);
+            btnViewChart.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(UIUtils.PRIMARY_COLOR, 1),
+                    BorderFactory.createEmptyBorder(4, 10, 4, 10)
+            ));
+            btnViewTable.setBackground(Color.WHITE);
+            btnViewTable.setForeground(UIUtils.NAVY_SLATE);
+            btnViewTable.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(UIUtils.BORDER_DARK, 1),
+                    BorderFactory.createEmptyBorder(4, 10, 4, 10)
+            ));
+        });
+
+        btnViewTable.addActionListener(e -> {
+            categoryCardLayout.show(pnlCategoryContent, "TABLE");
+            btnViewTable.setBackground(UIUtils.PRIMARY_COLOR);
+            btnViewTable.setForeground(Color.WHITE);
+            btnViewTable.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(UIUtils.PRIMARY_COLOR, 1),
+                    BorderFactory.createEmptyBorder(4, 10, 4, 10)
+            ));
+            btnViewChart.setBackground(Color.WHITE);
+            btnViewChart.setForeground(UIUtils.NAVY_SLATE);
+            btnViewChart.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(UIUtils.BORDER_DARK, 1),
+                    BorderFactory.createEmptyBorder(4, 10, 4, 10)
+            ));
+        });
+
         centerGrid.add(pnlCategory);
 
         // 2B. BẢNG CẢNH BÁO TỒN KHO & HẠN DÙNG
@@ -384,6 +479,11 @@ public class StatisticPanel extends JPanel {
         lblTotalProfit.setText(UIUtils.formatCurrency(profit));
         lblTotalInvoices.setText(String.valueOf(invoices));
         lblTotalInventory.setText(inventory + " sản phẩm");
+
+        // 0. Cập nhật Biểu đồ trực quan doanh thu
+        if (revenueChartPanel != null) {
+            revenueChartPanel.updateData(statisticService.getAllInvoices());
+        }
 
         // 1. Cập nhật bảng cơ cấu danh mục
         modelCategorySummary.setRowCount(0);

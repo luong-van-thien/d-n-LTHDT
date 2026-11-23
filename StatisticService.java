@@ -15,6 +15,14 @@ public class StatisticService {
         this.invoiceRepo = invoiceRepo;
     }
 
+    public InvoiceRepository getInvoiceRepo() {
+        return invoiceRepo;
+    }
+
+    public List<Invoice> getAllInvoices() {
+        return invoiceRepo.getAll();
+    }
+
     public List<Invoice> getFilteredInvoices(int timeMode) {
         LocalDate today = LocalDate.now();
         return invoiceRepo.getAll().stream()

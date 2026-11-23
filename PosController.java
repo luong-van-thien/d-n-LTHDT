@@ -136,6 +136,59 @@ public class PosController {
 
         // 8. Nút Thanh toán & In hóa đơn
         view.getBtnCheckout().addActionListener(e -> handleCheckout());
+
+        // 9. Đăng ký Phím tắt Toàn cục cho quầy POS (Hotkeys F1, F2, F4, F9, F10, Del)
+        registerHotkeys();
+    }
+
+    private void registerHotkeys() {
+        InputMap im = view.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap am = view.getActionMap();
+
+        im.put(KeyStroke.getKeyStroke("F1"), "pos_f1");
+        am.put("pos_f1", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                view.getTxtSearchProduct().requestFocusInWindow();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke("F2"), "pos_f2");
+        am.put("pos_f2", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                view.getTxtSearchProduct().requestFocusInWindow();
+                view.getTxtSearchProduct().selectAll();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke("F4"), "pos_f4");
+        am.put("pos_f4", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                handleCheckout();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke("F9"), "pos_f9");
+        am.put("pos_f9", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                handleHoldBill();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke("F10"), "pos_f10");
+        am.put("pos_f10", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                view.getBtnCancelOrder().doClick();
+            }
+        });
+
+        im.put(KeyStroke.getKeyStroke("DELETE"), "pos_del");
+        am.put("pos_del", new AbstractAction() {
+            @Override public void actionPerformed(java.awt.event.ActionEvent e) {
+                if (view.getTblCart().getSelectedRow() >= 0) {
+                    handleRemoveFromCart();
+                }
+            }
+        });
     }
 
     public void loadAvailableProducts() {
@@ -192,6 +245,7 @@ public class PosController {
             currentCart.add(new InvoiceItem(product, 1, product.getSellingPrice()));
         }
 
+        Toolkit.getDefaultToolkit().beep();
         view.updateCartTable(currentCart);
         recalculateSummary();
     }
@@ -238,6 +292,7 @@ public class PosController {
             currentCart.add(new InvoiceItem(product, 1, product.getSellingPrice()));
         }
 
+        Toolkit.getDefaultToolkit().beep();
         view.updateCartTable(currentCart);
         recalculateSummary();
     }
@@ -415,6 +470,7 @@ public class PosController {
             currentCart.add(new InvoiceItem(product, buyQty, product.getSellingPrice()));
         }
 
+        Toolkit.getDefaultToolkit().beep();
         view.updateCartTable(currentCart);
         recalculateSummary();
     }
@@ -450,20 +506,41 @@ public class PosController {
         view.getLblFinalAmount().setText(UIUtils.formatCurrency(currentFinalAmount));
 
         if (view.getTxtCashGiven().getText().isEmpty() || view.getTxtCashGiven().getText().equals("0")) {
-            view.getTxtCashGiven().setText(String.format("%.0f", currentFinalAmount));
+            view.getTxtCashGiven().setText(String.format(java.util.Locale.US, "%.0f", currentFinalAmount));
         }
 
         updateReturnCash();
     }
 
+    /**
+     * Bộ phân tích tiền mặt thông minh (Smart Cash Parser):
+     * Hỗ trợ số tiền thông thường (50000, 50.000, 50,000) và các định dạng viết tắt thu ngân:
+     * - 50k -> 50.000 VNĐ
+     * - 100k -> 100.000 VNĐ
+     * - 200k -> 200.000 VNĐ
+     * - 500k -> 500.000 VNĐ
+     * - 2tr / 2m -> 2.000.000 VNĐ
+     */
+    private double parseCashInput(String text) throws NumberFormatException {
+        if (text == null) throw new NumberFormatException("Null");
+        String raw = text.trim().toLowerCase().replace(",", "").replace(".", "").replace(" ", "");
+        if (raw.isEmpty()) throw new NumberFormatException("Empty");
+
+        if (raw.endsWith("k")) {
+            String numPart = raw.substring(0, raw.length() - 1);
+            return Double.parseDouble(numPart) * 1000;
+        } else if (raw.endsWith("tr") || raw.endsWith("m")) {
+            String numPart = raw.endsWith("tr") ? raw.substring(0, raw.length() - 2) : raw.substring(0, raw.length() - 1);
+            return Double.parseDouble(numPart) * 1000000;
+        }
+
+        return Double.parseDouble(raw);
+    }
+
     private void updateReturnCash() {
         try {
-            String text = view.getTxtCashGiven().getText().trim().replace(",", "").replace(".", "");
-            if (text.isEmpty()) {
-                view.getLblReturnCash().setText("0 đ");
-                return;
-            }
-            double cash = Double.parseDouble(text);
+            String text = view.getTxtCashGiven().getText();
+            double cash = parseCashInput(text);
             double change = cash - currentFinalAmount;
             if (change >= 0) {
                 view.getLblReturnCash().setText(UIUtils.formatCurrency(change));
@@ -473,7 +550,12 @@ public class PosController {
                 view.getLblReturnCash().setForeground(UIUtils.DANGER_COLOR);
             }
         } catch (NumberFormatException e) {
-            view.getLblReturnCash().setText("Nhập số!");
+            String t = view.getTxtCashGiven().getText().trim();
+            if (t.isEmpty()) {
+                view.getLblReturnCash().setText("0 đ");
+            } else {
+                view.getLblReturnCash().setText("Nhập số!");
+            }
         }
     }
 
@@ -536,13 +618,9 @@ public class PosController {
 
         double cashGiven;
         try {
-            String text = view.getTxtCashGiven().getText().trim().replace(",", "").replace(".", "");
-            if (text.isEmpty()) {
-                throw new NumberFormatException("Empty");
-            }
-            cashGiven = Double.parseDouble(text);
+            cashGiven = parseCashInput(view.getTxtCashGiven().getText());
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(view, "Vui lòng nhập số tiền khách đưa hợp lệ (chỉ nhập số nguyên, ví dụ: 50000)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(view, "Vui lòng nhập số tiền khách đưa hợp lệ (ví dụ: 50000 hoặc 50k)!", "Lỗi nhập liệu", JOptionPane.ERROR_MESSAGE);
             view.getTxtCashGiven().requestFocus();
             return;
         }

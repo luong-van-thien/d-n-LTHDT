@@ -29,6 +29,10 @@ public class MainFrame extends JFrame {
     private JTabbedPane tabbedPane;
     private JLabel lblUserName;
     private JLabel lblUserRoleBadge;
+    private JLabel lblStatusOperator;
+    private JLabel lblClock;
+    private JLabel lblRamUsage;
+    private javax.swing.Timer clockTimer;
     private User currentUser;
 
     public MainFrame() {
@@ -220,6 +224,74 @@ public class MainFrame extends JFrame {
         });
 
         add(tabbedPane, BorderLayout.CENTER);
+
+        // =========================================================================
+        // 3. ENTERPRISE STATUS BAR (CHÂN CỬA SỔ CHÍNH)
+        // =========================================================================
+        add(createStatusBar(), BorderLayout.SOUTH);
+    }
+
+    /**
+     * Tạo Thanh trạng thái chuyên nghiệp (Enterprise Status Bar):
+     * - Trạng thái hệ thống & thông tin người trực ca.
+     * - Danh mục các phím tắt nghiệp vụ quầy thu ngân (F1, F2, F4, F9, Del, F10).
+     * - Đồng hồ điện tử thời gian thực & Bộ giám sát tài nguyên bộ nhớ JVM RAM.
+     */
+    private JPanel createStatusBar() {
+        JPanel bar = new JPanel(new BorderLayout(15, 0));
+        bar.setBackground(new Color(248, 250, 252));
+        bar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, UIUtils.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(6, 18, 6, 18)
+        ));
+
+        // Bên trái: Trạng thái & Người vận hành
+        lblStatusOperator = new JLabel("<html><font color='#10B981'><b>● SẴN SÀNG</b></font> | Vận hành: <b>Đang tải...</b></html>");
+        lblStatusOperator.setFont(UIUtils.SMALL_FONT);
+        lblStatusOperator.setForeground(UIUtils.NAVY_SLATE);
+        bar.add(lblStatusOperator, BorderLayout.WEST);
+
+        // Ở giữa: Hướng dẫn phím tắt nghiệp vụ POS
+        JLabel lblHotkeys = new JLabel("<html><font color='#64748B'>Phím tắt:</font> " +
+                "<b>[F1]</b> Tìm SP | <b>[F2]</b> Barcode | <b>[F4]</b> Thanh toán | <b>[F9]</b> Treo đơn | <b>[Del]</b> Xóa món | <b>[F10]</b> Hủy đơn</html>", JLabel.CENTER);
+        lblHotkeys.setFont(UIUtils.SMALL_FONT);
+        lblHotkeys.setForeground(UIUtils.NAVY_SLATE);
+        bar.add(lblHotkeys, BorderLayout.CENTER);
+
+        // Bên phải: Đồng hồ điện tử thời gian thực & Bộ nhớ JVM
+        JPanel rightStatus = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        rightStatus.setOpaque(false);
+
+        lblRamUsage = new JLabel("JVM RAM: -- MB");
+        lblRamUsage.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblRamUsage.setForeground(UIUtils.SLATE_TEXT);
+        lblRamUsage.setToolTipText("Dung lượng bộ nhớ RAM Java Virtual Machine đang sử dụng");
+
+        lblClock = new JLabel("00:00:00  01/01/2026");
+        lblClock.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblClock.setForeground(UIUtils.PRIMARY_COLOR);
+
+        rightStatus.add(lblRamUsage);
+        rightStatus.add(new JSeparator(SwingConstants.VERTICAL));
+        rightStatus.add(lblClock);
+        bar.add(rightStatus, BorderLayout.EAST);
+
+        // Cập nhật đồng hồ và bộ nhớ mỗi giây
+        updateClockAndMemory();
+        clockTimer = new javax.swing.Timer(1000, e -> updateClockAndMemory());
+        clockTimer.start();
+
+        return bar;
+    }
+
+    private void updateClockAndMemory() {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        lblClock.setText(now.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss  dd/MM/yyyy")));
+
+        Runtime rt = Runtime.getRuntime();
+        long usedMb = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
+        long maxMb = rt.maxMemory() / (1024 * 1024);
+        lblRamUsage.setText(String.format("JVM RAM: %d MB / %d MB", usedMb, maxMb));
     }
 
     /**
@@ -230,9 +302,14 @@ public class MainFrame extends JFrame {
         this.currentUser = user;
         if (user == null) return;
 
-        // 1. Cập nhật User Chip trên Navbar
+        // 1. Cập nhật User Chip trên Navbar & Status Bar
         lblUserName.setText(user.getFullName());
         lblUserRoleBadge.setText(" " + user.getRole().getDisplayName() + " ");
+        if (lblStatusOperator != null) {
+            lblStatusOperator.setText(String.format(
+                    "<html><font color='#10B981'><b>● SẴN SÀNG</b></font> | Ca trực: <b>Ca chính</b> | Vận hành: <font color='#2563EB'><b>%s (%s)</b></font></html>",
+                    user.getFullName(), user.getRole().getDisplayName()));
+        }
 
         // 2. Phân quyền các Tab theo phương thức đa hình canAccessTab
         boolean canAccessWarehouse = user.canAccessTab(0);
